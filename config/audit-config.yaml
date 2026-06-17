@@ -1,128 +1,489 @@
-# audit-config.yaml
-# Arquivo de configuração do Auditor de E-commerce da Minimal.
-# Este é o ÚNICO arquivo que o operador edita — sem precisar tocar no código.
+# audit-config.yaml — Auditor Técnico da Minimal Club
+# Arquivo de configuração. O operador edita este arquivo — sem tocar no código.
 #
-# Como editar:
-#   - Para adicionar uma nova página crítica: copie um bloco de "critical_pages" e ajuste.
-#   - Para ajustar limiares: edite os valores em "thresholds".
-#   - Para adicionar um popup: copie um bloco de "popups" e ajuste o seletor.
-#   - Para adicionar um passo a um fluxo: copie um bloco de "steps" e ajuste.
+# COMO EDITAR (para não-programadores):
+#   Adicionar página crítica:   copie um bloco de "critical_pages" e ajuste name/url
+#   Ajustar limiar:             edite os valores em "thresholds"
+#   Habilitar/desabilitar item: mude "active: true" para "active: false"
+#   Adicionar URL ao fluxo:     copie um bloco de "steps" e ajuste com o dev
+#
+# SELETORES (marcados como "# VERIFICAR"):
+#   Os seletores CSS dependem do tema da loja. Antes da primeira execução,
+#   verificar cada seletor marcado com "# VERIFICAR" no DevTools do navegador.
 
 store:
-  base_url: "https://minimalclub.com.br"
+  base_url: "https://www.minimalclub.com.br"
   name: "Minimal Club"
 
-# Configurações globais de timeout (em milissegundos)
+# Timeouts em milissegundos
 timeouts:
-  navigation: 30000      # aguardar página carregar
-  element: 5000          # aguardar elemento aparecer/ser clicável
-  popup_delay: 4000      # aguardar popup disparar (após entrada na página)
+  navigation: 30000       # aguardar página carregar completamente
+  element: 5000           # aguardar elemento aparecer ou ser clicável
+  popup_delay: 4500       # aguardar popup Klaviyo (gatilho: 3s + margem de 1.5s)
 
-# Limiares de performance (em milissegundos, exceto CLS que é adimensional)
-# Uma checagem de métrica numérica falha quando o valor EXCEDE o limiar.
+# Limiares de performance — checagem falha quando EXCEDE o limiar
+# Contexto histórico da loja: CLS registrado entre 1.3–2.5; load até 50s
 thresholds:
-  load_time_ms: 5000     # tempo de carregamento (Navigation Timing)
-  lcp_ms: 4000           # Largest Contentful Paint
-  fid_ms: 300            # First Input Delay
-  cls: 0.25              # Cumulative Layout Shift (adimensional)
+  load_time_ms: 5000      # tempo de carregamento (Navigation Timing)
+  lcp_ms: 4000            # Largest Contentful Paint (Core Web Vital)
+  fid_ms: 300             # First Input Delay (Core Web Vital)
+  cls: 0.25               # Cumulative Layout Shift (adimensional; Google: >0.1 = ruim)
 
-# Páginas críticas — auditadas pela Camada B (saúde técnica)
-# Checagens executadas em cada página: HTTP status, JS errors, network failures, load time, LCP, CLS, FID
+# Páginas críticas — saúde técnica verificada em cada execução
+# Checagens: HTTP status, JS errors, requisições com falha, recursos não carregados,
+#            load time, LCP, CLS, FID (via Lighthouse)
+# NOTA: checkout.shopify.com (domínio nativo Shopify) pode ter limitações com Lighthouse.
+#       Nesse caso, apenas métricas do Playwright nativo são usadas para o checkout.
 critical_pages:
   - name: "Home"
-    url: "/"             # relativo ao base_url
+    url: "/"
     viewports: [desktop, mobile]
+    active: true
 
-  - name: "Coleção principal"
+  - name: "Coleção — Desconto Progressivo"
+    url: "/collections/desconto-progressivo-1"
+    viewports: [desktop, mobile]
+    active: true
+
+  - name: "Coleção — Todas"
     url: "/collections/all"
     viewports: [desktop, mobile]
+    active: true
 
-  - name: "Página de produto (exemplo)"
-    url: "/products/camiseta-basica"   # ajustar para URL real de produto ativo
+  - name: "Página de produto (referência)"
+    url: "/products/camiseta-basica"    # VERIFICAR: substituir por URL de produto sempre ativo
     viewports: [desktop, mobile]
+    active: true
 
   - name: "Carrinho"
     url: "/cart"
     viewports: [desktop, mobile]
+    active: true
 
-  - name: "Checkout"
+  - name: "Checkout (ponto de parada)"
     url: "/checkout"
     viewports: [desktop, mobile]
+    active: true
+    lighthouse_skip: true   # checkout.shopify.com — Lighthouse limitado; usar só Playwright
 
-# Popups conhecidos — verificados dentro dos fluxos da Camada A
-# Para cada popup: verificar se dispara, se fecha, se não bloqueia cliques
-popups:
-  - name: "Newsletter"
-    trigger: "page_load"           # dispara ao carregar a página
-    trigger_page: "/"
-    trigger_delay_ms: 3000         # aguardar N ms antes de verificar
-    container_selector: "#popup-newsletter"    # ajustar para seletor real
-    close_selector: "#popup-newsletter .close" # ajustar para seletor real
+  - name: "Login / Conta"
+    url: "/account/login"
     viewports: [desktop, mobile]
+    active: true
 
-  - name: "Banner de cookies"
+# Popups conhecidos — verificados pela engine de popup
+# IMPORTANTE: O popup Klaviyo é injetado de forma assíncrona (~3s após load).
+#   - O auditor sempre roda em contexto limpo (incognito) → sempre vê o popup de Lead
+#   - Aguardar "popup_delay" (config acima) antes de assertar
+#   - Modo agendado: verifica mecânica até ANTES do submit (não cria lead no Klaviyo)
+#   - Modo manual com contato designado: submit real (pendente alinhamento com Daniel/CRM)
+popups:
+  - name: "Popup de captura (Lead) — Klaviyo"
     trigger: "page_load"
     trigger_page: "/"
-    trigger_delay_ms: 1000
-    container_selector: "#cookies-banner"      # ajustar para seletor real
-    close_selector: "#cookies-accept"          # ajustar para seletor real
+    container_selector: ".klaviyo-form, [class*='klaviyo'], #popup-newsletter"   # VERIFICAR
+    close_selector: ".klaviyo-close-form, [aria-label*='Close'], .kl-close"      # VERIFICAR: botão branco à esquerda
+    email_field_selector: "input[type='email']"                                  # VERIFICAR
+    phone_field_selector: "input[type='tel'], input[type='phone']"               # VERIFICAR (etapa 2)
+    cta_selector: "button[type='submit'], .klaviyo-form button"                   # VERIFICAR
     viewports: [desktop, mobile]
+    active: true
+    checks:
+      - dispara_apos_delay: true          # popup aparece após o gatilho
+      - botao_fechar_visivel: true        # close button sempre visível (regra do playbook)
+      - fechar_funciona: true             # clicar no X remove o popup
+      - nao_bloqueia_scroll: true         # após fechar, scroll funciona
+      - nao_bloqueia_clique: true         # após fechar, cliques funcionam
+      - nao_dispara_no_checkout: true     # popup NÃO aparece na página de checkout
+      - nao_dispara_loop: true            # não reaparece na mesma sessão após fechar
 
-# Fluxos críticos — executados pela Camada A (verificação funcional)
-# Cada fluxo é uma sequência de passos que simula um comprador real.
-# "abort_on_failure: true" faz o fluxo parar no primeiro step que falhar.
+# Fluxos críticos — percorridos pela automação de navegador
+# Cada step tem uma "action" (o que fazer) e um "expect" (o que deve acontecer).
+# abort_on_failure: true → para no primeiro step que falhar (evita cascata de erros)
+# run_mode: always | manual_only
+#   always      → roda em execuções agendadas e manuais
+#   manual_only → só roda quando disparado explicitamente (ex: F5 que cria lead real)
+#
+# SOBRE SELETORES:
+#   Seletores marcados "# VERIFICAR" usam defaults do tema Dawn (Shopify).
+#   Se a loja usa tema customizado, inspecionar no DevTools e atualizar.
+#   Para inspecionar: F12 → Elements → clicar no elemento → copiar seletor.
+
 flows:
-  - name: "Fluxo de compra completo"
+
+  # F1 — Descoberta → PDP
+  # Percorre o caminho mais básico: home → coleção → produto
+  - id: "f1_discovery_pdp"
+    name: "F1 — Descoberta até PDP"
     viewports: [desktop, mobile]
     abort_on_failure: true
+    active: true
+    run_mode: always
     steps:
-      - name: "Acessar home"
+      - name: "Home carrega"
         action: goto
         value: "/"
-        assert:
+        expect:
           type: url_contains
           value: "minimalclub.com.br"
 
-      - name: "Navegar para coleção"
-        action: click
-        selector: "nav a[href*='/collections']"   # ajustar para seletor real
-        assert:
-          type: url_contains
-          value: "/collections"
+      - name: "Coleção carrega com produtos"
+        action: goto
+        value: "/collections/all"
+        expect:
+          type: element_visible
+          selector: ".product-item, .card--product, .grid__item a[href*='/products/']"  # VERIFICAR
 
-      - name: "Clicar no primeiro produto"
+      - name: "Primeiro produto clicável"
         action: click
-        selector: ".product-card:first-child a"   # ajustar para seletor real
-        assert:
+        selector: ".product-item:first-child a, .card--product:first-child a, .grid__item:first-child a[href*='/products/']"  # VERIFICAR
+        expect:
           type: url_contains
           value: "/products/"
 
-      - name: "Botão 'Adicionar ao carrinho' visível"
+      - name: "PDP exibe preço"
         action: assert_visible
-        selector: "button[name='add']"            # seletor padrão Shopify
+        selector: ".price__regular, .price-item--regular, [class*='product__price']"  # VERIFICAR
+
+      - name: "PDP exibe imagem do produto"
+        action: assert_visible
+        selector: ".product__media img, .product-single__photo img, [class*='product-image'] img"  # VERIFICAR
+
+  # F2 — Seleção de variante (tamanho)
+  # Crítico em menswear: sem selecionar tamanho, add-to-cart fica desabilitado
+  - id: "f2_variant_selection"
+    name: "F2 — Seleção de variante (tamanho)"
+    viewports: [desktop, mobile]
+    abort_on_failure: true
+    active: true
+    run_mode: always
+    steps:
+      - name: "Acessar produto com variantes"
+        action: goto
+        value: "/collections/all"
+        expect:
+          type: element_visible
+          selector: ".product-item, .card--product, .grid__item"  # VERIFICAR
+
+      - name: "Abrir PDP"
+        action: click
+        selector: ".product-item:first-child a, .card--product:first-child a"  # VERIFICAR
+        expect:
+          type: url_contains
+          value: "/products/"
+
+      - name: "Seletor de tamanho visível"
+        action: assert_visible
+        selector: "[name='Size'], fieldset.product-form__input, .variant-input-wrap, [data-option-name='Size']"  # VERIFICAR
+
+      - name: "Selecionar primeiro tamanho disponível"
+        action: click
+        selector: "fieldset input[type='radio']:not(:disabled) + label, .variant-input:not(.disabled) label, [name='Size'] option:not(:disabled)"  # VERIFICAR
+        expect:
+          type: element_visible
+          selector: "button[name='add']:not([disabled]), button[name='add']:not(.disabled)"  # VERIFICAR
+
+      - name: "Add-to-cart habilitado após seleção de tamanho"
+        action: assert_visible
+        selector: "button[name='add']:not([disabled])"  # VERIFICAR
+
+  # F3 — Add to cart
+  # Usa URL de produto com variante pré-selecionada para evitar dependência do F2
+  - id: "f3_add_to_cart"
+    name: "F3 — Add to cart"
+    viewports: [desktop, mobile]
+    abort_on_failure: true
+    active: true
+    run_mode: always
+    steps:
+      - name: "Acessar produto com variante pré-selecionada"
+        # VERIFICAR: substituir pelo slug e ?variant=ID de um produto/variante sempre ativo
+        action: goto
+        value: "/products/camiseta-basica?variant=VARIANT_ID"
+        expect:
+          type: element_visible
+          selector: "button[name='add']:not([disabled])"
+
+      - name: "Clicar em adicionar ao carrinho"
+        action: click
+        selector: "button[name='add']"  # VERIFICAR
+        expect:
+          type: element_visible
+          selector: ".cart-count-bubble span, [data-cart-count]:not([data-cart-count='0']), header a[href='/cart'] span"  # VERIFICAR
+
+  # F4 — Desconto progressivo
+  # Testa o coração do trabalho CRO: adicionar itens e verificar que o desconto aparece no carrinho
+  - id: "f4_progressive_discount"
+    name: "F4 — Desconto progressivo"
+    viewports: [desktop, mobile]
+    abort_on_failure: true
+    active: true
+    run_mode: always
+    steps:
+      - name: "Acessar coleção de desconto progressivo"
+        action: goto
+        value: "/collections/desconto-progressivo-1"
+        expect:
+          type: element_visible
+          selector: ".product-item, .card--product"  # VERIFICAR
+
+      - name: "Abrir primeiro produto"
+        action: click
+        selector: ".product-item:first-child a, .card--product:first-child a"  # VERIFICAR
+        expect:
+          type: url_contains
+          value: "/products/"
+
+      - name: "Selecionar variante disponível"
+        action: click
+        selector: "fieldset input[type='radio']:not(:disabled) + label, .variant-input:not(.disabled) label"  # VERIFICAR
+        expect:
+          type: element_visible
+          selector: "button[name='add']:not([disabled])"
 
       - name: "Adicionar ao carrinho"
         action: click
         selector: "button[name='add']"
-        assert:
+        expect:
           type: element_visible
-          selector: ".cart-count"                 # ajustar — indicador de item no carrinho
+          selector: ".cart-count-bubble span"  # VERIFICAR
 
       - name: "Ir para o carrinho"
         action: goto
         value: "/cart"
-        assert:
+        expect:
           type: element_visible
-          selector: ".cart-item"                  # ajustar — item listado no carrinho
+          selector: ".cart-item, .cart__item, [class*='cart-line']"  # VERIFICAR
+
+      - name: "Desconto progressivo visível no carrinho"
+        # VERIFICAR: seletor do bloco de desconto progressivo no carrinho (app ou tema custom)
+        action: assert_visible
+        selector: ".discount-message, .progressive-discount, [class*='progressive'], [class*='discount-tier']"  # VERIFICAR
+
+  # F5 — Aplicação de cupom PRIMEIRA12
+  # DESATIVADO por padrão: submit real cria lead no Klaviyo e dispara fluxo de boas-vindas.
+  # Ativar apenas em modo manual com e-mail de teste designado (alinhar com Daniel/CRM antes).
+  - id: "f5_coupon"
+    name: "F5 — Aplicação de cupom (PRIMEIRA12)"
+    viewports: [desktop, mobile]
+    abort_on_failure: true
+    active: false           # manter false — ver nota acima
+    run_mode: manual_only   # nunca rodar em modo agendado
+    steps:
+      - name: "Acessar carrinho com item"
+        action: goto
+        value: "/cart"
+        expect:
+          type: element_visible
+          selector: ".cart-item, .cart__item"
+
+      - name: "Campo de cupom visível"
+        action: assert_visible
+        selector: "[name='discount'], [name='coupon'], .cart__discount-code input"  # VERIFICAR
+
+      - name: "Preencher cupom PRIMEIRA12"
+        action: fill
+        selector: "[name='discount'], .cart__discount-code input"  # VERIFICAR
+        value: "PRIMEIRA12"
+
+      - name: "Aplicar cupom"
+        action: click
+        selector: ".cart__discount-code button, [data-action='apply-discount']"  # VERIFICAR
+        expect:
+          type: element_visible
+          selector: ".cart__discount, .discount-applied, [class*='discount-success']"  # VERIFICAR
+
+  # F6 — Início de checkout (ponto de parada = formulário renderizado)
+  # ATENÇÃO: checkout cruza domínio para checkout.shopify.com.
+  # O Playwright mantém a sessão; verificar que a automação não trata como "saiu do site".
+  - id: "f6_checkout_start"
+    name: "F6 — Início de checkout"
+    viewports: [desktop, mobile]
+    abort_on_failure: true
+    active: true
+    run_mode: always
+    steps:
+      - name: "Acessar carrinho com item"
+        action: goto
+        value: "/cart"
+        expect:
+          type: element_visible
+          selector: ".cart-item, .cart__item"
+
+      - name: "Botão de checkout visível e clicável"
+        action: assert_visible
+        selector: "button[name='checkout'], input[name='checkout'], [name='checkout']"  # VERIFICAR
+
+      - name: "Clicar em checkout"
+        action: click
+        selector: "button[name='checkout'], input[name='checkout']"  # VERIFICAR
+        expect:
+          type: url_contains
+          value: "checkout"    # checkout.shopify.com ou /checkout
+
+      - name: "Formulário de checkout renderizado (campo de e-mail)"
+        action: assert_visible
+        selector: "#checkout_email, [autocomplete='email'], [name='email'], input[type='email']"  # padrão Shopify checkout
+
+  # F7 — Navegação mobile (menu hamburger)
+  # Alta criticidade: 97% do tráfego é mobile; hamburger é a entrada do funil
+  - id: "f7_mobile_nav"
+    name: "F7 — Navegação mobile (hamburger)"
+    viewports: [mobile]     # somente mobile — em desktop o menu é diferente
+    abort_on_failure: true
+    active: true
+    run_mode: always
+    steps:
+      - name: "Home carregada no mobile"
+        action: goto
+        value: "/"
+        expect:
+          type: element_visible
+          selector: "body"
+
+      - name: "Botão hamburger visível"
+        action: assert_visible
+        selector: "summary[aria-label*='Menu'], button[aria-label*='Menu'], .hamburger, [class*='menu-toggle'], [class*='nav-toggle']"  # VERIFICAR
+
+      - name: "Abrir menu hamburger"
+        action: click
+        selector: "summary[aria-label*='Menu'], button[aria-label*='Menu'], .hamburger, [class*='menu-toggle']"  # VERIFICAR
+        expect:
+          type: element_visible
+          selector: "nav a[href*='/collections'], .mobile-nav a, [class*='drawer'] a[href*='/collections']"  # VERIFICAR
+
+      - name: "Link de coleção visível no menu"
+        action: assert_visible
+        selector: "nav a[href*='/collections'], [class*='mobile-nav'] a[href*='/collections'], [class*='drawer'] a[href*='/collections']"  # VERIFICAR
+
+      - name: "Navegar para coleção pelo menu"
+        action: click
+        selector: "nav a[href*='/collections']:first-of-type, [class*='drawer'] a[href*='/collections']:first-of-type"  # VERIFICAR
+        expect:
+          type: url_contains
+          value: "/collections"
+
+  # F8 — Busca
+  - id: "f8_search"
+    name: "F8 — Busca"
+    viewports: [desktop, mobile]
+    abort_on_failure: true
+    active: true
+    run_mode: always
+    steps:
+      - name: "Home carregada"
+        action: goto
+        value: "/"
+        expect:
+          type: element_visible
+          selector: "body"
+
+      - name: "Ícone de busca visível"
+        action: assert_visible
+        selector: "button[aria-label*='Search'], button[aria-label*='Busca'], .header__icon--search, [class*='search-toggle']"  # VERIFICAR
+
+      - name: "Abrir busca"
+        action: click
+        selector: "button[aria-label*='Search'], button[aria-label*='Busca'], .header__icon--search"  # VERIFICAR
+        expect:
+          type: element_visible
+          selector: "input[type='search'], input[name='q'], [placeholder*='Buscar'], [placeholder*='Search']"
+
+      - name: "Digitar termo de busca"
+        action: fill
+        selector: "input[type='search'], input[name='q'], [placeholder*='Buscar']"
+        value: "camiseta"
+
+      - name: "Resultados de busca aparecem"
+        action: assert_visible
+        selector: ".predictive-search__item, [class*='search-result'], [class*='predictive-result']"  # VERIFICAR
+
+      - name: "Clicar no primeiro resultado"
+        action: click
+        selector: ".predictive-search__item:first-child a, [class*='search-result']:first-child a"  # VERIFICAR
+        expect:
+          type: url_contains
+          value: "/products/"
+
+  # F9 — Filtro/ordenação na coleção
+  # Severidade menor (pouco usado), mas incluído. abort_on_failure: false para não bloquear o run
+  - id: "f9_filter"
+    name: "F9 — Filtro na coleção"
+    viewports: [desktop, mobile]
+    abort_on_failure: false
+    active: true
+    run_mode: always
+    steps:
+      - name: "Acessar coleção"
+        action: goto
+        value: "/collections/all"
+        expect:
+          type: element_visible
+          selector: ".product-item, .card--product, .grid__item"
+
+      - name: "Controle de filtro/sort visível"
+        action: assert_visible
+        selector: ".facets, [aria-label*='Filter'], [aria-label*='Sort'], [class*='filter'], [class*='sort-by']"  # VERIFICAR
+
+      - name: "Aplicar primeiro filtro disponível"
+        action: click
+        selector: ".facets__item:first-child input, .filter-group input:first-child, [class*='facet'] label:first-child"  # VERIFICAR
+        expect:
+          type: element_visible
+          selector: ".product-item, .card--product"
+
+  # F10 — Conta / Login (verificação de render e validação de campo vazio)
+  # PENDENTE: quando conta de teste for designada, adicionar steps de login real
+  - id: "f10_account_login"
+    name: "F10 — Login (render)"
+    viewports: [desktop, mobile]
+    abort_on_failure: false
+    active: true
+    run_mode: always
+    steps:
+      - name: "Página de login renderiza"
+        action: goto
+        value: "/account/login"
+        expect:
+          type: element_visible
+          selector: "#customer_email, form[action*='/account/login'] input[type='email']"  # padrão Shopify account
+
+      - name: "Botão de submit visível"
+        action: assert_visible
+        selector: "#customer_login_submit, form[action*='/account/login'] button[type='submit']"
+
+      - name: "Validação de campo vazio dispara"
+        action: click
+        selector: "#customer_login_submit, form[action*='/account/login'] button[type='submit']"
+        expect:
+          type: element_visible
+          selector: ".errors, [class*='error'], #customer_email:invalid"
+
+  # F11 — Popup Klaviyo (fluxo de captura)
+  # Testado pelo módulo popup_checker usando a seção "popups" acima.
+  # Este fluxo complementa com checagens transversais que o popup_checker não cobre.
+  - id: "f11_popup_checkout_block"
+    name: "F11 — Popup não dispara no checkout"
+    viewports: [desktop, mobile]
+    abort_on_failure: false
+    active: true
+    run_mode: always
+    steps:
+      - name: "Acessar carrinho com item"
+        action: goto
+        value: "/cart"
+        expect:
+          type: element_visible
+          selector: ".cart-item, .cart__item"
 
       - name: "Ir para o checkout"
         action: click
-        selector: "button[name='checkout']"       # seletor padrão Shopify
-        assert:
+        selector: "button[name='checkout'], input[name='checkout']"
+        expect:
           type: url_contains
           value: "checkout"
 
-      - name: "Formulário de checkout carregado"
-        action: assert_visible
-        selector: "#checkout_email"               # campo de e-mail padrão Shopify checkout
-        # IMPORTANTE: o fluxo para aqui — não preenche nem submete o formulário
+      - name: "Popup NÃO deve aparecer no checkout"
+        action: assert_not_visible
+        selector: ".klaviyo-form, [class*='klaviyo'], #popup-newsletter"  # VERIFICAR
+        wait_ms: 5000     # aguardar 5s para garantir que não aparece com delay

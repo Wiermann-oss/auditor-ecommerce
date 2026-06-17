@@ -164,6 +164,15 @@ auditor-ecommerce/
 - **Motivo:** integridade do histórico para comparação temporal.
 - **Violação:** DELETE ou UPDATE em registros de AuditRun ou CheckResult passados.
 
+### R9. `status` (job) e `resultado` (loja) são sempre campos separados. Nunca colapsar.
+- **Motivo:** uma execução pode terminar com `status='concluida'` e `resultado='com_falhas'` (auditor rodou, loja tem problema) ou `status='falhou'` com `resultado=null` (auditor quebrou — nada se sabe da loja). São eixos independentes.
+- **Violação:** qualquer campo único que tente codificar os dois ao mesmo tempo.
+
+### R10. Relatório e config falam em páginas e fluxos — nunca em "Camada A/B".
+- **Motivo:** "Camada A/B" é vocabulário interno de arquitetura, não do problema. O operador entende "checkout travou no passo X", não "Camada A falhou".
+- **Violação:** campo `layer: A` ou texto "Camada B" em relatório HTML, JSON de saída ou arquivo de config.
+- **Correto no dado:** campo `categoria` com valor `'fluxo'` ou `'saude_tecnica'`.
+
 ---
 
 ## 5. Glossário do domínio

@@ -83,45 +83,54 @@ O Auditor é uma ferramenta CLI em Python que executa uma auditoria técnica det
 ### audit_runs
 | Coluna | Tipo | Obrigatório | Default | Notas |
 |---|---|---|---|---|
-| id | TEXT | sim | UUID v4 | PK |
+| run_id | TEXT | sim | UUID v4 | PK |
 | started_at | TEXT | sim | — | ISO 8601 UTC |
-| finished_at | TEXT | não | null | ISO 8601 UTC; null se abortou |
-| status | TEXT | sim | — | 'success' \| 'partial' \| 'failed' |
-| trigger | TEXT | sim | — | 'manual' \| 'scheduled' |
-| config_snapshot | TEXT | sim | — | JSON serializado do config usado |
-| total_checks | INTEGER | não | null | preenchido ao final |
-| total_pass | INTEGER | não | null | preenchido ao final |
-| total_fail | INTEGER | não | null | preenchido ao final |
+| finished_at | TEXT | não | null | ISO 8601 UTC; null enquanto em_andamento |
+| status | TEXT | sim | 'em_andamento' | **Eixo 1 — saúde do job:** 'em_andamento' \| 'concluida' \| 'falhou' \| 'cancelada' |
+| resultado | TEXT | não | null | **Eixo 2 — saúde da loja:** 'tudo_ok' \| 'com_falhas'; null quando status ≠ 'concluida' |
+| trigger | TEXT | sim | — | 'manual' \| 'agendado' |
+| config_version | TEXT | sim | — | MD5 do audit-config.yaml usado (reprodutibilidade) |
+| execution_error | TEXT | não | null | detalhe técnico se status = 'falhou' |
+| total_checks | INTEGER | não | null | preenchido ao finalizar |
+| total_passou | INTEGER | não | null | preenchido ao finalizar |
+| total_falhou | INTEGER | não | null | preenchido ao finalizar |
+| total_erro | INTEGER | não | null | checagens que não conseguiram rodar |
 
-- **Soft delete:** não (histórico é append-only, nunca apagar)
+- **Soft delete:** não (histórico é append-only; nunca apagar)
 - **Invariantes:**
-  - `total_pass + total_fail = total_checks` quando `finished_at` não é null
-  - `status = 'failed'` quando `finished_at` é null (auditoria abortada)
+  - `status` e `resultado` são independentes: uma execução pode ter `status='concluida'` com `resultado='com_falhas'` (auditor rodou, loja tem problema) ou `status='falhou'` com `resultado=null` (auditor quebrou, nada se sabe da loja)
+  - `resultado` só é preenchido quando `status = 'concluida'`
+  - `total_passou + total_falhou + total_erro = total_checks` quando `status = 'concluida'`
 
 ### check_results
 | Coluna | Tipo | Obrigatório | Default | Notas |
 |---|---|---|---|---|
 | id | TEXT | sim | UUID v4 | PK |
-| audit_run_id | TEXT | sim | — | FK → audit_runs.id |
-| check_name | TEXT | sim | — | ex: 'http_status', 'js_errors', 'add_to_cart_flow' |
-| layer | TEXT | sim | — | 'A' \| 'B' |
-| scope_type | TEXT | sim | — | 'page' \| 'flow' |
-| scope_url | TEXT | não | null | URL da página (se scope_type = 'page') |
-| scope_flow | TEXT | não | null | nome do fluxo (se scope_type = 'flow') |
+| run_id | TEXT | sim | — | FK → audit_runs.run_id |
+| check_id | TEXT | sim | — | identificador estável para comparação histórica (ex: 'http_status') |
+| check_name | TEXT | sim | — | nome legível (ex: 'Status HTTP — Home') |
+| categoria | TEXT | sim | — | 'fluxo' \| 'saude_tecnica' (nunca 'Camada A/B' no dado armazenado) |
+| page_url | TEXT | não | null | URL absoluta da página verificada |
+| flow_name | TEXT | não | null | nome do fluxo (se categoria = 'fluxo') |
 | viewport | TEXT | sim | — | 'desktop' \| 'mobile' |
-| result | TEXT | sim | — | 'pass' \| 'fail' |
-| value | REAL | não | null | valor numérico (ex: load_time_ms = 2340) |
-| threshold | REAL | não | null | limiar configurado (ex: 5000) |
-| error_detail | TEXT | não | null | detalhe técnico do erro; null se pass |
-| duration_ms | INTEGER | não | null | tempo de execução da checagem |
+| status | TEXT | sim | — | 'passou' \| 'falhou' \| 'erro' |
+| detail | TEXT | não | null | detalhe técnico; obrigatório quando status ≠ 'passou' |
+| value | REAL | não | null | valor numérico da métrica (ex: 2340) |
+| unit | TEXT | não | null | unidade da métrica (ex: 'ms', 'count', 'score') |
+| threshold | REAL | não | null | limiar usado na checagem (preservado para comparação futura honesta) |
+| duration_ms | INTEGER | não | null | tempo de execução da checagem em ms |
 | created_at | TEXT | sim | — | ISO 8601 UTC |
 
-- **Chaves estrangeiras:** `audit_run_id → audit_runs.id`
-- **Índices:** `(audit_run_id)`, `(check_name, result)`, `(scope_url, check_name)`
-- **Soft delete:** não (imutável após criação)
+- **Chaves estrangeiras:** `run_id → audit_runs.run_id`
+- **Índices:** `(run_id)`, `(check_id, status)`, `(page_url, check_id)`
+- **Soft delete:** não (imutável após criação — append-only)
+- **Distinção de status:**
+  - `'passou'`: checagem executou e o valor está dentro do esperado
+  - `'falhou'`: checagem executou e encontrou problema na loja — investigar a loja
+  - `'erro'`: checagem não conseguiu executar (seletor sumiu, timeout de config) — investigar o auditor/config
 - **Invariantes:**
-  - `error_detail` deve ser não-nulo quando `result = 'fail'`
-  - `scope_url` ou `scope_flow` deve estar preenchido (não ambos nulos)
+  - `detail` deve ser não-nulo quando `status ∈ {'falhou', 'erro'}`
+  - `page_url` ou `flow_name` deve estar preenchido (não ambos nulos)
 
 ---
 
