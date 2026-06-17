@@ -1,0 +1,61 @@
+name: Auditoria Técnica — Minimal Club
+
+on:
+  schedule:
+    - cron: "0 12 * * *"   # 09:00 BRT (UTC-3) todos os dias
+  workflow_dispatch:         # execução manual via GitHub UI
+
+jobs:
+  audit:
+    name: Executar auditoria
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Configurar Node.js (para Lighthouse)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências Python
+        run: pip install -e ".[dev]"
+
+      - name: Instalar Playwright + Chromium
+        run: playwright install chromium --with-deps
+
+      - name: Instalar Lighthouse CLI
+        run: npm install -g lighthouse
+
+      - name: Restaurar histórico de auditorias
+        uses: actions/cache@v4
+        with:
+          path: auditor-history.db
+          key: audit-history-${{ github.ref_name }}-${{ github.run_number }}
+          restore-keys: |
+            audit-history-${{ github.ref_name }}-
+
+      - name: Executar auditoria
+        run: python -m auditor run --scheduled
+        continue-on-error: true   # falhas da loja não devem bloquear o upload do relatório
+
+      - name: Exibir diff do dia
+        run: python -m auditor diff --since 7
+        continue-on-error: true
+
+      - name: Upload relatório
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: auditoria-${{ github.run_number }}-${{ github.run_attempt }}
+          path: reports/
+          retention-days: 90
+          if-no-files-found: warn
