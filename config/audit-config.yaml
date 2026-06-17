@@ -1,0 +1,128 @@
+# audit-config.yaml
+# Arquivo de configuração do Auditor de E-commerce da Minimal.
+# Este é o ÚNICO arquivo que o operador edita — sem precisar tocar no código.
+#
+# Como editar:
+#   - Para adicionar uma nova página crítica: copie um bloco de "critical_pages" e ajuste.
+#   - Para ajustar limiares: edite os valores em "thresholds".
+#   - Para adicionar um popup: copie um bloco de "popups" e ajuste o seletor.
+#   - Para adicionar um passo a um fluxo: copie um bloco de "steps" e ajuste.
+
+store:
+  base_url: "https://minimalclub.com.br"
+  name: "Minimal Club"
+
+# Configurações globais de timeout (em milissegundos)
+timeouts:
+  navigation: 30000      # aguardar página carregar
+  element: 5000          # aguardar elemento aparecer/ser clicável
+  popup_delay: 4000      # aguardar popup disparar (após entrada na página)
+
+# Limiares de performance (em milissegundos, exceto CLS que é adimensional)
+# Uma checagem de métrica numérica falha quando o valor EXCEDE o limiar.
+thresholds:
+  load_time_ms: 5000     # tempo de carregamento (Navigation Timing)
+  lcp_ms: 4000           # Largest Contentful Paint
+  fid_ms: 300            # First Input Delay
+  cls: 0.25              # Cumulative Layout Shift (adimensional)
+
+# Páginas críticas — auditadas pela Camada B (saúde técnica)
+# Checagens executadas em cada página: HTTP status, JS errors, network failures, load time, LCP, CLS, FID
+critical_pages:
+  - name: "Home"
+    url: "/"             # relativo ao base_url
+    viewports: [desktop, mobile]
+
+  - name: "Coleção principal"
+    url: "/collections/all"
+    viewports: [desktop, mobile]
+
+  - name: "Página de produto (exemplo)"
+    url: "/products/camiseta-basica"   # ajustar para URL real de produto ativo
+    viewports: [desktop, mobile]
+
+  - name: "Carrinho"
+    url: "/cart"
+    viewports: [desktop, mobile]
+
+  - name: "Checkout"
+    url: "/checkout"
+    viewports: [desktop, mobile]
+
+# Popups conhecidos — verificados dentro dos fluxos da Camada A
+# Para cada popup: verificar se dispara, se fecha, se não bloqueia cliques
+popups:
+  - name: "Newsletter"
+    trigger: "page_load"           # dispara ao carregar a página
+    trigger_page: "/"
+    trigger_delay_ms: 3000         # aguardar N ms antes de verificar
+    container_selector: "#popup-newsletter"    # ajustar para seletor real
+    close_selector: "#popup-newsletter .close" # ajustar para seletor real
+    viewports: [desktop, mobile]
+
+  - name: "Banner de cookies"
+    trigger: "page_load"
+    trigger_page: "/"
+    trigger_delay_ms: 1000
+    container_selector: "#cookies-banner"      # ajustar para seletor real
+    close_selector: "#cookies-accept"          # ajustar para seletor real
+    viewports: [desktop, mobile]
+
+# Fluxos críticos — executados pela Camada A (verificação funcional)
+# Cada fluxo é uma sequência de passos que simula um comprador real.
+# "abort_on_failure: true" faz o fluxo parar no primeiro step que falhar.
+flows:
+  - name: "Fluxo de compra completo"
+    viewports: [desktop, mobile]
+    abort_on_failure: true
+    steps:
+      - name: "Acessar home"
+        action: goto
+        value: "/"
+        assert:
+          type: url_contains
+          value: "minimalclub.com.br"
+
+      - name: "Navegar para coleção"
+        action: click
+        selector: "nav a[href*='/collections']"   # ajustar para seletor real
+        assert:
+          type: url_contains
+          value: "/collections"
+
+      - name: "Clicar no primeiro produto"
+        action: click
+        selector: ".product-card:first-child a"   # ajustar para seletor real
+        assert:
+          type: url_contains
+          value: "/products/"
+
+      - name: "Botão 'Adicionar ao carrinho' visível"
+        action: assert_visible
+        selector: "button[name='add']"            # seletor padrão Shopify
+
+      - name: "Adicionar ao carrinho"
+        action: click
+        selector: "button[name='add']"
+        assert:
+          type: element_visible
+          selector: ".cart-count"                 # ajustar — indicador de item no carrinho
+
+      - name: "Ir para o carrinho"
+        action: goto
+        value: "/cart"
+        assert:
+          type: element_visible
+          selector: ".cart-item"                  # ajustar — item listado no carrinho
+
+      - name: "Ir para o checkout"
+        action: click
+        selector: "button[name='checkout']"       # seletor padrão Shopify
+        assert:
+          type: url_contains
+          value: "checkout"
+
+      - name: "Formulário de checkout carregado"
+        action: assert_visible
+        selector: "#checkout_email"               # campo de e-mail padrão Shopify checkout
+        # IMPORTANTE: o fluxo para aqui — não preenche nem submete o formulário

@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Ambiente virtual
+.venv/
+venv/
+env/
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# Relatórios gerados (não versionar saída de execuções)
+reports/*.json
+reports/*.html
+
+# Histórico SQLite (banco local — não versionar dados)
+*.db
+*.sqlite
+*.sqlite3
+
+# Playwright
+playwright/.auth/
+
+# Node (Lighthouse)
+node_modules/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
