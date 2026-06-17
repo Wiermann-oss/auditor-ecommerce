@@ -294,6 +294,7 @@ flows:
           selector: ".cart__discount, .discount-applied, [class*='discount-success']"  # VERIFICAR
 
   # F6 — Início de checkout (ponto de parada = formulário renderizado)
+  # Self-contained: adiciona item ao carrinho como setup antes de testar o checkout.
   # ATENÇÃO: checkout cruza domínio para checkout.shopify.com.
   # O Playwright mantém a sessão; verificar que a automação não trata como "saiu do site".
   - id: "f6_checkout_start"
@@ -303,14 +304,31 @@ flows:
     active: true
     run_mode: always
     steps:
-      - name: "Acessar carrinho com item"
+      # Setup: adicionar item ao carrinho (fluxo é self-contained — fresh context)
+      - name: "[Setup] Acessar produto com variante disponível"
+        # VERIFICAR: mesmo URL usado no F3 — produto sempre ativo com variante específica
+        action: goto
+        value: "/products/camiseta-basica?variant=VARIANT_ID"
+        expect:
+          type: element_visible
+          selector: "button[name='add']:not([disabled])"
+
+      - name: "[Setup] Adicionar ao carrinho"
+        action: click
+        selector: "button[name='add']"
+        expect:
+          type: element_visible
+          selector: ".cart-count-bubble span, [data-cart-count]:not([data-cart-count='0'])"  # VERIFICAR
+
+      # Fluxo principal
+      - name: "Ir para o carrinho"
         action: goto
         value: "/cart"
         expect:
           type: element_visible
-          selector: ".cart-item, .cart__item"
+          selector: ".cart-item, .cart__item, [class*='cart-line']"  # VERIFICAR
 
-      - name: "Botão de checkout visível e clicável"
+      - name: "Botão de checkout visível"
         action: assert_visible
         selector: "button[name='checkout'], input[name='checkout'], [name='checkout']"  # VERIFICAR
 
@@ -461,7 +479,8 @@ flows:
 
   # F11 — Popup Klaviyo (fluxo de captura)
   # Testado pelo módulo popup_checker usando a seção "popups" acima.
-  # Este fluxo complementa com checagens transversais que o popup_checker não cobre.
+  # Este fluxo complementa com a checagem específica: popup NÃO dispara no checkout.
+  # Self-contained: adiciona item ao carrinho como setup.
   - id: "f11_popup_checkout_block"
     name: "F11 — Popup não dispara no checkout"
     viewports: [desktop, mobile]
@@ -469,12 +488,20 @@ flows:
     active: true
     run_mode: always
     steps:
-      - name: "Acessar carrinho com item"
+      # Setup: adicionar item ao carrinho
+      - name: "[Setup] Acessar produto com variante disponível"
         action: goto
-        value: "/cart"
+        value: "/products/camiseta-basica?variant=VARIANT_ID"  # VERIFICAR
         expect:
           type: element_visible
-          selector: ".cart-item, .cart__item"
+          selector: "button[name='add']:not([disabled])"
+
+      - name: "[Setup] Adicionar ao carrinho"
+        action: click
+        selector: "button[name='add']"
+        expect:
+          type: element_visible
+          selector: ".cart-count-bubble span, [data-cart-count]:not([data-cart-count='0'])"  # VERIFICAR
 
       - name: "Ir para o checkout"
         action: click
