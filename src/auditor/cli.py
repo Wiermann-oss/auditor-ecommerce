@@ -151,6 +151,36 @@ def history(
         )
 
 
+@app.command()
+def server(
+    host: str = typer.Option("127.0.0.1", "--host", help="Host do servidor"),
+    port: int = typer.Option(8000, "--port", "-p", help="Porta"),
+    no_open: bool = typer.Option(False, "--no-open", help="Não abrir o navegador automaticamente"),
+) -> None:
+    """Inicia o servidor web do dashboard de auditoria."""
+    import threading
+    import webbrowser
+
+    import uvicorn
+
+    url = f"http://{host}:{port}"
+
+    if not no_open:
+        def _open() -> None:
+            import time
+            time.sleep(1.8)
+            webbrowser.open(url)
+        threading.Thread(target=_open, daemon=True).start()
+
+    typer.echo(f"Dashboard: {url}  (Ctrl+C para parar)")
+    uvicorn.run(
+        "auditor.server:app",
+        host=host,
+        port=port,
+        log_level="warning",
+    )
+
+
 def _print_summary(run: AuditRun, reports_dir: Path) -> None:
     if run.status == AuditStatus.FALHOU:
         typer.echo("✗  AUDITOR FALHOU — ver log acima")

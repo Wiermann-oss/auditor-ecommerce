@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Auditor — Minimal Club</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <header class="header">
+      <span class="logo">⚡ Auditor Minimal Club</span>
+      <div id="audit-status" class="chip chip-idle">Aguardando</div>
+    </header>
+
+    <!-- Tab nav -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="config"    onclick="switchTab('config')">⚙ Configuração</button>
+      <button class="tab-btn"        data-tab="dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
+      <button class="tab-btn"        data-tab="reports"   onclick="switchTab('reports')">📋 Relatórios</button>
+    </nav>
+
+    <!-- ── Aba: Configuração ─────────────────────────────────────────────── -->
+    <div id="tab-config" class="tab-pane active">
+
+      <!-- Executar -->
+      <div class="card">
+        <div class="card-header"><h2>Executar auditoria</h2></div>
+        <div class="run-row">
+          <button id="btn-run" class="btn btn-primary btn-xl" onclick="runNow()">
+            ▶ Rodar Auditoria Agora
+          </button>
+          <span id="run-last" class="muted"></span>
+        </div>
+        <div id="run-progress" class="run-progress hidden">
+          <div class="spinner"></div>
+          <span>Auditoria em andamento…</span>
+          <span id="run-elapsed" class="elapsed"></span>
+        </div>
+        <div id="run-error" class="run-error hidden"></div>
+      </div>
+
+      <!-- Agendamento -->
+      <div class="card">
+        <div class="card-header"><h2>Agendamento automático</h2></div>
+        <label class="toggle-row" for="sched-enabled">
+          <span>Ativar execução automática</span>
+          <span class="sw"><input type="checkbox" id="sched-enabled" onchange="onSchedToggle()"><span class="sw-slider"></span></span>
+        </label>
+        <div id="sched-opts" class="sched-opts hidden">
+          <div class="form-row">
+            <label>Horário</label>
+            <input type="time" id="sched-time" value="09:00">
+          </div>
+          <div class="form-row">
+            <label>Dias</label>
+            <div id="days-row" class="days-row"></div>
+          </div>
+          <div class="form-row">
+            <button class="btn btn-secondary" onclick="saveSchedule()">Salvar agendamento</button>
+            <span id="sched-msg" class="ok-msg hidden">✓ Salvo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtro de URL -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Filtro de URL</h2>
+          <span class="hint">Audita apenas páginas cuja URL contenha o texto abaixo (deixe vazio para auditar todas)</span>
+        </div>
+        <div class="form-row">
+          <input type="text" id="url-filter" class="text-input" placeholder="ex: colecoes">
+          <button class="btn btn-secondary" onclick="saveUrlFilter()">Aplicar</button>
+          <span id="filter-msg" class="ok-msg hidden">✓ Salvo</span>
+        </div>
+      </div>
+
+      <!-- Páginas -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Páginas auditadas</h2>
+          <span class="hint">Desative para excluir da próxima execução</span>
+        </div>
+        <div id="pages-list"><div class="loading">Carregando…</div></div>
+      </div>
+
+      <!-- Fluxos -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Fluxos funcionais</h2>
+          <span class="hint">Fluxos <em>manual_only</em> nunca rodam automaticamente</span>
+        </div>
+        <div id="flows-list"><div class="loading">Carregando…</div></div>
+      </div>
+
+      <!-- GA4 -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Google Analytics 4</h2>
+          <span class="hint">Páginas mais visitadas para priorizar a auditoria</span>
+        </div>
+        <div id="ga4-section"><div class="loading">Carregando…</div></div>
+      </div>
+
+    </div><!-- /tab-config -->
+
+    <!-- ── Aba: Dashboard ────────────────────────────────────────────────── -->
+    <div id="tab-dashboard" class="tab-pane">
+      <div id="stats-grid" class="stats-grid"></div>
+
+      <div class="card">
+        <div class="card-header"><h2>Taxa de sucesso — últimas execuções</h2></div>
+        <div id="trend-chart" class="trend-chart"><div class="loading">Carregando…</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Falhas mais recorrentes</h2></div>
+        <div id="top-failures"><div class="loading">Carregando…</div></div>
+      </div>
+    </div><!-- /tab-dashboard -->
+
+    <!-- ── Aba: Relatórios ───────────────────────────────────────────────── -->
+    <div id="tab-reports" class="tab-pane">
+      <div class="card">
+        <div class="card-header"><h2>Histórico de auditorias</h2></div>
+        <div id="runs-wrap"><div class="loading">Carregando…</div></div>
+      </div>
+    </div><!-- /tab-reports -->
+
+  </div><!-- /app -->
+
+  <!-- Modal: visualização do relatório -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeModal()"></div>
+    <div class="modal-box">
+      <div class="modal-header">
+        <span id="modal-title">Relatório</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <iframe id="modal-iframe" class="modal-iframe" src="about:blank"></iframe>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
