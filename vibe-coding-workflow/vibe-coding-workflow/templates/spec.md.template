@@ -1,0 +1,126 @@
+# Spec — [Nome da Feature]
+
+> Descreve o COMPORTAMENTO da feature antes de implementar. Densa o suficiente para servir de checkpoint sem ler código.
+
+---
+
+## 1. Resumo em 1 parágrafo
+
+[O que faz, para quem, por quê. Tem que dar para entender só lendo esta seção.]
+
+---
+
+## 2. Comportamento funcional
+
+### 2.1 Caminho feliz
+1. [usuário faz X]
+2. [sistema faz Y]
+3. [usuário vê Z]
+4. [...]
+
+### 2.2 Caminhos alternativos
+- **Cancelar no meio:** [o que acontece]
+- **Voltar:** [o que acontece]
+- **Editar antes de salvar:** [o que acontece]
+
+### 2.3 Casos de erro visíveis ao usuário
+| Quando | Mensagem ao usuário | Como recupera |
+|---|---|---|
+| Campo obrigatório vazio | "Campo X é obrigatório" | Preenche e tenta de novo |
+| Valor fora da faixa | "Valor deve estar entre A e B" | Corrige |
+| Erro de servidor | "Algo deu errado, tente novamente" | Tenta de novo / contata suporte |
+
+---
+
+## 3. Dados envolvidos
+
+### 3.1 Entidades lidas
+- [tabela] — para [motivo]
+
+### 3.2 Entidades criadas / atualizadas / deletadas
+- **Cria:** [tabela] — quando [...]
+- **Atualiza:** [tabela] — quando [...]
+- **Soft delete:** [tabela] — quando [...]
+
+### 3.3 Campos novos
+| Tabela | Campo | Tipo | Default | Validação |
+|---|---|---|---|---|
+| [tab] | [campo] | [tipo] | [default] | [regra] |
+
+### 3.4 Migrations necessárias
+- **Migração:** [descrição em palavras]
+- **Reversível?** sim / não — se não, motivo: [...]
+- **Impacto em dados existentes:** [...]
+
+---
+
+## 4. Regras de negócio explícitas
+
+> Use SEMPRE termos do glossário do CLAUDE.md.
+
+- **R1.** [Regra em linguagem do domínio]
+- **R2.** [Regra]
+- **R3.** [Regra]
+
+---
+
+## 5. UI/UX
+
+### 5.1 Telas afetadas
+- [tela existente / tela nova] — [o que muda]
+
+### 5.2 Componentes novos necessários
+- `[ComponenteX]` — responsabilidade: [1 frase]
+
+### 5.3 Estados visuais por tela
+| Tela | Loading | Vazio | Erro | Sucesso |
+|---|---|---|---|---|
+| [...] | [...] | [...] | [...] | [...] |
+
+### 5.4 Permissões
+| Papel | Ver | Criar | Editar | Deletar |
+|---|---|---|---|---|
+| [papel A] | sim | sim | sim | não |
+| [papel B] | sim | não | não | não |
+
+---
+
+## 6. Casos de borda específicos desta feature
+
+> NÃO genéricos. Específicos desta feature.
+
+| Caso | Comportamento esperado |
+|---|---|
+| Usuário clica duas vezes em "salvar" | Apenas uma operação ocorre (idempotência ou bloqueio do botão) |
+| Valor zero | [...] |
+| Valor negativo | [...] |
+| Valor máximo (>10⁹) | [...] |
+| Dado pai foi soft-deletado durante a operação | [...] |
+| Dois usuários editando simultaneamente | [...] |
+| Refresh da página no meio | [...] |
+
+---
+
+## 7. Critérios de aceite testáveis
+
+> Afirmações binárias verificáveis no navegador. Cada caminho da seção 2 vira ao menos um critério.
+
+- [ ] **CA1.** Quando [ação], o sistema mostra [resultado].
+- [ ] **CA2.** Quando [erro X], aparece a mensagem [Y].
+- [ ] **CA3.** Usuário com papel [P] consegue [ação].
+- [ ] **CA4.** Usuário com papel [Q] **não** vê [tela / botão].
+- [ ] **CA5.** [...]
+
+---
+
+## 8. Riscos e impactos
+
+### Módulos existentes que podem quebrar
+- [módulo X] — porque [...]
+
+### Reversibilidade
+- A mudança é reversível? sim / não
+- Se não, justifique:
+
+### Dado em produção afetado
+- [...]

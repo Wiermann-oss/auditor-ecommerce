@@ -1,0 +1,72 @@
+# ADR — [Título descritivo da decisão]
+
+**Data:** YYYY-MM-DD
+**Status:** Aceito | Em discussão | Substituído por [link]
+**Tema:** [tema curto em kebab-case]
+
+---
+
+## 1. Contexto
+
+[2-4 parágrafos descrevendo o problema, o ambiente em que ele surgiu, e por que precisa ser decidido agora. Linguagem clara, sem jargão desnecessário.]
+
+---
+
+## 2. Decisão
+
+[1-3 parágrafos descrevendo o que foi decidido, em forma afirmativa: "Vamos usar X", "Adotaremos Y como padrão".]
+
+---
+
+## 3. Motivação
+
+[Por que essa decisão? O que ela otimiza? Quais princípios do projeto ela respeita? Cite CLAUDE.md/PRODUCT.md quando aplicável.]
+
+---
+
+## 4. Alternativas consideradas
+
+### Alternativa A: [Nome]
+- **Descrição:** [...]
+- **Prós:** [...]
+- **Contras:** [...]
+- **Por que foi descartada:** [...]
+
+### Alternativa B: [Nome]
+- **Descrição:** [...]
+- **Prós:** [...]
+- **Contras:** [...]
+- **Por que foi descartada:** [...]
+
+---
+
+## 5. Consequências
+
+### Positivas
+- [O que essa decisão habilita]
+- [...]
+
+### Negativas
+- [Custos / complexidade / limitações que aceitamos]
+- [...]
+
+### O que essa decisão FECHA
+> Caminhos futuros que ficam mais difíceis ou impossíveis. Esta seção é o que dá força ao ADR.
+- [...]
+- [...]
+
+---
+
+## 6. Implementação
+
+- **Onde se materializa no código:** [arquivos / módulos]
+- **Migration/refactor necessário:** [sim / não — descrever]
+- **Regra a adicionar no CLAUDE.md:** [sim / não — qual]
+- **Atualização no ARCHITECTURE.md (seção 5):** [feita / pendente]
+
+---
+
+## 7. Revisão
+
+- **Quando reavaliar:** [evento ou prazo]
+- **Sob que condições reverter:** [...]

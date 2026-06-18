@@ -1,0 +1,250 @@
+# CLAUDE.md
+
+> Manual de operação do agente neste projeto. Lido em TODA sessão. Atualizado quando convenções mudam.
+
+---
+
+## 1. Stack e versões
+
+| Camada | Tecnologia | Versão | Papel |
+|---|---|---|---|
+| Framework | [ex: Next.js] | [14.x] | App + roteamento |
+| Banco | [ex: Supabase] | [última] | Postgres + auth + storage |
+| Linguagem | [ex: TypeScript] | [5.x] | Tipagem estrita |
+| UI | [ex: Tailwind + shadcn] | [última] | Componentes |
+| Deploy | [ex: Vercel] | — | Produção |
+
+### Bibliotecas permitidas por tipo de problema
+- **Datas:** [ex: date-fns. NUNCA moment.]
+- **Validação:** [ex: zod]
+- **Forms:** [ex: react-hook-form]
+- **Tabelas:** [ex: tanstack/table]
+- **Estado servidor:** [ex: tanstack/query]
+
+### Bibliotecas proibidas
+- [biblioteca] — motivo: [...]
+
+---
+
+## 2. Convenções de código
+
+### Nomenclatura
+- **Arquivos:** kebab-case com sufixo de tipo (ex: `lote-list.tsx`, `lote-service.ts`)
+- **Funções:** verbo + objeto específico. NUNCA `handle*`, `process*`, `manage*` genéricos.
+- **Variáveis:** sem abreviações (`lote` ✓; `lt` ✗)
+- **Booleans:** prefixo `is`, `has`, `can`, `should`
+- **Constantes:** SCREAMING_SNAKE_CASE só para constantes globais imutáveis
+
+### Tamanho
+- Função: 4 a 20 linhas. Se passar, divida.
+- Arquivo: até 500 linhas. Se passar, divida por responsabilidade.
+- Indentação: máximo 2 níveis. Use early returns.
+
+### Tipos
+- Sempre explícitos em parâmetros e retornos.
+- **Nunca** `any`. Se precisar mesmo, use `unknown` + narrow.
+- Nada de `as Foo` sem comentário explicando o porquê.
+
+### Erros
+- Mensagem inclui:
+  1. O valor que causou
+  2. A forma esperada
+  Exemplo: `Lote inválido: recebido "abc", esperado UUID v4`
+
+---
+
+## 3. Estrutura de pastas obrigatória
+
+```
+projeto/
+├── CLAUDE.md
+├── ARCHITECTURE.md
+├── PRODUCT.md
+├── docs/
+│   ├── specs/         ← spec por feature, antes de implementar
+│   ├── decisions/     ← ADRs
+│   └── sessions/      ← log por sessão
+├── src/
+│   ├── app/           ← rotas / pages (Next.js App Router)
+│   ├── components/    ← componentes reutilizáveis
+│   ├── lib/           ← utilitários, clientes externos
+│   ├── modules/       ← módulos de negócio (1 pasta = 1 módulo do ARCHITECTURE.md)
+│   └── types/         ← tipos compartilhados
+└── supabase/
+    └── migrations/    ← SQL versionado
+```
+
+**O que NÃO vai em cada pasta:**
+- `app/`: lógica de negócio. Vai em `modules/`.
+- `components/`: nada específico de domínio. Específico vive no módulo.
+- `lib/`: regra de negócio. Só infra.
+- `types/`: tipos específicos de um módulo. Vivem dentro do módulo.
+
+---
+
+## 4. Regras invioláveis
+
+### R1. Toda tabela do banco tem RLS habilitado.
+- **Motivo:** sem RLS, qualquer cliente lê dados de qualquer outro.
+- **Violação:** vazamento de dados.
+
+### R2. Soft delete em todas as entidades de negócio (campo `deleted_at`).
+- **Motivo:** auditoria e recuperação.
+- **Violação:** perda permanente de histórico.
+
+### R3. Auditoria em entidades de negócio: `created_at`, `updated_at`, `created_by`, `updated_by`.
+- **Motivo:** rastrear quem fez o quê e quando.
+- **Violação:** impossível diagnosticar problemas.
+
+### R4. Regra de negócio nunca mistura com I/O.
+- **Motivo:** testabilidade.
+- **Violação:** testes ficam frágeis ou impossíveis.
+
+### R5. Validação na fronteira (input do usuário, resposta de API externa).
+- **Motivo:** invariantes garantidas no resto do código.
+- **Violação:** bugs profundos por dado inválido.
+
+### R6. Migrations sempre reversíveis (ou justificadas em comentário no topo).
+- **Motivo:** rollback em produção.
+- **Violação:** mudanças irreversíveis sem aviso.
+
+### R7. Sem `any`. Sem `as Foo` sem comentário.
+- **Motivo:** o tipo é a primeira camada de testes.
+- **Violação:** erros que só aparecem em runtime.
+
+### R8. Sem catch silencioso.
+- **Motivo:** erro escondido = bug invisível.
+- **Violação:** debugging impossível.
+
+[Adicionar regras específicas do domínio aqui — R9, R10, etc.]
+
+---
+
+## 5. Glossário do domínio
+
+> Espelho compacto do PRODUCT.md. Use estes termos no código (variáveis, funções, tabelas).
+
+| Termo | Definição (1 linha) | No código |
+|---|---|---|
+| [termo] | [definição] | [tabela/variável usada] |
+
+---
+
+## 6. Padrões de implementação canônicos
+
+### Como criar um novo módulo de CRUD
+1. Criar pasta `src/modules/[nome]/` com:
+   - `types.ts` — tipos do módulo
+   - `[nome]-service.ts` — operações de banco
+   - `[nome]-validators.ts` — schemas zod
+   - `[nome]-actions.ts` — server actions
+   - `index.ts` — exports
+2. Criar migration em `supabase/migrations/` com tabela + RLS + soft delete + auditoria.
+3. Atualizar `ARCHITECTURE.md` (seção 2 e 3).
+4. Criar página em `src/app/...` que consome o módulo.
+
+### Como adicionar uma migration
+1. `supabase migration new [nome-descritivo]`
+2. SQL com `IF NOT EXISTS` quando aplicável.
+3. Sempre incluir RLS, índices, FKs explícitas.
+4. Comentário no topo descrevendo o que faz.
+5. Verificar reversibilidade ou justificar.
+
+### Como criar um componente de UI
+1. Pertence a 1 módulo? → `src/modules/[mod]/components/`
+2. Reutilizável? → `src/components/`
+3. Sempre tipar props.
+4. Sem regra de negócio dentro do componente.
+
+### Como expor um endpoint / server action
+1. Validar input com zod.
+2. Chamar service do módulo.
+3. Tratar erros conhecidos (com mensagem de domínio).
+4. Tratar erros inesperados (log estruturado + mensagem genérica).
+
+---
+
+## 7. Anti-patterns explícitos
+
+### Anti-pattern 1: Função grande misturando responsabilidades
+**Ruim:**
+```ts
+async function processarLote(input: any) {
+  // valida + busca + calcula + grava + envia email
+  // 80 linhas
+}
+```
+**Bom:**
+```ts
+async function fecharLote(loteId: string) {
+  const lote = await buscarLote(loteId);
+  validarFechamento(lote);
+  const resultado = calcularResultadoFinal(lote);
+  await persistirFechamento(lote, resultado);
+  await notificarFechamento(lote);
+}
+```
+
+### Anti-pattern 2: Catch silencioso
+**Ruim:** `catch (e) { console.log(e) }`
+**Bom:** `catch (e) { logger.error({ err: e, contexto }); throw new DominioError(...) }`
+
+### Anti-pattern 3: `any` disfarçado
+**Ruim:** `const x = response as unknown as Lote`
+**Bom:** `const x = LoteSchema.parse(response)`
+
+### Anti-pattern 4: Comentário óbvio
+**Ruim:** `// busca o usuário pelo id`
+**Bom:** [sem comentário; o nome `buscarUsuarioPorId` já diz tudo]
+
+### Anti-pattern 5: Abstração prematura
+**Ruim:** criar `BaseRepository<T>` antes de ter 3 repositórios.
+**Bom:** duplicar 2 vezes; abstrair na 3ª.
+
+### Anti-pattern 6: Lógica de negócio em componente UI
+**Ruim:** cálculo de KPI dentro de um `.tsx`.
+**Bom:** cálculo no service do módulo; componente só renderiza.
+
+---
+
+## 8. Como rodar e testar localmente
+
+```bash
+# Instalar dependências
+[ex: pnpm install]
+
+# Subir banco local (Supabase)
+[ex: supabase start]
+
+# Aplicar migrations
+[ex: supabase db reset]
+
+# Subir o projeto
+[ex: pnpm dev]
+
+# Type check
+[ex: pnpm typecheck]
+
+# Lint
+[ex: pnpm lint]
+
+# Testes
+[ex: pnpm test]
+```
+
+**Variáveis de ambiente:** copiar `.env.example` para `.env.local`.
+
+---
+
+## 9. Comportamento esperado do Claude
+
+1. **Antes de qualquer código:** ler `ARCHITECTURE.md`.
+2. **Antes de implementar feature nova:** confirmar entendimento (3 entidades + conexões + risco + arquivos a tocar).
+3. **Quando em dúvida:** perguntar. Não inventar.
+4. **Ao terminar sessão:** atualizar `ARCHITECTURE.md` + criar `docs/sessions/YYYY-MM-DD-*.md`.
+5. **Se encontrar inconsistência entre ARCHITECTURE.md e código:** parar e relatar. Não silenciar.
+6. **Nunca tocar arquivos fora do plano** sem perguntar primeiro.
+7. **Nunca adicionar dependência** sem perguntar primeiro.
+8. **Nunca contornar regra inviolável** sem propor mudança explícita do CLAUDE.md.
+9. **Escrever código pequeno e nomeado.** Funções 4-20 linhas, nomes únicos com poucos hits no grep.
+10. **Quando refatorar:** sessão dedicada, com ADR antes.

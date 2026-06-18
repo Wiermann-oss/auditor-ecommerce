@@ -1,0 +1,101 @@
+# ARCHITECTURE.md
+
+> Mapa vivo do sistema. Lido em TODA sessão. Atualizado ao FIM de toda sessão.
+
+---
+
+## 1. Visão geral em 1 página
+
+[Parágrafo que explica o sistema inteiro a alguém novo, em linguagem simples. Suficiente para entender o sistema só lendo esta seção.]
+
+---
+
+## 2. Diagrama de módulos
+
+### Lista de módulos
+
+#### [nome-modulo-1]
+- **Responsabilidade:** [1 frase, sem "e"]
+- **Depende de:** [módulos a montante]
+- **Quem depende:** [módulos a jusante]
+- **Estado:** planejado | em construção | pronto
+
+#### [nome-modulo-2]
+[mesmo formato]
+
+### Diagrama (ASCII)
+
+```
+[modulo-a]  →  [modulo-b]  →  [modulo-c]
+                  ↓
+              [modulo-d]
+```
+
+---
+
+## 3. Entidades e modelo de dados
+
+### [tabela_nome]
+| Coluna | Tipo | Obrigatório | Default | Notas |
+|---|---|---|---|---|
+| id | uuid | sim | gen_random_uuid() | PK |
+| ... | ... | ... | ... | ... |
+| created_at | timestamptz | sim | now() | auditoria |
+| created_by | uuid | sim | — | FK para users |
+| updated_at | timestamptz | sim | now() | auditoria |
+| updated_by | uuid | sim | — | FK para users |
+| deleted_at | timestamptz | não | null | soft delete |
+
+- **Chaves estrangeiras:** [...]
+- **Índices:** [...]
+- **RLS:** [resumo das políticas]
+- **Soft delete:** sim
+- **Invariantes:**
+  - [regra que NUNCA pode ser violada — ex: "saldo nunca pode ser negativo"]
+
+### [próxima tabela]
+[mesmo formato]
+
+---
+
+## 4. Fluxos de dados
+
+### [Nome do fluxo — bate com fluxo do PRODUCT.md]
+1. **Trigger:** [tela/evento/cron]
+2. **Função/endpoint que recebe:** [caminho do arquivo]
+3. **Validações:**
+   - [validação] (regra do CLAUDE.md ou do PRODUCT.md)
+4. **Operações de banco** (em ordem):
+   - [operação na tabela X]
+5. **Resposta para o usuário:** [...]
+6. **Side effects:** [e-mail / log / evento]
+
+### [Próximo fluxo]
+[mesmo formato]
+
+---
+
+## 5. Decisões arquiteturais já tomadas
+
+| Data | Decisão | Por quê | Impede no futuro | ADR |
+|---|---|---|---|---|
+| YYYY-MM-DD | [decisão curta] | [motivo] | [o que fica difícil/impossível] | [link para docs/decisions/] |
+
+---
+
+## 6. Pontos frágeis conhecidos
+
+### [Trecho frágil]
+- **Onde:** [arquivo/módulo]
+- **Por que é frágil:** [motivo]
+- **O que vai estourar primeiro:** [escala / concorrência / dado inválido]
+- **Plano:** consertar agora | aceitar e monitorar | ADR em [caminho]
+
+---
+
+## 7. Inventário de arquivos críticos
+
+| Caminho | Responsabilidade | Quem deve mexer | Quem NÃO deve mexer |
+|---|---|---|---|
+| src/lib/auth.ts | Autenticação central | Claude com cuidado + revisão | qualquer outro contexto |
+| ... | ... | ... | ... |

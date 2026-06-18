@@ -1,0 +1,121 @@
+# [Nome do Produto]
+
+> Documento de produto. Fonte de verdade do **domínio** e do **comportamento esperado**. Lido por todos os outros documentos. Atualizado quando o produto muda.
+
+---
+
+## 1. Visão e proposta de valor
+
+**Em uma frase:** [O produto é X]
+
+**Para quem, qual problema, como resolve:**
+[Parágrafo de 3-5 linhas. Tem que dar para uma pessoa de fora do projeto entender o produto lendo só esta seção.]
+
+**O que este produto NÃO é:**
+- [Delimitação 1]
+- [Delimitação 2]
+- [Delimitação 3]
+
+---
+
+## 2. Usuários e papéis
+
+### [Nome do papel — ex: "Gestor da granja"]
+- **Contexto:** [quem é, nível técnico, ambiente onde usa]
+- **Objetivos no sistema:** [o que essa pessoa quer fazer]
+- **Frustrações atuais:** [o que dói no jeito que faz hoje]
+- **Frequência de uso:** [diária / semanal / eventual]
+
+### [Próximo papel]
+[mesmo formato]
+
+---
+
+## 3. Glossário do domínio
+
+> Cada termo do negócio com definição completa. Espelho usado pelo CLAUDE.md.
+
+### [Termo]
+- **Definição:** [1-3 linhas]
+- **Exemplo:** [exemplo concreto, real]
+- **Relações:** [como se conecta com outros termos]
+- **NÃO confundir com:** [sinônimos proibidos no projeto]
+
+### [Próximo termo]
+[mesmo formato]
+
+---
+
+## 4. Entidades do negócio
+
+### [Nome da entidade]
+- **Atributos relevantes:** [lista — sem se preocupar com banco]
+- **Ciclo de vida:** [estados possíveis e transições]
+- **Quem cria:** [papel]
+- **Quem edita:** [papel(s)]
+- **Quem consulta:** [papel(s)]
+
+### [Próxima entidade]
+[mesmo formato]
+
+---
+
+## 5. Fluxos principais
+
+### [Nome do fluxo — ex: "Alojamento de novo lote"]
+- **Quem dispara:** [papel]
+- **Pré-condições:** [o que precisa ser verdade antes]
+- **Passos:**
+  1. [passo em linguagem de negócio]
+  2. [...]
+- **Pós-condições:** [o que vira verdadeiro depois]
+- **Divergências:** [casos em que aborta ou ramifica]
+
+### [Próximo fluxo]
+[mesmo formato]
+
+---
+
+## 6. KPIs e regras de cálculo
+
+### [Nome do KPI]
+- **Mede:** [em palavras]
+- **Fórmula:** [matemática simples, NÃO código]
+- **Unidade:** [unidade]
+- **Frequência:** [diário / semanal / mensal / por ciclo]
+- **Normal:** [faixa]
+- **Alerta:** [faixa]
+
+### [Próximo KPI]
+[mesmo formato]
+
+---
+
+## 7. Escopo
+
+### 7.1 Entra na v1
+- [item]
+- [item]
+
+### 7.2 Fica para depois
+- [item] — *Justificativa: [...]*
+- [item] — *Justificativa: [...]*
+
+### 7.3 Nunca vai entrar
+- [item] — *Motivo: [...]*
+
+---
+
+## 8. Restrições e premissas
+
+### Operacionais
+- [premissa, ex: "internet pode cair em campo"]
+
+### Legais / regulatórias
+- [restrição]
+
+### Orçamento / prazo
+- [restrição]
+
+### Integrações futuras esperadas
+- [não para implementar agora — só para arquitetar prevendo]

@@ -1,0 +1,69 @@
+# Sessão YYYY-MM-DD — [tema curto em kebab-case]
+
+> Log da sessão. Não é resumo de commit — é o "porquê" e o "o que vem depois".
+
+---
+
+## Objetivo da sessão
+
+[1 frase descrevendo o que era para ser feito.]
+
+---
+
+## O que foi feito
+
+- [bullet concreto] (`caminho/do/arquivo.ext`)
+- [bullet concreto] (`caminho/do/arquivo.ext`)
+- [bullet concreto]
+
+---
+
+## Decisões tomadas
+
+### [Decisão 1]
+- **Decisão:** [o que foi decidido]
+- **Por quê:** [motivo]
+- **Descartado:** [alternativa rejeitada e motivo]
+- **ADR criado?** [não / sim — `docs/decisions/YYYY-MM-DD-tema.md`]
+
+### [Decisão 2]
+[mesmo formato, se houver]
+
+---
+
+## Problemas encontrados
+
+### [Problema 1]
+- **Descrição:** [o que aconteceu]
+- **Causa raiz:** [por que aconteceu]
+- **Solução aplicada:** [o que foi feito]
+- **Status:** resolvido / aberto
+
+---
+
+## Estado do projeto agora
+
+### Funcionando
+- [item]
+- [item]
+
+### Quebrado / incompleto
+- [item — se houver]
+
+---
+
+## Próximo passo
+
+1. [item concreto]
+2. [item concreto]
+3. [item concreto]
+
+---
+
+## Atualizações em outros documentos
+
+- **`ARCHITECTURE.md`:** [resumo do que mudou]
+- **`CLAUDE.md`:** [resumo, se mudou]
+- **`docs/decisions/`:** [arquivos criados, se houve]
+- **`docs/specs/`:** [arquivos criados/atualizados]
+- **`PRODUCT.md`:** [se mudou — raro]
