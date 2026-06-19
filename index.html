@@ -140,6 +140,17 @@
     .cob-check { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;
                   border-radius:5px; padding:3px 9px; font-size:11px; font-weight:500; }
 
+    /* Como funciona */
+    .how-section { display:flex; flex-direction:column; gap:12px; }
+    .how-title { font-size:15px; font-weight:700; }
+    .how-desc  { font-size:13px; color:var(--muted); line-height:1.6; }
+    .how-checks { display:flex; flex-direction:column; gap:10px; }
+    .how-check { display:flex; gap:12px; align-items:flex-start;
+                  background:#f9fafb; border-radius:8px; padding:12px 14px; }
+    .how-icon { font-size:20px; flex-shrink:0; width:28px; text-align:center; }
+    .how-check div { font-size:13px; line-height:1.6; }
+    .how-check strong { display:block; margin-bottom:2px; }
+
     /* Footer / banner */
     .footer { margin-top:40px; text-align:center; font-size:11px; color:#9ca3af; }
     #running-banner { display:none; background:#ede9fe; color:#4f46e5; padding:10px 24px;
@@ -157,7 +168,7 @@
 
   <header class="header">
     <span class="logo">⚡ Auditor Minimal Club</span>
-    <span class="header-meta">Atualizado em 19/06/2026 18:45 UTC</span>
+    <span class="header-meta">Atualizado em 19/06/2026 19:03 UTC</span>
   </header>
 
   <nav class="tab-nav">
@@ -172,16 +183,16 @@
     <div class="hero-card fail">
       <div class="hero-icon">✗</div>
       <div class="hero-info">
-        <div class="hero-title">74 falha(s) detectada(s)</div>
-        <div class="hero-date">Última auditoria: 19/06/2026 18:36</div>
+        <div class="hero-title">72 falha(s) detectada(s)</div>
+        <div class="hero-date">Última auditoria: 19/06/2026 18:54</div>
         <div class="hero-stats">
           <span class="stat-pill ok">68 passaram</span>
-          <span class="stat-pill fail">74 falharam</span>
-          <span class="stat-pill err">41 erros</span>
+          <span class="stat-pill fail">72 falharam</span>
+          <span class="stat-pill err">43 erros</span>
           <span class="stat-pill gray">37% taxa de sucesso</span>
         </div>
       </div>
-      <a class="btn btn-outline" href="reports/2026-06-19T18-36-35.html" target="_blank">Ver relatório completo</a>
+      <a class="btn btn-outline" href="reports/2026-06-19T18-54-25.html" target="_blank">Ver relatório completo</a>
     </div>
 
       <div class="actions-row">
@@ -194,7 +205,7 @@
       <div class="card">
         <div class="card-header">
           Histórico de auditorias
-          <span style="font-weight:400;color:var(--muted);font-size:12px;margin-left:auto">2 execuções</span>
+          <span style="font-weight:400;color:var(--muted);font-size:12px;margin-left:auto">3 execuções</span>
         </div>
         <table>
           <thead>
@@ -207,6 +218,13 @@
           </thead>
           <tbody>
         <tr>
+          <td>19/06/2026 18:54</td><td><span class="badge b-fail">✗ Com falhas</span></td>
+          <td class="num">183</td><td class="num ok">68</td>
+          <td class="num fail">72</td><td class="num err">43</td>
+          <td class="num">37%</td><td><a class="report-link" href="reports/2026-06-19T18-54-25.html" target="_blank">Ver relatório →</a></td>
+        </tr>
+
+        <tr>
           <td>19/06/2026 18:36</td><td><span class="badge b-fail">✗ Com falhas</span></td>
           <td class="num">183</td><td class="num ok">68</td>
           <td class="num fail">74</td><td class="num err">41</td>
@@ -217,7 +235,7 @@
           <td>19/06/2026 16:24</td><td><span class="badge b-fail">✗ Com falhas</span></td>
           <td class="num">183</td><td class="num ok">73</td>
           <td class="num fail">70</td><td class="num err">40</td>
-          <td class="num">40%</td><td><span class="muted">—</span></td>
+          <td class="num">40%</td><td><a class="report-link" href="reports/2026-06-19T16-24-13.html" target="_blank">Ver relatório →</a></td>
         </tr></tbody>
         </table>
       </div>
@@ -398,6 +416,53 @@
           </div>
           <div class="cob-checks"><span class="cob-check">✓ Dispara após delay</span><span class="cob-check">✓ Botão fechar visível</span><span class="cob-check">✓ Fechar funciona</span><span class="cob-check">✓ Não bloqueia scroll</span><span class="cob-check">✓ Não bloqueia cliques</span><span class="cob-check">✓ Não dispara no checkout</span><span class="cob-check">✓ Não reaparece na sessão</span></div>
         </div></div>
+    </div>
+
+    
+    <div class="card">
+      <div class="card-header">Como funciona a auditoria?</div>
+      <div style="padding:20px 24px;display:flex;flex-direction:column;gap:24px">
+
+        <div class="how-section">
+          <div class="how-title">🌐 Saúde técnica de cada página</div>
+          <div class="how-desc">Para cada página configurada, o auditor abre um navegador real (Chrome) e executa as seguintes verificações:</div>
+          <div class="how-checks">
+            <div class="how-check"><span class="how-icon">🔗</span><div><strong>Status HTTP</strong><br>Confirma que a página responde com código 200 (OK). Qualquer outro código — como 404 (não encontrada) ou 500 (erro de servidor) — gera uma falha.</div></div>
+            <div class="how-check"><span class="how-icon">⚠️</span><div><strong>Erros de JavaScript</strong><br>Lê o console do navegador enquanto a página carrega. Erros de JS podem quebrar funcionalidades invisíveis para o usuário, como o botão de adicionar ao carrinho ou cálculos de desconto.</div></div>
+            <div class="how-check"><span class="how-icon">📡</span><div><strong>Requisições com falha</strong><br>Monitora todas as chamadas de rede da página (imagens, scripts, APIs). Se alguma falhar, pode significar que um recurso visual não carregou ou que uma integração está quebrada.</div></div>
+            <div class="how-check"><span class="how-icon">⏱️</span><div><strong>Tempo de carregamento</strong><br>Mede quantos milissegundos a página leva para carregar completamente (evento <em>load</em>). O limiar configurado é 5 segundos — acima disso o comprador abandona.</div></div>
+            <div class="how-check"><span class="how-icon">🖼️</span><div><strong>LCP — Largest Contentful Paint</strong><br>Mede quando o maior elemento visível aparece na tela (geralmente a foto principal do produto). O Google considera acima de 2.5s uma experiência ruim. O auditor alerta acima de 4s.</div></div>
+            <div class="how-check"><span class="how-icon">📐</span><div><strong>CLS — Cumulative Layout Shift</strong><br>Mede se elementos da página "pulam" de posição enquanto outros recursos carregam — por exemplo, um botão que se move antes do usuário conseguir clicar. Uma pontuação acima de 0.25 indica problema.</div></div>
+            <div class="how-check"><span class="how-icon">👆</span><div><strong>FID — First Input Delay</strong><br>Mede quanto tempo o site demora para responder ao primeiro clique ou toque do usuário. Acima de 300ms o usuário percebe a lentidão como travamento.</div></div>
+          </div>
+        </div>
+
+        <div class="how-section">
+          <div class="how-title">🧭 Fluxos funcionais</div>
+          <div class="how-desc">O auditor simula um comprador real navegando pelo site passo a passo, como se fosse um usuário com o dedo no celular. Se qualquer passo falhar, tira um screenshot automático e registra o erro com o detalhe técnico.</div>
+          <div class="how-checks">
+            <div class="how-check"><span class="how-icon">🏠</span><div><strong>Descoberta até PDP</strong><br>Abre a home → entra na coleção → clica no primeiro produto → confirma que a página de produto carregou com preço e imagem.</div></div>
+            <div class="how-check"><span class="how-icon">👕</span><div><strong>Seleção de variante</strong><br>Verifica se o seletor de tamanho aparece e se, ao selecionar um tamanho, o botão "Adicionar ao carrinho" fica disponível.</div></div>
+            <div class="how-check"><span class="how-icon">🛒</span><div><strong>Add to cart</strong><br>Clica em "Adicionar ao carrinho" e confirma que o contador do carrinho aumentou.</div></div>
+            <div class="how-check"><span class="how-icon">🏷️</span><div><strong>Desconto progressivo</strong><br>Adiciona um produto da coleção de desconto progressivo e verifica que a mensagem de desconto aparece no carrinho.</div></div>
+            <div class="how-check"><span class="how-icon">💳</span><div><strong>Início de checkout</strong><br>Adiciona item, vai ao carrinho, clica em "Finalizar compra" e confirma que o formulário de checkout renderizou com o campo de e-mail.</div></div>
+            <div class="how-check"><span class="how-icon">☰</span><div><strong>Menu mobile (hamburger)</strong><br>No mobile, verifica se o botão de menu aparece, se abre ao clicar, e se os links de coleção estão visíveis dentro dele.</div></div>
+            <div class="how-check"><span class="how-icon">🔍</span><div><strong>Busca</strong><br>Clica no ícone de busca, digita "camiseta" e verifica se os resultados aparecem. Clica no primeiro resultado e confirma redirecionamento para produto.</div></div>
+          </div>
+        </div>
+
+        <div class="how-section">
+          <div class="how-title">💬 Popup de captura</div>
+          <div class="how-desc">Verifica o comportamento do popup Klaviyo que aparece para novos visitantes:</div>
+          <div class="how-checks">
+            <div class="how-check"><span class="how-icon">⏳</span><div><strong>Dispara após o delay</strong><br>Confirma que o popup aparece após ~3 segundos na home, como configurado.</div></div>
+            <div class="how-check"><span class="how-icon">✕</span><div><strong>Botão fechar visível e funcional</strong><br>Verifica que o "X" está sempre visível e que clicar nele remove o popup completamente.</div></div>
+            <div class="how-check"><span class="how-icon">🚫</span><div><strong>Não bloqueia a navegação</strong><br>Após fechar o popup, testa que o scroll e os cliques na página voltam a funcionar normalmente.</div></div>
+            <div class="how-check"><span class="how-icon">🛒</span><div><strong>Não aparece no checkout</strong><br>Confirma que o popup nunca aparece na página de checkout — o que poderia fazer o comprador desistir na etapa mais crítica do funil.</div></div>
+          </div>
+        </div>
+
+      </div>
     </div>
     </div>
   </div>
