@@ -11,6 +11,7 @@ from typing import Optional
 
 from jinja2 import Environment
 
+from ..reporters.explanations import explain_expected
 from ..types import AuditRun, AuditStatus, CheckResult, CheckStatus
 
 
@@ -71,7 +72,7 @@ _HTML_TEMPLATE = """\
     /* ── Failure cards ── */
     .failure-card {
       background: #fff; border-radius: 10px; border: 1px solid #e5e7eb;
-      border-left: 4px solid #ef4444; margin-bottom: 16px; overflow: hidden;
+      border-left: 4px solid #ef4444; margin-bottom: 20px; overflow: hidden;
     }
     .failure-card.is-erro { border-left-color: #f59e0b; }
     .failure-card-head {
@@ -79,32 +80,43 @@ _HTML_TEMPLATE = """\
       padding: 14px 18px; border-bottom: 1px solid #f3f4f6;
     }
     .failure-card-head strong { font-size: 14px; flex: 1; }
-    .failure-card-body { display: grid; gap: 0; }
-    .failure-card-body.has-screenshot {
-      grid-template-columns: 1fr 340px;
-    }
-    .failure-card-left { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
-    .detail-block label { display: block; font-size: 10px; text-transform: uppercase;
-                          letter-spacing: .5px; color: #9ca3af; margin-bottom: 4px; font-weight: 600; }
-    .detail-block .detail-value {
-      font-size: 12px; font-family: monospace; color: #b91c1c;
-      background: #fef2f2; padding: 6px 10px; border-radius: 6px;
-      word-break: break-word;
-    }
-    .detail-block.is-erro .detail-value { color: #b45309; background: #fffbeb; }
-    .explanation-block label { display: block; font-size: 10px; text-transform: uppercase;
-                               letter-spacing: .5px; color: #9ca3af; margin-bottom: 4px; font-weight: 600; }
-    .explanation-block p { font-size: 13px; color: #374151; line-height: 1.6; }
+    .failure-card-body { padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+    .scope-line { font-size: 12px; color: #6b7280; font-family: monospace; }
+
+    .info-blocks { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    @media (max-width: 700px) { .info-blocks { grid-template-columns: 1fr; } }
+
+    .info-block { border-radius: 8px; padding: 12px 14px; }
+    .info-block label { display: block; font-size: 10px; text-transform: uppercase;
+                        letter-spacing: .5px; font-weight: 700; margin-bottom: 6px; }
+    .info-block p { font-size: 13px; line-height: 1.6; }
+
+    .block-detail { background: #fef2f2; border: 1px solid #fecaca; }
+    .block-detail label { color: #dc2626; }
+    .block-detail p { color: #7f1d1d; font-family: monospace; font-size: 12px; word-break: break-word; }
+    .block-detail.is-erro { background: #fffbeb; border-color: #fde68a; }
+    .block-detail.is-erro label { color: #d97706; }
+    .block-detail.is-erro p { color: #78350f; }
+
+    .block-expected { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .block-expected label { color: #15803d; }
+    .block-expected p { color: #14532d; }
+
+    .block-impact { background: #f8fafc; border: 1px solid #e2e8f0; }
+    .block-impact label { color: #475569; }
+    .block-impact p { color: #334155; }
+
     .failure-screenshot {
-      border-left: 1px solid #f3f4f6; background: #f9fafb;
-      display: flex; align-items: flex-start; padding: 12px;
+      border-top: 1px solid #f3f4f6; padding-top: 16px;
+    }
+    .failure-screenshot-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
+      font-weight: 700; color: #9ca3af; margin-bottom: 8px;
     }
     .failure-screenshot img {
-      width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      width: 100%; border-radius: 8px; border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 16px rgba(0,0,0,.10); display: block;
     }
-    .scope-line { font-size: 12px; color: #6b7280; font-family: monospace;
-                  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -148,25 +160,37 @@ _HTML_TEMPLATE = """\
       <span class="vp">{{ r.viewport }}</span>
       {% if r.value_display %}<span class="val">{{ r.value_display }}</span>{% endif %}
     </div>
-    <div class="failure-card-body{% if r.screenshot_b64 %} has-screenshot{% endif %}">
-      <div class="failure-card-left">
-        <div class="scope-line" title="{{ r.full_scope }}">{{ r.full_scope }}</div>
+    <div class="failure-card-body">
+      <div class="scope-line">{{ r.full_scope }}</div>
+
+      <div class="info-blocks">
         {% if r.detail %}
-        <div class="detail-block{% if r.status == 'erro' %} is-erro{% endif %}">
-          <label>Detalhe técnico</label>
-          <div class="detail-value">{{ r.detail }}</div>
+        <div class="info-block block-detail{% if r.status == 'erro' %} is-erro{% endif %}">
+          <label>O que aconteceu</label>
+          <p>{{ r.detail }}</p>
         </div>
         {% endif %}
+
+        {% if r.expected %}
+        <div class="info-block block-expected">
+          <label>O que era esperado</label>
+          <p>{{ r.expected }}</p>
+        </div>
+        {% endif %}
+
         {% if r.explanation %}
-        <div class="explanation-block">
-          <label>O que isso significa</label>
+        <div class="info-block block-impact">
+          <label>Impacto no negócio</label>
           <p>{{ r.explanation }}</p>
         </div>
         {% endif %}
       </div>
+
       {% if r.screenshot_b64 %}
       <div class="failure-screenshot">
-        <img src="data:image/png;base64,{{ r.screenshot_b64 }}" alt="Screenshot no momento da falha">
+        <div class="failure-screenshot-label">Estado da página no momento da falha</div>
+        <img src="data:image/png;base64,{{ r.screenshot_b64 }}"
+             alt="Screenshot da página no momento da falha — {{ r.check_name }}">
       </div>
       {% endif %}
     </div>
@@ -290,6 +314,7 @@ def _format_result(r: CheckResult) -> dict:
         "status": r.status.value,
         "value_display": val_str,
         "detail": r.detail or "",
+        "expected": explain_expected(r.check_id, r.check_name, r.value, r.threshold, r.unit),
         "explanation": r.explanation or "",
         "screenshot_b64": r.screenshot_b64 or "",
     }

@@ -225,6 +225,70 @@ def _flow_or_popup_handler(check_id, check_name, detail, value, threshold, unit)
     return base
 
 
+# ── O que era esperado ────────────────────────────────────────────────────────
+
+def explain_expected(
+    check_id: str,
+    check_name: str,
+    value: Optional[float] = None,
+    threshold: Optional[float] = None,
+    unit: Optional[str] = None,
+) -> str:
+    """Retorna o comportamento esperado (o que deveria ter acontecido) para cada check."""
+    if check_id == "http_status":
+        return "A página deveria responder com HTTP 200 (OK) — o código que indica que carregou com sucesso e está disponível para o visitante."
+
+    if check_id == "console_errors":
+        return "O console do navegador deveria estar completamente limpo durante o carregamento — sem nenhum erro de JavaScript."
+
+    if check_id == "failed_requests":
+        return "Todas as requisições de rede (imagens, fontes, scripts, APIs) deveriam retornar com sucesso (HTTP 2xx), sem nenhuma falha."
+
+    if check_id == "load_time":
+        lim = f"{threshold / 1000:.1f}s" if threshold else "5s"
+        return f"A página deveria carregar completamente em menos de {lim} — tempo máximo configurado para garantir boa experiência de compra."
+
+    if check_id == "lcp":
+        lim = f"{threshold / 1000:.1f}s" if threshold else "4s"
+        return f"O maior elemento visual da página (imagem, banner ou título principal) deveria aparecer na tela em menos de {lim}."
+
+    if check_id == "cls":
+        lim = f"{threshold:.2f}" if threshold else "0.25"
+        return f"Os elementos da página não deveriam se mover depois de carregados. O deslocamento acumulado (CLS) deveria ficar abaixo de {lim}."
+
+    if check_id == "fid":
+        lim = f"{threshold:.0f}ms" if threshold else "300ms"
+        return f"O site deveria responder ao primeiro clique ou toque do usuário em menos de {lim}, sem nenhum atraso perceptível."
+
+    if check_id in ("popup_dispara", "popup_dispara_apos_delay"):
+        return "O popup deveria aparecer automaticamente após o delay configurado (~3 segundos) para novos visitantes na home."
+
+    if check_id in ("popup_botao_fechar", "popup_botao_fechar_visivel"):
+        return "O botão de fechar (×) deveria estar sempre visível e acessível, permitindo que o visitante dispense o popup a qualquer momento."
+
+    if check_id in ("popup_fechar_funciona",):
+        return "Ao clicar no botão de fechar, o popup deveria desaparecer completamente e a página deveria voltar ao estado normal."
+
+    if check_id in ("popup_scroll_block", "popup_nao_bloqueia_scroll"):
+        return "Após fechar o popup, o scroll da página deveria funcionar normalmente, permitindo que o visitante navegue livremente pelo conteúdo."
+
+    if check_id in ("popup_click_block", "popup_nao_bloqueia_clique"):
+        return "Após fechar o popup, todos os cliques na página deveriam funcionar normalmente — sem overlay invisível bloqueando a interação."
+
+    if check_id in ("popup_loop", "popup_nao_dispara_loop"):
+        return "O popup não deveria reaparecer após ser fechado na mesma sessão — a regra é: máximo 1 exibição por visita."
+
+    if check_id in ("popup_checkout", "popup_nao_dispara_no_checkout"):
+        return "O popup não deveria aparecer na página de checkout em nenhuma circunstância — o visitante está prestes a comprar e não pode ser interrompido."
+
+    # Fluxo funcional
+    if "→" in check_name:
+        _, step = check_name.split("→", 1)
+        return f"O passo '{step.strip()}' deveria ser concluído com sucesso pelo auditor, da mesma forma que um comprador real conseguiria executá-lo."
+
+    return "Esta verificação deveria ser concluída com sucesso, sem falhas ou erros detectados."
+
+
 # ── Tabela de despacho ────────────────────────────────────────────────────────
 
 _HANDLERS = {
