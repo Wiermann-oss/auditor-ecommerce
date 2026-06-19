@@ -560,7 +560,13 @@ function esc(s) {
 
 function fmtDate(iso) {
   if (!iso) return '—';
-  return iso.slice(0,16).replace('T', ' ');
+  const utcIso = /Z$|[+-]\d{2}:\d{2}$/.test(iso) ? iso : iso + 'Z';
+  const d = new Date(utcIso);
+  return d.toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+    timeZone: 'America/Sao_Paulo',
+  });
 }
 
 function calcDur(start, end) {

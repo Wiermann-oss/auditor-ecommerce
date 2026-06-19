@@ -144,7 +144,12 @@ last = runs[0] if runs else None
 
 def _fmt_date(iso: str) -> str:
     try:
-        return datetime.fromisoformat(iso).astimezone().strftime("%d/%m/%Y %H:%M")
+        from zoneinfo import ZoneInfo
+        brt = ZoneInfo("America/Sao_Paulo")
+        dt = datetime.fromisoformat(iso)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(brt).strftime("%d/%m/%Y %H:%M")
     except Exception:
         return iso[:16].replace("T", " ")
 
