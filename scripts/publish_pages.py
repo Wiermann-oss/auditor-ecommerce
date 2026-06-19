@@ -42,6 +42,9 @@ PAGES_BASE = (
     if GITHUB_REPO else ""
 )
 
+GOOGLE_CLIENT_ID  = os.environ.get("GOOGLE_CLIENT_ID", "")
+_ALLOWED_DOMAINS  = ["minimalclub.com.br", "moonventures.com.br", "hoomy.com.br"]
+
 
 # ── Copiar relatórios e screenshots ───────────────────────────────────────────
 
@@ -90,6 +93,153 @@ runs = [
 (OUTPUT_DIR / "reports.json").write_text(
     json.dumps(runs, ensure_ascii=False, indent=2), encoding="utf-8"
 )
+
+
+# ── Auth helpers ──────────────────────────────────────────────────────────────
+
+def _auth_css() -> str:
+    if not GOOGLE_CLIENT_ID:
+        return ""
+    return """
+    #auth-overlay {
+      position: fixed; inset: 0; background: rgba(10,10,30,.84);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .login-card {
+      background: #fff; border-radius: 16px; padding: 40px 36px;
+      max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      display: flex; flex-direction: column; align-items: center; gap: 0; text-align: center;
+    }
+    .login-brand { font-size: 20px; font-weight: 800; color: #4f46e5; margin-bottom: 22px; }
+    .login-title { font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 8px; }
+    .login-desc  { font-size: 14px; color: #6b7280; line-height: 1.6; margin-bottom: 28px; }
+    #google-btn  { margin-bottom: 20px; display: flex; justify-content: center; min-height: 44px; }
+    .login-domains { font-size: 11px; color: #6b7280; background: #f9fafb;
+                     border-radius: 8px; padding: 10px 14px; line-height: 1.9; width: 100%; }
+    .login-domains strong { display: block; margin-bottom: 4px; color: #374151; }
+    #auth-error { margin-top: 14px; padding: 10px 14px; background: #fee2e2;
+                  color: #991b1b; border-radius: 8px; font-size: 13px;
+                  display: none; width: 100%; text-align: left; }
+    #user-info  { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #6b7280; }
+    #user-info img { width: 24px; height: 24px; border-radius: 50%; }
+    .btn-signout { background: none; border: 1px solid #e5e7eb; border-radius: 5px;
+                   padding: 3px 9px; cursor: pointer; font-size: 11px; color: #6b7280; }
+    .btn-signout:hover { background: #f3f4f6; }
+    """
+
+
+def _auth_overlay_html() -> str:
+    if not GOOGLE_CLIENT_ID:
+        return ""
+    domains_html = "".join(f"<span>@{d}</span><br>" for d in _ALLOWED_DOMAINS)
+    return f"""
+  <div id="auth-overlay">
+    <div class="login-card">
+      <div class="login-brand">⚡ Auditor Minimal Club</div>
+      <div class="login-title">Acesso restrito</div>
+      <div class="login-desc">Faça login com sua conta corporativa para visualizar os relatórios de auditoria.</div>
+      <div id="google-btn"></div>
+      <div class="login-domains">
+        <strong>Domínios autorizados</strong>
+        {domains_html}
+      </div>
+      <div id="auth-error"></div>
+    </div>
+  </div>"""
+
+
+def _auth_js() -> str:
+    if not GOOGLE_CLIENT_ID:
+        return ""
+    domains_json = json.dumps(_ALLOWED_DOMAINS)
+    return f"""
+  const _ALLOWED = {domains_json};
+  const _AUTH_KEY = 'auditor_auth_v1';
+  const _AUTH_EXP = 7 * 24 * 60 * 60 * 1000;
+  const _CLIENT_ID = '{GOOGLE_CLIENT_ID}';
+
+  function _checkStored() {{
+    try {{
+      const raw = localStorage.getItem(_AUTH_KEY);
+      if (!raw) return null;
+      const a = JSON.parse(raw);
+      if (Date.now() > a.exp) {{ localStorage.removeItem(_AUTH_KEY); return null; }}
+      if (!_ALLOWED.includes(a.email.split('@')[1])) {{ localStorage.removeItem(_AUTH_KEY); return null; }}
+      return a;
+    }} catch(e) {{ return null; }}
+  }}
+
+  function _reveal(auth) {{
+    const ov = document.getElementById('auth-overlay');
+    if (ov) ov.style.display = 'none';
+    const ui = document.getElementById('user-info');
+    if (ui) {{
+      const img = auth.picture
+        ? '<img src="' + auth.picture + '" alt="">'
+        : '';
+      ui.innerHTML = img + '<span>' + auth.name + '</span>'
+        + '<button class="btn-signout" onclick="_signOut()">Sair</button>';
+    }}
+  }}
+
+  function _signOut() {{
+    localStorage.removeItem(_AUTH_KEY);
+    try {{ google.accounts.id.disableAutoSelect(); }} catch(e) {{}}
+    location.reload();
+  }}
+
+  function _onCredential(resp) {{
+    try {{
+      const b64 = resp.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+      const p = JSON.parse(atob(b64));
+      const domain = p.email.split('@')[1];
+      if (!_ALLOWED.includes(domain)) {{
+        const el = document.getElementById('auth-error');
+        el.textContent = 'Acesso negado. O e-mail ' + p.email + ' não pertence a um domínio autorizado.';
+        el.style.display = 'block';
+        return;
+      }}
+      const auth = {{ email: p.email, name: p.name || p.email,
+                      picture: p.picture || '', exp: Date.now() + _AUTH_EXP }};
+      localStorage.setItem(_AUTH_KEY, JSON.stringify(auth));
+      _reveal(auth);
+    }} catch(e) {{
+      const el = document.getElementById('auth-error');
+      el.textContent = 'Erro ao processar login. Tente novamente.';
+      el.style.display = 'block';
+    }}
+  }}
+
+  function _initLogin() {{
+    if (!window.google || !google.accounts || !google.accounts.id) {{
+      setTimeout(_initLogin, 120); return;
+    }}
+    google.accounts.id.initialize({{ client_id: _CLIENT_ID, callback: _onCredential, auto_select: false }});
+    google.accounts.id.renderButton(
+      document.getElementById('google-btn'),
+      {{ theme: 'outline', size: 'large', text: 'signin_with', locale: 'pt-BR', width: 280 }}
+    );
+  }}
+
+  (function() {{
+    const stored = _checkStored();
+    if (stored) {{ window.addEventListener('DOMContentLoaded', function() {{ _reveal(stored); }}); }}
+    else {{ window.addEventListener('DOMContentLoaded', _initLogin); }}
+  }})();
+"""
+
+
+def _gsi_script_tag() -> str:
+    if not GOOGLE_CLIENT_ID:
+        return ""
+    return '<script src="https://accounts.google.com/gsi/client" async defer></script>'
+
+
+def _user_info_html() -> str:
+    if not GOOGLE_CLIENT_ID:
+        return ""
+    return '<div id="user-info"></div>'
 
 
 # ── Carregar config (páginas, fluxos, popups) ─────────────────────────────────
@@ -382,6 +532,7 @@ HTML = f"""<!DOCTYPE html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Auditor — Minimal Club</title>
+  {_gsi_script_tag()}
   <style>
     *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
     :root {{
@@ -537,16 +688,21 @@ HTML = f"""<!DOCTYPE html>
                 border-top-color:var(--pri); border-radius:50%;
                 animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }}
     @keyframes spin {{ to {{ transform:rotate(360deg); }} }}
+    {_auth_css()}
   </style>
 </head>
 <body>
+  {_auth_overlay_html()}
   <div id="running-banner">
     <span class="spinner"></span> Auditoria em andamento no GitHub Actions — página atualiza ao concluir
   </div>
 
   <header class="header">
     <span class="logo">⚡ Auditor Minimal Club</span>
-    <span class="header-meta">Atualizado em {generated_at}</span>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span class="header-meta">Atualizado em {generated_at}</span>
+      {_user_info_html()}
+    </div>
   </header>
 
   <nav class="tab-nav">
@@ -599,6 +755,7 @@ HTML = f"""<!DOCTYPE html>
   </div>
 
   <script>
+    {_auth_js()}
     function switchTab(name, btn) {{
       document.querySelectorAll('.tab-pane').forEach(function(p) {{ p.classList.remove('active'); }});
       document.querySelectorAll('.tab-btn').forEach(function(b) {{ b.classList.remove('active'); }});
