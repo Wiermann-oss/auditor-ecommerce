@@ -8,13 +8,17 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import time
+from pathlib import Path
 from typing import Optional
 
 from playwright.async_api import Browser, ConsoleMessage, Request, Response
 
 from ..config.models import AuditConfig, CriticalPage, Thresholds
+from ..reporters.explanations import explain_failure
 from ..types import Categoria, CheckResult, CheckStatus, Viewport
+from ._screenshot import capture_failure_screenshot, enrich_failure
 
 _VIEWPORT_DIMS = {
     Viewport.DESKTOP: {"width": 1280, "height": 800},
@@ -38,6 +42,7 @@ async def run_page_health_checks(
     critical_page: CriticalPage,
     config: AuditConfig,
     viewport: Viewport,
+    screenshots_dir: Optional[Path] = None,
 ) -> list[CheckResult]:
     """Executa todas as checagens de saúde técnica para uma página num viewport."""
     url = config.absolute_url(critical_page.url)
@@ -69,6 +74,10 @@ async def run_page_health_checks(
     page.on("requestfailed", on_request_failed)
     page.on("response", on_response)
 
+    page_stem = f"{_safe_name(critical_page.name)}_{viewport.value}"
+    screenshot_path: Optional[str] = None
+    screenshot_b64: Optional[str] = None
+
     try:
         nav_start = time.monotonic()
         response = await page.goto(
@@ -78,35 +87,64 @@ async def run_page_health_checks(
         )
         nav_duration_ms = int((time.monotonic() - nav_start) * 1000)
 
-        results.append(_check_http_status(url, response, viewport, nav_duration_ms))
-        results.append(_check_console_errors(url, console_errors, viewport))
-        results.append(_check_failed_requests(url, failed_requests, viewport))
+        check_results_raw = [
+            _check_http_status(url, response, viewport, nav_duration_ms),
+            _check_console_errors(url, console_errors, viewport),
+            _check_failed_requests(url, failed_requests, viewport),
+        ]
 
         load_ms = await _get_load_time_ms(page)
-        results.append(_check_load_time(url, load_ms, config.thresholds.load_time_ms, viewport))
+        check_results_raw.append(_check_load_time(url, load_ms, config.thresholds.load_time_ms, viewport))
 
         if not critical_page.lighthouse_skip:
             lh_results = await _run_lighthouse_checks(url, config.thresholds, viewport)
-            results.extend(lh_results)
+            check_results_raw.extend(lh_results)
+
+        # Capturar screenshot apenas se houver falhas — página ainda está aberta
+        has_failures = any(cr.status != CheckStatus.PASSOU for cr in check_results_raw)
+        if has_failures and screenshots_dir:
+            screenshot_path, screenshot_b64 = await capture_failure_screenshot(
+                page, screenshots_dir, page_stem
+            )
+
+        for cr in check_results_raw:
+            enrich_failure(
+                cr, screenshot_path, screenshot_b64,
+                explain_failure(cr.check_id, cr.check_name, cr.detail, cr.value, cr.threshold, cr.unit)
+            )
+        results.extend(check_results_raw)
 
     except Exception as exc:
         duration_ms = int((time.monotonic() - start_mono) * 1000)
-        results.append(
-            CheckResult(
-                check_id="page_load_error",
-                check_name="Carregamento da página",
-                categoria=Categoria.SAUDE_TECNICA,
-                viewport=viewport,
-                status=CheckStatus.ERRO,
-                page_url=url,
-                detail=f"Erro ao carregar {url}: {type(exc).__name__}: {exc}",
-                duration_ms=duration_ms,
+        if screenshots_dir:
+            screenshot_path, screenshot_b64 = await capture_failure_screenshot(
+                page, screenshots_dir, f"error_{page_stem}"
             )
+        err_result = CheckResult(
+            check_id="page_load_error",
+            check_name="Carregamento da página",
+            categoria=Categoria.SAUDE_TECNICA,
+            viewport=viewport,
+            status=CheckStatus.ERRO,
+            page_url=url,
+            detail=f"Erro ao carregar {url}: {type(exc).__name__}: {exc}",
+            duration_ms=duration_ms,
+            screenshot_path=screenshot_path,
+            screenshot_b64=screenshot_b64,
+            explanation=(
+                "A página não carregou corretamente durante a auditoria. "
+                "Pode ser instabilidade temporária da loja, timeout de rede ou erro de configuração do auditor."
+            ),
         )
+        results.append(err_result)
     finally:
         await context.close()
 
     return results
+
+
+def _safe_name(name: str) -> str:
+    return re.sub(r"[^a-z0-9]", "_", name.lower().strip())[:30]
 
 
 # — Checagens individuais —

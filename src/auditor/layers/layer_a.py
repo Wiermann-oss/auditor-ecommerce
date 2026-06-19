@@ -7,12 +7,15 @@ Cada step produz um CheckResult. Abort_on_failure interrompe o fluxo no primeiro
 from __future__ import annotations
 
 import time
+from pathlib import Path
 from typing import Optional
 
 from playwright.async_api import Browser, Page, TimeoutError as PlaywrightTimeoutError
 
 from ..config.models import ActionType, AuditConfig, ExpectType, Flow, FlowStep, RunMode
+from ..reporters.explanations import explain_failure
 from ..types import Categoria, CheckResult, CheckStatus, Viewport
+from ._screenshot import capture_failure_screenshot
 
 _VIEWPORT_DIMS = {
     Viewport.DESKTOP: {"width": 1280, "height": 800},
@@ -36,6 +39,7 @@ async def run_flow(
     flow: Flow,
     config: AuditConfig,
     viewport: Viewport,
+    screenshots_dir: Optional[Path] = None,
 ) -> list[CheckResult]:
     """
     Executa um fluxo completo em contexto isolado (fresh browser context).
@@ -68,7 +72,7 @@ async def run_flow(
                 )
                 continue
 
-            result = await _execute_step(page, step, flow, config, viewport, i)
+            result = await _execute_step(page, step, flow, config, viewport, i, screenshots_dir)
             results.append(result)
 
             if result.status == CheckStatus.FALHOU and flow.abort_on_failure:
@@ -100,6 +104,7 @@ async def _execute_step(
     config: AuditConfig,
     viewport: Viewport,
     step_index: int,
+    screenshots_dir: Optional[Path] = None,
 ) -> CheckResult:
     check_id = f"{flow.id}_step_{step_index}"
     check_name = f"{flow.name} → {step.name}"
@@ -122,7 +127,8 @@ async def _execute_step(
         )
 
     except _StepFailure as exc:
-        # Falha de loja: elemento não encontrado, asserção falhou, clique bloqueado
+        screenshot_path, screenshot_b64 = await _screenshot_on_fail(page, screenshots_dir, check_id, viewport)
+        detail = str(exc)
         return CheckResult(
             check_id=check_id,
             check_name=check_name,
@@ -130,12 +136,16 @@ async def _execute_step(
             viewport=viewport,
             status=CheckStatus.FALHOU,
             flow_name=flow.name,
-            detail=str(exc),
+            detail=detail,
             duration_ms=int((time.monotonic() - start) * 1000),
+            screenshot_path=screenshot_path,
+            screenshot_b64=screenshot_b64,
+            explanation=explain_failure(check_id, check_name, detail),
         )
 
     except Exception as exc:
-        # Erro do auditor: timeout de config, seletor malformado, etc.
+        screenshot_path, screenshot_b64 = await _screenshot_on_fail(page, screenshots_dir, check_id, viewport)
+        detail = f"{type(exc).__name__}: {exc}"
         return CheckResult(
             check_id=check_id,
             check_name=check_name,
@@ -143,8 +153,11 @@ async def _execute_step(
             viewport=viewport,
             status=CheckStatus.ERRO,
             flow_name=flow.name,
-            detail=f"{type(exc).__name__}: {exc}",
+            detail=detail,
             duration_ms=int((time.monotonic() - start) * 1000),
+            screenshot_path=screenshot_path,
+            screenshot_b64=screenshot_b64,
+            explanation=explain_failure(check_id, check_name, detail),
         )
 
 
@@ -261,6 +274,18 @@ def _resolve_url(value: Optional[str], config: AuditConfig) -> str:
     if value.startswith("http://") or value.startswith("https://"):
         return value
     return config.absolute_url(value)
+
+
+async def _screenshot_on_fail(
+    page: Page,
+    screenshots_dir: Optional[Path],
+    check_id: str,
+    viewport: Viewport,
+) -> tuple[Optional[str], Optional[str]]:
+    if not screenshots_dir:
+        return None, None
+    stem = f"{check_id}_{viewport.value}"
+    return await capture_failure_screenshot(page, screenshots_dir, stem)
 
 
 class _StepFailure(Exception):

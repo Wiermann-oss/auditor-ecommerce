@@ -51,6 +51,10 @@ def run(
     scheduled: bool = typer.Option(
         False, "--scheduled", help="Marcar execução como agendada (cron/CI)"
     ),
+    url_filter: str = typer.Option(
+        "", "--url-filter", "-f",
+        help="Auditar apenas páginas cuja URL contenha este texto (ex: colecoes)"
+    ),
 ) -> None:
     """Executa uma auditoria completa da loja."""
     _setup_logging()
@@ -60,6 +64,12 @@ def run(
     except ConfigError as exc:
         typer.echo(f"Erro no config: {exc}", err=True)
         raise typer.Exit(1)
+
+    if url_filter:
+        for page in config.critical_pages:
+            if url_filter not in page.url:
+                page.active = False
+        typer.echo(f"Filtro aplicado: auditando apenas páginas com '{url_filter}' na URL")
 
     trigger = TriggerMode.AGENDADO if scheduled else TriggerMode.MANUAL
 

@@ -43,21 +43,23 @@ CREATE TABLE IF NOT EXISTS audit_runs (
 );
 
 CREATE TABLE IF NOT EXISTS check_results (
-    id          TEXT PRIMARY KEY,
-    run_id      TEXT NOT NULL REFERENCES audit_runs(run_id),
-    check_id    TEXT NOT NULL,
-    check_name  TEXT NOT NULL,
-    categoria   TEXT NOT NULL,
-    page_url    TEXT,
-    flow_name   TEXT,
-    viewport    TEXT NOT NULL,
-    status      TEXT NOT NULL,
-    detail      TEXT,
-    value       REAL,
-    unit        TEXT,
-    threshold   REAL,
-    duration_ms INTEGER,
-    created_at  TEXT NOT NULL
+    id              TEXT PRIMARY KEY,
+    run_id          TEXT NOT NULL REFERENCES audit_runs(run_id),
+    check_id        TEXT NOT NULL,
+    check_name      TEXT NOT NULL,
+    categoria       TEXT NOT NULL,
+    page_url        TEXT,
+    flow_name       TEXT,
+    viewport        TEXT NOT NULL,
+    status          TEXT NOT NULL,
+    detail          TEXT,
+    value           REAL,
+    unit            TEXT,
+    threshold       REAL,
+    duration_ms     INTEGER,
+    created_at      TEXT NOT NULL,
+    screenshot_path TEXT,
+    explanation     TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_cr_run_id       ON check_results(run_id);
@@ -87,6 +89,19 @@ def init_db(db_path: Path = DEFAULT_DB_PATH) -> None:
     """Cria as tabelas se não existirem. Seguro de chamar múltiplas vezes."""
     with _connect(db_path) as conn:
         conn.executescript(_SCHEMA)
+        _migrate(conn)
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Adiciona colunas novas a bancos existentes — idempotente."""
+    for stmt in (
+        "ALTER TABLE check_results ADD COLUMN screenshot_path TEXT",
+        "ALTER TABLE check_results ADD COLUMN explanation TEXT",
+    ):
+        try:
+            conn.execute(stmt)
+        except sqlite3.OperationalError:
+            pass  # coluna já existe
 
 
 def save_run(run: AuditRun, db_path: Path = DEFAULT_DB_PATH) -> None:
@@ -139,8 +154,9 @@ def _upsert_check_results(
         INSERT OR IGNORE INTO check_results
             (id, run_id, check_id, check_name, categoria,
              page_url, flow_name, viewport, status, detail,
-             value, unit, threshold, duration_ms, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             value, unit, threshold, duration_ms, created_at,
+             screenshot_path, explanation)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             (
@@ -159,6 +175,8 @@ def _upsert_check_results(
                 r.threshold,
                 r.duration_ms,
                 r.created_at.isoformat(),
+                r.screenshot_path,
+                r.explanation,
             )
             for r in results
         ],
@@ -321,4 +339,7 @@ def _row_to_check_result(row: dict) -> CheckResult:
         duration_ms=row["duration_ms"],
         id=row["id"],
         created_at=datetime.fromisoformat(row["created_at"]),
+        screenshot_path=row.get("screenshot_path"),
+        explanation=row.get("explanation"),
+        # screenshot_b64 não é persistido — permanece None ao carregar do banco
     )

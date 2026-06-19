@@ -13,10 +13,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from .config.loader import ConfigError, load_config
@@ -37,7 +36,6 @@ _GA4_CONFIG_PATH = _CONFIG_DIR / "ga4.json"
 
 app = FastAPI(title="Auditor Minimal Club", docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
-_templates = Jinja2Templates(directory=str(_TEMPLATES_DIR))
 
 
 # ── Estado global ─────────────────────────────────────────────────────────────
@@ -73,9 +71,9 @@ async def _shutdown() -> None:
 
 # ── Páginas ───────────────────────────────────────────────────────────────────
 
-@app.get("/", response_class=HTMLResponse)
-async def index(request: Request) -> HTMLResponse:
-    return _templates.TemplateResponse("dashboard.html", {"request": request})
+@app.get("/")
+async def index() -> FileResponse:
+    return FileResponse(str(_TEMPLATES_DIR / "dashboard.html"), media_type="text/html")
 
 
 @app.get("/reports/{filename}")
@@ -84,6 +82,16 @@ async def serve_report(filename: str) -> FileResponse:
     if not path.exists() or path.suffix not in (".html", ".json"):
         raise HTTPException(404, "Relatório não encontrado")
     return FileResponse(path)
+
+
+@app.get("/screenshots/{run_id}/{filename}")
+async def serve_screenshot(run_id: str, filename: str) -> FileResponse:
+    if not filename.endswith(".png"):
+        raise HTTPException(404, "Arquivo inválido")
+    path = DEFAULT_REPORTS_DIR / "screenshots" / run_id / filename
+    if not path.exists():
+        raise HTTPException(404, "Screenshot não encontrado")
+    return FileResponse(path, media_type="image/png")
 
 
 # ── API: status ───────────────────────────────────────────────────────────────
@@ -118,7 +126,14 @@ async def _run_audit_task(trigger: TriggerMode = TriggerMode.AGENDADO) -> None:
         config, config_version = load_config()
         overrides = _load_json(_OVERRIDES_PATH)
         config = _apply_overrides(config, overrides)
-        run = await run_audit(config, config_version, trigger=trigger)
+        run = await run_audit(
+            config=config,
+            config_version=config_version,
+            trigger=trigger,
+            include_manual_only=False,
+            db_path=DEFAULT_DB_PATH,
+            reports_dir=DEFAULT_REPORTS_DIR,
+        )
         _state.last_run_id = run.run_id
     except Exception as exc:
         _state.last_error = str(exc)
@@ -413,7 +428,7 @@ def _apply_saved_schedule() -> None:
 
 def _apply_overrides(config: AuditConfig, overrides: dict) -> AuditConfig:
     """Retorna cópia da config com overrides de active aplicados."""
-    data = config.model_dump()
+    data = config.model_dump(mode="json")
     page_ov = overrides.get("pages", {})
     flow_ov = overrides.get("flows", {})
     url_filter = overrides.get("url_filter", "").strip()

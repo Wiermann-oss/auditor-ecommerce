@@ -2,14 +2,25 @@ name: Auditoria Técnica — Minimal Club
 
 on:
   schedule:
-    - cron: "0 12 * * *"   # 09:00 BRT (UTC-3) todos os dias
-  workflow_dispatch:         # execução manual via GitHub UI
+    - cron: "0 12 * * 1-5"   # 09:00 BRT (UTC-3), segunda a sexta
+  workflow_dispatch:
+    inputs:
+      url_filter:
+        description: "Filtrar por URL (ex: colecoes, products) — deixe vazio para auditar tudo"
+        required: false
+        default: ""
+      include_manual_flows:
+        description: "Incluir fluxos manuais (ex: cupom de desconto)"
+        type: boolean
+        default: false
 
 jobs:
   audit:
     name: Executar auditoria
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    permissions:
+      contents: write   # necessário para publicar no gh-pages
 
     steps:
       - name: Checkout
@@ -44,14 +55,38 @@ jobs:
             audit-history-${{ github.ref_name }}-
 
       - name: Executar auditoria
-        run: python -m auditor run --scheduled
-        continue-on-error: true   # falhas da loja não devem bloquear o upload do relatório
+        run: |
+          ARGS="--scheduled"
+          if [ "${{ github.event.inputs.include_manual_flows }}" = "true" ]; then
+            ARGS="$ARGS --manual-only"
+          fi
+          if [ -n "${{ github.event.inputs.url_filter }}" ]; then
+            ARGS="$ARGS --url-filter ${{ github.event.inputs.url_filter }}"
+          fi
+          python -m auditor run $ARGS
+        continue-on-error: true
 
       - name: Exibir diff do dia
         run: python -m auditor diff --since 7
         continue-on-error: true
 
-      - name: Upload relatório
+      - name: Gerar páginas estáticas
+        run: python scripts/publish_pages.py
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ACTIONS_WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/workflows/audit.yml
+
+      - name: Publicar no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages-output
+          keep_files: true
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_message: "Auditoria ${{ github.run_number }} — ${{ github.event_name }}"
+
+      - name: Upload relatório como artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:

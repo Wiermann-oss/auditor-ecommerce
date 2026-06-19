@@ -67,6 +67,44 @@ _HTML_TEMPLATE = """\
     .scope { max-width: 260px; overflow: hidden; text-overflow: ellipsis;
              white-space: nowrap; color: #444; }
     .footer { margin-top: 32px; color: #aaa; font-size: 11px; }
+
+    /* ── Failure cards ── */
+    .failure-card {
+      background: #fff; border-radius: 10px; border: 1px solid #e5e7eb;
+      border-left: 4px solid #ef4444; margin-bottom: 16px; overflow: hidden;
+    }
+    .failure-card.is-erro { border-left-color: #f59e0b; }
+    .failure-card-head {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding: 14px 18px; border-bottom: 1px solid #f3f4f6;
+    }
+    .failure-card-head strong { font-size: 14px; flex: 1; }
+    .failure-card-body { display: grid; gap: 0; }
+    .failure-card-body.has-screenshot {
+      grid-template-columns: 1fr 340px;
+    }
+    .failure-card-left { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+    .detail-block label { display: block; font-size: 10px; text-transform: uppercase;
+                          letter-spacing: .5px; color: #9ca3af; margin-bottom: 4px; font-weight: 600; }
+    .detail-block .detail-value {
+      font-size: 12px; font-family: monospace; color: #b91c1c;
+      background: #fef2f2; padding: 6px 10px; border-radius: 6px;
+      word-break: break-word;
+    }
+    .detail-block.is-erro .detail-value { color: #b45309; background: #fffbeb; }
+    .explanation-block label { display: block; font-size: 10px; text-transform: uppercase;
+                               letter-spacing: .5px; color: #9ca3af; margin-bottom: 4px; font-weight: 600; }
+    .explanation-block p { font-size: 13px; color: #374151; line-height: 1.6; }
+    .failure-screenshot {
+      border-left: 1px solid #f3f4f6; background: #f9fafb;
+      display: flex; align-items: flex-start; padding: 12px;
+    }
+    .failure-screenshot img {
+      width: 100%; border-radius: 6px; border: 1px solid #e5e7eb;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+    .scope-line { font-size: 12px; color: #6b7280; font-family: monospace;
+                  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -102,30 +140,38 @@ _HTML_TEMPLATE = """\
 
   {% if failures %}
   <h2>Falhas e erros detectados</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Página / Fluxo</th>
-        <th>Checagem</th>
-        <th>Viewport</th>
-        <th>Status</th>
-        <th>Valor → Limiar</th>
-        <th>Detalhe técnico</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in failures %}
-      <tr>
-        <td class="scope" title="{{ r.full_scope }}">{{ r.scope }}</td>
-        <td>{{ r.check_name }}</td>
-        <td><span class="vp">{{ r.viewport }}</span></td>
-        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
-        <td class="val">{{ r.value_display }}</td>
-        <td class="{{ 'detail-fail' if r.status == 'falhou' else 'detail-err' }}">{{ r.detail }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% for r in failures %}
+  <div class="failure-card{% if r.status == 'erro' %} is-erro{% endif %}">
+    <div class="failure-card-head">
+      <span class="badge badge-{{ r.status }}">{{ r.status }}</span>
+      <strong>{{ r.check_name }}</strong>
+      <span class="vp">{{ r.viewport }}</span>
+      {% if r.value_display %}<span class="val">{{ r.value_display }}</span>{% endif %}
+    </div>
+    <div class="failure-card-body{% if r.screenshot_b64 %} has-screenshot{% endif %}">
+      <div class="failure-card-left">
+        <div class="scope-line" title="{{ r.full_scope }}">{{ r.full_scope }}</div>
+        {% if r.detail %}
+        <div class="detail-block{% if r.status == 'erro' %} is-erro{% endif %}">
+          <label>Detalhe técnico</label>
+          <div class="detail-value">{{ r.detail }}</div>
+        </div>
+        {% endif %}
+        {% if r.explanation %}
+        <div class="explanation-block">
+          <label>O que isso significa</label>
+          <p>{{ r.explanation }}</p>
+        </div>
+        {% endif %}
+      </div>
+      {% if r.screenshot_b64 %}
+      <div class="failure-screenshot">
+        <img src="data:image/png;base64,{{ r.screenshot_b64 }}" alt="Screenshot no momento da falha">
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
   {% endif %}
 
   <h2>Todos os resultados</h2>
@@ -244,6 +290,8 @@ def _format_result(r: CheckResult) -> dict:
         "status": r.status.value,
         "value_display": val_str,
         "detail": r.detail or "",
+        "explanation": r.explanation or "",
+        "screenshot_b64": r.screenshot_b64 or "",
     }
 
 

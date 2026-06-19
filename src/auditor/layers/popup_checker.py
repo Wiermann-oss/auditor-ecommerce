@@ -8,11 +8,15 @@ Modo manual com contato designado: submit real — pendente alinhamento com Dani
 from __future__ import annotations
 
 import time
+from pathlib import Path
+from typing import Optional
 
 from playwright.async_api import Browser, Page, TimeoutError as PlaywrightTimeoutError
 
 from ..config.models import AuditConfig, PopupConfig
+from ..reporters.explanations import explain_failure
 from ..types import Categoria, CheckResult, CheckStatus, Viewport
+from ._screenshot import capture_failure_screenshot
 
 _VIEWPORT_DIMS = {
     Viewport.DESKTOP: {"width": 1280, "height": 800},
@@ -36,6 +40,7 @@ async def check_popup(
     popup: PopupConfig,
     config: AuditConfig,
     viewport: Viewport,
+    screenshots_dir: Optional[Path] = None,
 ) -> list[CheckResult]:
     """
     Executa todas as checagens definidas para um popup num viewport.
@@ -58,10 +63,10 @@ async def check_popup(
 
         # 1. Popup dispara após o delay
         appeared = await _check_appears(page, popup, trigger_url, viewport)
+        await _maybe_enrich(appeared, page, screenshots_dir, "popup_dispara", viewport)
         results.append(appeared)
 
         if appeared.status != CheckStatus.PASSOU:
-            # Popup não apareceu — marcar demais como ERRO (não há o que verificar)
             results.extend(
                 _skip_remaining(
                     popup, trigger_url, viewport,
@@ -71,15 +76,17 @@ async def check_popup(
             )
             return results
 
-        # 2. Botão de fechar sempre visível (regra do playbook — esconder derruba conversão)
-        results.append(await _check_close_visible(page, popup, trigger_url, viewport))
+        # 2. Botão de fechar sempre visível
+        close_vis = await _check_close_visible(page, popup, trigger_url, viewport)
+        await _maybe_enrich(close_vis, page, screenshots_dir, "popup_botao_fechar", viewport)
+        results.append(close_vis)
 
         # 3. Fechar funciona
         close_result = await _check_close_works(page, popup, trigger_url, viewport)
+        await _maybe_enrich(close_result, page, screenshots_dir, "popup_fechar_funciona", viewport)
         results.append(close_result)
 
         if close_result.status != CheckStatus.PASSOU:
-            # Não foi possível fechar — não faz sentido testar scroll/clique/loop
             results.extend(
                 _skip_remaining(
                     popup, trigger_url, viewport,
@@ -90,13 +97,19 @@ async def check_popup(
             return results
 
         # 4. Não bloqueia scroll após fechar
-        results.append(await _check_no_scroll_block(page, trigger_url, viewport, popup.name))
+        scroll_result = await _check_no_scroll_block(page, trigger_url, viewport, popup.name)
+        await _maybe_enrich(scroll_result, page, screenshots_dir, "popup_scroll_block", viewport)
+        results.append(scroll_result)
 
         # 5. Não bloqueia clique após fechar
-        results.append(await _check_no_click_block(page, trigger_url, viewport, popup.name))
+        click_result = await _check_no_click_block(page, trigger_url, viewport, popup.name)
+        await _maybe_enrich(click_result, page, screenshots_dir, "popup_click_block", viewport)
+        results.append(click_result)
 
-        # 6. Não dispara em loop (não reaparece na mesma sessão após fechar)
-        results.append(await _check_no_loop(page, popup, trigger_url, viewport, config))
+        # 6. Não dispara em loop
+        loop_result = await _check_no_loop(page, popup, trigger_url, viewport, config)
+        await _maybe_enrich(loop_result, page, screenshots_dir, "popup_loop", viewport)
+        results.append(loop_result)
 
     except Exception as exc:
         results.append(
@@ -357,6 +370,25 @@ async def _check_no_loop(
             detail=f"Erro ao verificar loop: {exc}",
             duration_ms=int((time.monotonic() - start) * 1000),
         )
+
+
+async def _maybe_enrich(
+    result: CheckResult,
+    page: Page,
+    screenshots_dir: Optional[Path],
+    check_id: str,
+    viewport: Viewport,
+) -> None:
+    """Captura screenshot e adiciona explicação se o resultado for falha/erro."""
+    if result.status == CheckStatus.PASSOU or not screenshots_dir:
+        return
+    path, b64 = await capture_failure_screenshot(page, screenshots_dir, f"{check_id}_{viewport.value}")
+    if path:
+        result.screenshot_path = path
+    if b64:
+        result.screenshot_b64 = b64
+    if not result.explanation:
+        result.explanation = explain_failure(check_id, result.check_name, result.detail)
 
 
 def _skip_remaining(

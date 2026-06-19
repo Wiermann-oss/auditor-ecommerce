@@ -62,6 +62,10 @@ class CheckResult:
     duration_ms: Optional[int] = None
     id: str = field(default_factory=lambda: str(uuid4()))
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    # Campos de evidência — preenchidos durante a execução; screenshot_b64 não vai pro SQLite
+    screenshot_path: Optional[str] = None  # caminho relativo a reports_dir (ex: screenshots/run_id/lcp_desktop.png)
+    screenshot_b64: Optional[str] = None   # PNG em base64; embutido no relatório HTML; NÃO persistido
+    explanation: Optional[str] = None      # explicação em linguagem de negócio da falha
 
     def __post_init__(self) -> None:
         if self.page_url is None and self.flow_name is None:

@@ -43,15 +43,17 @@ async def run_audit(
     save_run(run, db_path)
     log.info("Auditoria iniciada — run_id: %s", run.run_id)
 
+    screenshots_dir = reports_dir / "screenshots" / run.run_id
+
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(
             headless=True,
             args=["--no-sandbox", "--disable-dev-shm-usage"],
         )
         try:
-            await _run_page_health(browser, config, run)
-            await _run_popup_checks(browser, config, run)
-            await _run_flows(browser, config, run, include_manual_only)
+            await _run_page_health(browser, config, run, screenshots_dir)
+            await _run_popup_checks(browser, config, run, screenshots_dir)
+            await _run_flows(browser, config, run, include_manual_only, screenshots_dir)
             run.finalizar()
             log.info(
                 "Auditoria concluída — %d passaram, %d falharam, %d com erro",
@@ -73,7 +75,9 @@ async def run_audit(
     return run
 
 
-async def _run_page_health(browser: Browser, config: AuditConfig, run: AuditRun) -> None:
+async def _run_page_health(
+    browser: Browser, config: AuditConfig, run: AuditRun, screenshots_dir: Path
+) -> None:
     pages = config.active_pages()
     if not pages:
         return
@@ -82,12 +86,14 @@ async def _run_page_health(browser: Browser, config: AuditConfig, run: AuditRun)
         for viewport_cfg in page_cfg.viewports:
             viewport = Viewport(viewport_cfg.value)
             log.info("  → %s (%s)", page_cfg.name, viewport.value)
-            results = await run_page_health_checks(browser, page_cfg, config, viewport)
+            results = await run_page_health_checks(browser, page_cfg, config, viewport, screenshots_dir)
             run.check_results.extend(results)
             _log_results_summary(results)
 
 
-async def _run_popup_checks(browser: Browser, config: AuditConfig, run: AuditRun) -> None:
+async def _run_popup_checks(
+    browser: Browser, config: AuditConfig, run: AuditRun, screenshots_dir: Path
+) -> None:
     popups = config.active_popups()
     if not popups:
         return
@@ -96,7 +102,7 @@ async def _run_popup_checks(browser: Browser, config: AuditConfig, run: AuditRun
         for viewport_cfg in popup.viewports:
             viewport = Viewport(viewport_cfg.value)
             log.info("  → %s (%s)", popup.name, viewport.value)
-            results = await check_popup(browser, popup, config, viewport)
+            results = await check_popup(browser, popup, config, viewport, screenshots_dir)
             run.check_results.extend(results)
             _log_results_summary(results)
 
@@ -106,6 +112,7 @@ async def _run_flows(
     config: AuditConfig,
     run: AuditRun,
     include_manual_only: bool,
+    screenshots_dir: Path,
 ) -> None:
     flows = config.active_flows(include_manual_only)
     if not flows:
@@ -115,7 +122,7 @@ async def _run_flows(
         for viewport_cfg in flow.viewports:
             viewport = Viewport(viewport_cfg.value)
             log.info("  → %s (%s)", flow.name, viewport.value)
-            results = await run_flow(browser, flow, config, viewport)
+            results = await run_flow(browser, flow, config, viewport, screenshots_dir)
             run.check_results.extend(results)
             _log_results_summary(results)
 

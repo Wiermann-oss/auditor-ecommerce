@@ -24,13 +24,20 @@ env/
 .env.local
 
 # Relatórios gerados (não versionar saída de execuções)
-reports/*.json
-reports/*.html
+reports/
+
+# Output do GitHub Pages (gerado pelo script publish_pages.py)
+gh-pages-output/
 
 # Histórico SQLite (banco local — não versionar dados)
 *.db
 *.sqlite
 *.sqlite3
+
+# Overrides de config em runtime (gerados pelo dashboard local)
+config/overrides.json
+config/schedule.json
+config/ga4.json
 
 # Playwright
 playwright/.auth/
