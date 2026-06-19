@@ -7,168 +7,399 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --pri: #4f46e5; --ok: #10b981; --fail: #ef4444; --err: #f59e0b;
-      --bg: #f5f6fa; --card: #fff; --border: #e5e7eb;
-      --text: #111827; --muted: #6b7280; --radius: 10px;
+      --pri:#4f46e5; --ok:#10b981; --fail:#ef4444; --err:#f59e0b;
+      --bg:#f5f6fa; --card:#fff; --border:#e5e7eb;
+      --text:#111827; --muted:#6b7280; --radius:10px;
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            font-size: 14px; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+            font-size:14px; background:var(--bg); color:var(--text); min-height:100vh; }
 
-    .header { background: #fff; border-bottom: 1px solid var(--border);
-               padding: 0 32px; height: 54px; display: flex; align-items: center;
-               justify-content: space-between; position: sticky; top: 0; z-index: 10; }
-    .logo { font-weight: 700; font-size: 15px; color: var(--pri); }
-    .header-meta { font-size: 12px; color: var(--muted); }
+    /* Header */
+    .header { background:#fff; border-bottom:1px solid var(--border);
+               padding:0 32px; height:54px; display:flex; align-items:center;
+               justify-content:space-between; position:sticky; top:0; z-index:10; }
+    .logo { font-weight:700; font-size:15px; color:var(--pri); }
+    .header-meta { font-size:12px; color:var(--muted); }
 
-    .main { max-width: 1000px; margin: 0 auto; padding: 28px 24px; }
+    /* Tabs */
+    .tab-nav { background:#fff; border-bottom:1px solid var(--border);
+                display:flex; padding:0 32px; gap:4px; }
+    .tab-btn { padding:12px 18px; border:none; background:none; cursor:pointer;
+                font-size:13px; font-weight:600; color:var(--muted);
+                border-bottom:2px solid transparent; transition:all .15s; }
+    .tab-btn:hover { color:var(--text); }
+    .tab-btn.active { color:var(--pri); border-bottom-color:var(--pri); }
+    .tab-pane { display:none; }
+    .tab-pane.active { display:block; }
 
-    /* Hero card */
-    .hero-card { display: flex; align-items: center; gap: 20px; padding: 22px 24px;
-                  border-radius: var(--radius); border: 1px solid var(--border);
-                  margin-bottom: 20px; background: var(--card); border-left: 5px solid; }
-    .hero-card.ok   { border-left-color: var(--ok); }
-    .hero-card.fail { border-left-color: var(--fail); }
-    .hero-card.err  { border-left-color: var(--err); }
-    .hero-card.gray { border-left-color: var(--border); }
-    .hero-icon { font-size: 36px; flex-shrink: 0; width: 48px; text-align: center; }
-    .hero-card.ok   .hero-icon { color: var(--ok); }
-    .hero-card.fail .hero-icon { color: var(--fail); }
-    .hero-card.err  .hero-icon { color: var(--err); }
-    .hero-info { flex: 1; }
-    .hero-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-    .hero-date  { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-    .hero-stats { display: flex; gap: 8px; flex-wrap: wrap; }
-    .stat-pill  { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-    .stat-pill.ok   { background: #d1fae5; color: #065f46; }
-    .stat-pill.fail { background: #fee2e2; color: #991b1b; }
-    .stat-pill.err  { background: #fef3c7; color: #92400e; }
-    .stat-pill.gray { background: #f3f4f6; color: var(--muted); }
+    .main { max-width:1000px; margin:0 auto; padding:28px 24px; }
+
+    /* Hero */
+    .hero-card { display:flex; align-items:center; gap:20px; padding:22px 24px;
+                  border-radius:var(--radius); border:1px solid var(--border);
+                  margin-bottom:20px; background:var(--card); border-left:5px solid; }
+    .hero-card.ok   { border-left-color:var(--ok); }
+    .hero-card.fail { border-left-color:var(--fail); }
+    .hero-card.err  { border-left-color:var(--err); }
+    .hero-card.gray { border-left-color:var(--border); }
+    .hero-icon { font-size:36px; flex-shrink:0; width:48px; text-align:center; }
+    .hero-card.ok   .hero-icon { color:var(--ok); }
+    .hero-card.fail .hero-icon { color:var(--fail); }
+    .hero-card.err  .hero-icon { color:var(--err); }
+    .hero-info { flex:1; }
+    .hero-title { font-size:18px; font-weight:700; margin-bottom:4px; }
+    .hero-date  { font-size:12px; color:var(--muted); margin-bottom:10px; }
+    .hero-stats { display:flex; gap:8px; flex-wrap:wrap; }
+    .stat-pill  { padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; }
+    .stat-pill.ok   { background:#d1fae5; color:#065f46; }
+    .stat-pill.fail { background:#fee2e2; color:#991b1b; }
+    .stat-pill.err  { background:#fef3c7; color:#92400e; }
+    .stat-pill.gray { background:#f3f4f6; color:var(--muted); }
 
     /* Buttons */
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px;
-            border-radius: 8px; border: none; cursor: pointer; font-size: 14px;
-            font-weight: 600; text-decoration: none; transition: opacity .15s; }
-    .btn:hover { opacity: .85; }
-    .btn-primary { background: var(--pri); color: #fff; }
-    .btn-outline { background: #fff; color: var(--pri); border: 1.5px solid var(--pri); }
+    .btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px;
+            border-radius:8px; border:none; cursor:pointer; font-size:14px;
+            font-weight:600; text-decoration:none; transition:opacity .15s; }
+    .btn:hover { opacity:.85; }
+    .btn-primary { background:var(--pri); color:#fff; }
+    .btn-outline { background:#fff; color:var(--pri); border:1.5px solid var(--pri); }
+    .btn-sm-outline { padding:6px 12px; font-size:12px; background:#fff;
+                       color:var(--pri); border:1.5px solid var(--pri);
+                       border-radius:6px; text-decoration:none; font-weight:600; white-space:nowrap; }
+    .btn-sm-outline:hover { opacity:.8; }
 
-    .actions-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-    .actions-hint { font-size: 12px; color: var(--muted); }
+    .actions-row { display:flex; align-items:center; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
+    .actions-hint { font-size:12px; color:var(--muted); }
 
-    /* Table */
-    .card { background: var(--card); border: 1px solid var(--border);
-             border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
-    .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border);
-                    font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { text-align: left; padding: 9px 14px; background: #f9fafb;
-          border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600;
-          color: var(--muted); text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
-    td { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafafa; }
-    .num { font-family: monospace; text-align: right; font-size: 13px; }
-    .num.ok   { color: var(--ok); font-weight: 600; }
-    .num.fail { color: var(--fail); font-weight: 600; }
-    .num.err  { color: var(--err); font-weight: 600; }
+    /* Cards / Table */
+    .card { background:var(--card); border:1px solid var(--border);
+             border-radius:var(--radius); overflow:hidden; margin-bottom:16px; }
+    .card-header { padding:14px 18px; border-bottom:1px solid var(--border);
+                    font-weight:600; font-size:14px; display:flex; align-items:center; gap:8px; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th { text-align:left; padding:9px 14px; background:#f9fafb;
+          border-bottom:1px solid var(--border); font-size:11px; font-weight:600;
+          color:var(--muted); text-transform:uppercase; letter-spacing:.4px; white-space:nowrap; }
+    td { padding:10px 14px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#fafafa; }
+    .num { font-family:monospace; text-align:right; font-size:13px; }
+    .num.ok   { color:var(--ok); font-weight:600; }
+    .num.fail { color:var(--fail); font-weight:600; }
+    .num.err  { color:var(--err); font-weight:600; }
 
-    .badge { display: inline-block; padding: 3px 9px; border-radius: 5px; font-size: 11px; font-weight: 700; }
-    .b-ok   { background: #d1fae5; color: #065f46; }
-    .b-fail { background: #fee2e2; color: #991b1b; }
-    .b-err  { background: #fef3c7; color: #92400e; }
-    .b-run  { background: #ede9fe; color: #4f46e5; }
-    .b-gray { background: #f3f4f6; color: var(--muted); }
+    .badge { display:inline-block; padding:3px 9px; border-radius:5px; font-size:11px; font-weight:700; }
+    .b-ok   { background:#d1fae5; color:#065f46; }
+    .b-fail { background:#fee2e2; color:#991b1b; }
+    .b-err  { background:#fef3c7; color:#92400e; }
+    .b-run  { background:#ede9fe; color:#4f46e5; }
+    .b-gray { background:#f3f4f6; color:var(--muted); }
 
-    .report-link { color: var(--pri); text-decoration: none; font-weight: 500; }
-    .report-link:hover { text-decoration: underline; }
-    .muted { color: var(--muted); }
-    .empty { text-align: center; padding: 28px; color: var(--muted); }
+    .vp-badge { background:#ede9fe; color:#4f46e5; border-radius:4px; padding:1px 6px; font-size:11px; font-weight:600; }
+    .mo-badge { background:#f3f4f6; color:var(--muted); border-radius:4px; padding:1px 6px; font-size:11px; }
 
-    .footer { margin-top: 40px; text-align: center; font-size: 11px; color: #9ca3af; }
+    .report-link { color:var(--pri); text-decoration:none; font-weight:500; }
+    .report-link:hover { text-decoration:underline; }
+    .muted { color:var(--muted); }
+    .empty { text-align:center; padding:28px; color:var(--muted); }
 
-    /* Running indicator */
-    #running-banner { display: none; background: #ede9fe; color: #4f46e5; padding: 10px 24px;
-                       font-size: 13px; font-weight: 500; text-align: center; }
-    .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(79,70,229,.3);
-                border-top-color: var(--pri); border-radius: 50%;
-                animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* Cobertura */
+    .cob-summary { display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+                    background:#fff; border:1px solid var(--border); border-radius:var(--radius);
+                    padding:16px 20px; margin-bottom:20px; }
+    .cob-pill { display:flex; flex-direction:column; align-items:center; min-width:72px; }
+    .cob-num  { font-size:28px; font-weight:700; color:var(--pri); line-height:1; }
+    .cob-lbl  { font-size:11px; color:var(--muted); margin-top:2px; text-align:center; }
+    .cob-sep  { width:1px; height:40px; background:var(--border); margin:0 4px; }
+
+    .cob-pages-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; }
+    .cob-page-card { border:1.5px solid var(--ok); border-radius:8px; padding:14px;
+                      display:flex; flex-direction:column; gap:4px; }
+    .cob-page-card.cob-inactive { border-color:var(--border); opacity:.6; }
+    .cob-page-status { font-size:11px; font-weight:700; color:var(--ok); }
+    .cob-page-card.cob-inactive .cob-page-status { color:var(--muted); }
+    .cob-page-name { font-size:13px; font-weight:600; }
+    .cob-page-url  { font-size:11px; font-family:monospace; color:var(--pri);
+                      text-decoration:none; word-break:break-all; }
+    .cob-page-url:hover { text-decoration:underline; }
+    .cob-page-meta { display:flex; gap:4px; flex-wrap:wrap; margin-top:4px; }
+
+    .item-list { display:flex; flex-direction:column; gap:10px; }
+    .item-row  { display:flex; align-items:flex-start; gap:10px; }
+    .item-name { font-size:13px; font-weight:600; }
+    .item-sub  { display:flex; gap:5px; flex-wrap:wrap; align-items:center; margin-top:3px; font-size:12px; color:var(--muted); }
+    .cob-row-inactive { opacity:.55; }
+    .cob-flow-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+    .dot-on  { background:var(--ok); }
+    .dot-off { background:var(--border); }
+
+    .cob-popup-card { border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:10px; }
+    .cob-popup-card.cob-inactive { opacity:.55; }
+    .cob-popup-head { display:flex; align-items:flex-start; gap:10px; margin-bottom:10px; }
+    .cob-checks { display:flex; flex-wrap:wrap; gap:6px; }
+    .cob-check { background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;
+                  border-radius:5px; padding:3px 9px; font-size:11px; font-weight:500; }
+
+    /* Footer / banner */
+    .footer { margin-top:40px; text-align:center; font-size:11px; color:#9ca3af; }
+    #running-banner { display:none; background:#ede9fe; color:#4f46e5; padding:10px 24px;
+                       font-size:13px; font-weight:500; text-align:center; }
+    .spinner { display:inline-block; width:12px; height:12px; border:2px solid rgba(79,70,229,.3);
+                border-top-color:var(--pri); border-radius:50%;
+                animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
   </style>
 </head>
 <body>
   <div id="running-banner">
-    <span class="spinner"></span> Auditoria em andamento no GitHub Actions — a página atualiza ao concluir
+    <span class="spinner"></span> Auditoria em andamento no GitHub Actions — página atualiza ao concluir
   </div>
 
   <header class="header">
     <span class="logo">⚡ Auditor Minimal Club</span>
-    <span class="header-meta">Atualizado em 19/06/2026 16:32 UTC</span>
+    <span class="header-meta">Atualizado em 19/06/2026 18:45 UTC</span>
   </header>
 
-  <div class="main">
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('historico', this)">📋 Histórico</button>
+    <button class="tab-btn"        onclick="switchTab('cobertura', this)">🔍 Cobertura</button>
+  </nav>
 
-    
+  <!-- ── Aba: Histórico ───────────────────────────────────────────── -->
+  <div id="tab-historico" class="tab-pane active">
+    <div class="main">
+      
     <div class="hero-card fail">
       <div class="hero-icon">✗</div>
       <div class="hero-info">
-        <div class="hero-title">70 falha(s) detectada(s)</div>
-        <div class="hero-date">Última auditoria: 19/06/2026 16:24</div>
+        <div class="hero-title">74 falha(s) detectada(s)</div>
+        <div class="hero-date">Última auditoria: 19/06/2026 18:36</div>
         <div class="hero-stats">
-          <span class="stat-pill ok">73 passaram</span>
-          <span class="stat-pill fail">70 falharam</span>
-          <span class="stat-pill err">40 erros</span>
-          <span class="stat-pill gray">40% taxa de sucesso</span>
+          <span class="stat-pill ok">68 passaram</span>
+          <span class="stat-pill fail">74 falharam</span>
+          <span class="stat-pill err">41 erros</span>
+          <span class="stat-pill gray">37% taxa de sucesso</span>
         </div>
       </div>
-      <a class="btn btn-outline" href="reports/2026-06-19T16-24-13.html" target="_blank">Ver relatório completo</a>
+      <a class="btn btn-outline" href="reports/2026-06-19T18-36-35.html" target="_blank">Ver relatório completo</a>
     </div>
 
-    <div class="actions-row">
-      <a class="btn btn-primary" href="https://github.com/Wiermann-oss/auditor-ecommerce/actions/workflows/audit.yml" target="_blank">
-        ▶ Rodar Auditoria Agora
-      </a>
-      <span class="actions-hint">
-        Abre o GitHub Actions → clique em <strong>Run workflow</strong>.
-        Você pode filtrar por URL ou incluir fluxos manuais antes de rodar.
-      </span>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        Histórico de auditorias
-        <span style="font-weight:400;color:var(--muted);font-size:12px;margin-left:auto">
-          1 execuções registradas
+      <div class="actions-row">
+        <a class="btn btn-primary" href="https://github.com/Wiermann-oss/auditor-ecommerce/actions/workflows/audit.yml" target="_blank">▶ Rodar Auditoria Agora</a>
+        <span class="actions-hint">
+          Abre o GitHub Actions → clique em <strong>Run workflow</strong>.
         </span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Resultado</th>
-            <th style="text-align:right">Total</th>
-            <th style="text-align:right">OK</th>
-            <th style="text-align:right">Falhas</th>
-            <th style="text-align:right">Erros</th>
-            <th style="text-align:right">Taxa</th>
-            <th>Relatório</th>
-          </tr>
-        </thead>
-        <tbody>
-          
+
+      <div class="card">
+        <div class="card-header">
+          Histórico de auditorias
+          <span style="font-weight:400;color:var(--muted);font-size:12px;margin-left:auto">2 execuções</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th><th>Resultado</th>
+              <th style="text-align:right">Total</th><th style="text-align:right">OK</th>
+              <th style="text-align:right">Falhas</th><th style="text-align:right">Erros</th>
+              <th style="text-align:right">Taxa</th><th>Relatório</th>
+            </tr>
+          </thead>
+          <tbody>
         <tr>
-          <td>19/06/2026 16:24</td>
-          <td><span class="badge b-fail">✗ Com falhas</span></td>
-          <td class="num">183</td>
-          <td class="num ok">73</td>
-          <td class="num fail">70</td>
-          <td class="num err">40</td>
-          <td class="num">40%</td>
-          <td><a class="report-link" href="reports/2026-06-19T16-24-13.html" target="_blank">Ver relatório →</a></td>
+          <td>19/06/2026 18:36</td><td><span class="badge b-fail">✗ Com falhas</span></td>
+          <td class="num">183</td><td class="num ok">68</td>
+          <td class="num fail">74</td><td class="num err">41</td>
+          <td class="num">37%</td><td><a class="report-link" href="reports/2026-06-19T18-36-35.html" target="_blank">Ver relatório →</a></td>
         </tr>
-        </tbody>
-      </table>
+
+        <tr>
+          <td>19/06/2026 16:24</td><td><span class="badge b-fail">✗ Com falhas</span></td>
+          <td class="num">183</td><td class="num ok">73</td>
+          <td class="num fail">70</td><td class="num err">40</td>
+          <td class="num">40%</td><td><span class="muted">—</span></td>
+        </tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Aba: Cobertura ──────────────────────────────────────────── -->
+  <div id="tab-cobertura" class="tab-pane">
+    <div class="main">
+      
+    <!-- Resumo -->
+    <div class="cob-summary">
+      <div class="cob-pill"><span class="cob-num">7</span><span class="cob-lbl">páginas ativas</span></div>
+      <div class="cob-pill"><span class="cob-num">0</span><span class="cob-lbl">inativas</span></div>
+      <div class="cob-sep"></div>
+      <div class="cob-pill"><span class="cob-num">10</span><span class="cob-lbl">fluxos ativos</span></div>
+      <div class="cob-pill"><span class="cob-num">1</span><span class="cob-lbl">inativos</span></div>
+      <div class="cob-sep"></div>
+      <div class="cob-pill"><span class="cob-num">1</span><span class="cob-lbl">popup(s) verificado(s)</span></div>
+      <a class="btn btn-sm-outline" href="https://github.com/Wiermann-oss/auditor-ecommerce/actions/workflows/manage-pages.yml" target="_blank" style="margin-left:auto">
+        + Gerenciar páginas
+      </a>
     </div>
 
+    <!-- Páginas -->
+    <div class="card">
+      <div class="card-header">Páginas auditadas</div>
+      <div style="padding:16px"><div class="cob-pages-grid">
+        <div class="cob-page-card ">
+          <div class="cob-page-status">● Ativa</div>
+          <div class="cob-page-name">Home</div>
+          <a class="cob-page-url" href="https://www.minimalclub.com.br/" target="_blank">/</a>
+          <div class="cob-page-meta"><span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+        </div>
+        <div class="cob-page-card ">
+          <div class="cob-page-status">● Ativa</div>
+          <div class="cob-page-name">Coleção — Desconto Progressivo</div>
+          <a class="cob-page-url" href="https://www.minimalclub.com.br/collections/desconto-progressivo-1" target="_blank">/collections/desconto-progressivo-1</a>
+          <div class="cob-page-meta"><span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+        </div>
+        <div class="cob-page-card ">
+          <div class="cob-page-status">● Ativa</div>
+          <div class="cob-page-name">Coleção — Todas</div>
+          <a class="cob-page-url" href="https://www.minimalclub.com.br/collections/all" target="_blank">/collections/all</a>
+          <div class="cob-page-meta"><span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+        </div>
+        <div class="cob-page-card ">
+          <div class="cob-page-status">● Ativa</div>
+          <div class="cob-page-name">Página de produto (referência)</div>
+          <a class="cob-page-url" href="https://www.minimalclub.com.br/products/camiseta-basica" target="_blank">/products/camiseta-basica</a>
+          <div class="cob-page-meta"><span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+        </div>
+        <div class="cob-page-card ">
+          <div class="cob-page-status">● Ativa</div>
+          <div class="cob-page-name">Carrinho</div>
+          <a class="cob-page-url" href="https://www.minimalclub.com.br/cart" target="_blank">/cart</a>
+          <div class="cob-page-meta"><span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+        </div>
+        <div class="cob-page-card ">
+          <div class="cob-page-status">● Ativa</div>
+          <div class="cob-page-name">Checkout (ponto de parada)</div>
+          <a class="cob-page-url" href="https://www.minimalclub.com.br/checkout" target="_blank">/checkout</a>
+          <div class="cob-page-meta"><span class="vp-badge">desktop</span><span class="vp-badge">mobile</span><span class="mo-badge">sem Lighthouse</span></div>
+        </div>
+        <div class="cob-page-card ">
+          <div class="cob-page-status">● Ativa</div>
+          <div class="cob-page-name">Login / Conta</div>
+          <a class="cob-page-url" href="https://www.minimalclub.com.br/account/login" target="_blank">/account/login</a>
+          <div class="cob-page-meta"><span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+        </div></div></div>
+    </div>
+
+    <!-- Fluxos -->
+    <div class="card">
+      <div class="card-header">Fluxos funcionais</div>
+      <div style="padding:12px 16px"><div class="item-list">
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F1 — Descoberta até PDP</div>
+            <div class="item-sub"><span class="muted">5 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+          </div>
+        </div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F2 — Seleção de variante (tamanho)</div>
+            <div class="item-sub"><span class="muted">5 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+          </div>
+        </div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F3 — Add to cart</div>
+            <div class="item-sub"><span class="muted">2 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+          </div>
+        </div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F4 — Desconto progressivo</div>
+            <div class="item-sub"><span class="muted">6 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+          </div>
+        </div>
+        <div class="item-row cob-row-inactive">
+          <div class="cob-flow-dot dot-off"></div>
+          <div class="item-info">
+            <div class="item-name">F5 — Aplicação de cupom (PRIMEIRA12)</div>
+            <div class="item-sub"><span class="muted">4 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span><span class="mo-badge">manual only</span><span class="mo-badge">desativado</span></div>
+          </div>
+        </div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F6 — Início de checkout</div>
+            <div class="item-sub"><span class="muted">6 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+          </div>
+        </div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F7 — Navegação mobile (hamburger)</div>
+            <div class="item-sub"><span class="muted">5 steps</span>
+              <span class="vp-badge">mobile</span></div>
+          </div>
+        </div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F8 — Busca</div>
+            <div class="item-sub"><span class="muted">6 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+          </div>
+        </div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F9 — Filtro na coleção</div>
+            <div class="item-sub"><span class="muted">3 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+          </div>
+        </div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F10 — Login (render)</div>
+            <div class="item-sub"><span class="muted">3 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+          </div>
+        </div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
+          <div class="item-info">
+            <div class="item-name">F11 — Popup não dispara no checkout</div>
+            <div class="item-sub"><span class="muted">4 steps</span>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+          </div>
+        </div></div></div>
+    </div>
+
+    <!-- Popups -->
+    <div class="card">
+      <div class="card-header">Popups verificados</div>
+      <div style="padding:12px 16px">
+        <div class="cob-popup-card ">
+          <div class="cob-popup-head">
+            <div class="cob-flow-dot dot-on"></div>
+            <div>
+              <div class="item-name">Popup de captura (Lead) — Klaviyo</div>
+              <div class="item-sub">Disparado em <code>/</code> <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
+            </div>
+          </div>
+          <div class="cob-checks"><span class="cob-check">✓ Dispara após delay</span><span class="cob-check">✓ Botão fechar visível</span><span class="cob-check">✓ Fechar funciona</span><span class="cob-check">✓ Não bloqueia scroll</span><span class="cob-check">✓ Não bloqueia cliques</span><span class="cob-check">✓ Não dispara no checkout</span><span class="cob-check">✓ Não reaparece na sessão</span></div>
+        </div></div>
+    </div>
+    </div>
   </div>
 
   <div class="footer">
@@ -177,21 +408,27 @@
   </div>
 
   <script>
-    // Detecta se há workflow rodando consultando a API pública do GitHub
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // Detecta workflow em andamento
     (function() {
       var repo = "Wiermann-oss/auditor-ecommerce";
       if (!repo) return;
-      var api = "https://api.github.com/repos/" + repo + "/actions/workflows/audit.yml/runs?per_page=1&status=in_progress";
-      fetch(api, { headers: { Accept: "application/vnd.github+json" } })
+      fetch("https://api.github.com/repos/" + repo + "/actions/workflows/audit.yml/runs?per_page=1&status=in_progress",
+            { headers: { Accept: "application/vnd.github+json" } })
         .then(function(r) { return r.json(); })
         .then(function(d) {
           if (d.total_count && d.total_count > 0) {
             document.getElementById("running-banner").style.display = "block";
-            // Recarregar a página a cada 60s enquanto o workflow estiver rodando
             setTimeout(function() { location.reload(); }, 60000);
           }
         })
-        .catch(function() { /* API indisponível ou repo privado — ignorar */ });
+        .catch(function() {});
     })();
   </script>
 </body>
