@@ -1,0 +1,74 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# pages.yaml — Páginas que entram na auditoria
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# COMO EDITAR SEM ABRIR O VS CODE:
+#   1. Acesse o repositório no GitHub
+#   2. Clique neste arquivo → ícone de lápis (Edit)
+#   3. Ajuste o que precisar
+#   4. Clique em "Commit changes" e confirme
+#
+# OU use o workflow "Gerenciar Páginas" em Actions → Run workflow
+#   para adicionar, ativar, desativar ou remover páginas por formulário.
+#
+# ─────────────────────────────────────────────────────────────────────────────
+# Campos:
+#   name        Nome legível (aparece no relatório)
+#   url         Caminho relativo da loja (ex: /collections/verao-2026)
+#   active      true = entra na auditoria | false = ignorada
+#   viewports   [desktop, mobile] | [desktop] | [mobile]
+#   lighthouse_skip  true = pula Lighthouse nessa página (usar em /checkout)
+# ─────────────────────────────────────────────────────────────────────────────
+
+pages:
+
+  # ── Páginas fixas (sempre ativas) ─────────────────────────────────────────
+
+  - name: "Home"
+    url: "/"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Coleção — Desconto Progressivo"
+    url: "/collections/desconto-progressivo-1"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Coleção — Todas"
+    url: "/collections/all"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página de produto (referência)"
+    url: "/products/camiseta-basica"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Carrinho"
+    url: "/cart"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Checkout (ponto de parada)"
+    url: "/checkout"
+    active: true
+    viewports: [desktop, mobile]
+    lighthouse_skip: true
+
+  - name: "Login / Conta"
+    url: "/account/login"
+    active: true
+    viewports: [desktop, mobile]
+
+  # ── Páginas de campanha (ative/desative conforme a campanha) ───────────────
+  # Exemplo — descomente e ajuste a URL quando ativar uma campanha:
+  #
+  # - name: "Landing — Campanha Verão 2026"
+  #   url: "/collections/verao-2026"
+  #   active: false
+  #   viewports: [desktop, mobile]
+  #
+  # - name: "Landing — Black Friday"
+  #   url: "/collections/black-friday"
+  #   active: false
+  #   viewports: [desktop, mobile]

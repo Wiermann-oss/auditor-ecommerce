@@ -1,0 +1,87 @@
+name: Gerenciar Páginas da Auditoria
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "O que você quer fazer?"
+        required: true
+        type: choice
+        options:
+          - "add"
+          - "activate"
+          - "deactivate"
+          - "remove"
+      url:
+        description: "URL da página (ex: /collections/verao-2026)"
+        required: true
+        default: ""
+      name:
+        description: "Nome da página — só para 'add' (ex: Landing Verão 2026)"
+        required: false
+        default: ""
+      viewports:
+        description: "Dispositivos — só para 'add'"
+        required: false
+        type: choice
+        options:
+          - "desktop e mobile"
+          - "só desktop"
+          - "só mobile"
+        default: "desktop e mobile"
+      run_audit:
+        description: "Rodar auditoria nessa página após salvar?"
+        type: boolean
+        default: false
+
+jobs:
+  manage:
+    name: Atualizar pages.yaml
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Executar manage_pages.py
+        env:
+          ACTION: ${{ github.event.inputs.action }}
+          PAGE_NAME: ${{ github.event.inputs.name }}
+          PAGE_URL: ${{ github.event.inputs.url }}
+          PAGE_VIEWPORTS: ${{ github.event.inputs.viewports }}
+        run: python scripts/manage_pages.py
+
+      - name: Commit e push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add config/pages.yaml
+          git diff --staged --quiet && echo "Nenhuma alteração para commitar." || \
+            git commit -m "pages: ${{ github.event.inputs.action }} ${{ github.event.inputs.url }}"
+          git push origin master
+
+      - name: Disparar auditoria (opcional)
+        if: ${{ github.event.inputs.run_audit == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'audit.yml',
+              ref: 'master',
+              inputs: {
+                url_filter: '${{ github.event.inputs.url }}',
+                include_manual_flows: 'false'
+              }
+            });
+            console.log('Auditoria disparada para: ${{ github.event.inputs.url }}');
