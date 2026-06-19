@@ -20,6 +20,7 @@ function switchTab(name) {
     p.classList.toggle('active', p.id === 'tab-' + name)
   );
   if (name === 'config')    loadConfig();
+  if (name === 'cobertura') loadCobertura();
   if (name === 'dashboard') loadDashboard();
   if (name === 'reports')   loadReports();
 }
@@ -217,6 +218,97 @@ async function saveSchedule() {
   const time    = document.getElementById('sched-time').value;
   await api('/api/schedule', 'POST', { enabled, time, days: _selDays });
   flash('sched-msg');
+}
+
+/* ── Cobertura ───────────────────────────────────────────────────────────── */
+async function loadCobertura() {
+  try {
+    const cfg = await api('/api/config');
+    const pages   = cfg.pages   || [];
+    const flows   = cfg.flows   || [];
+    const popups  = cfg.popups  || [];
+    const baseUrl = cfg.store?.base_url || '';
+
+    const activePg = pages.filter(p => p.active).length;
+    const activeEl = flows.filter(f => f.active).length;
+    const activePop = popups.filter(p => p.active).length;
+    const totalChecks = activePg * 2; // desktop + mobile por padrão (estimativa)
+
+    // ── Resumo ──────────────────────────────────────────────────────────────
+    document.getElementById('cob-summary').innerHTML = `
+      <div class="cob-pill"><span class="cob-num">${activePg}</span><span class="cob-lbl">páginas ativas</span></div>
+      <div class="cob-pill"><span class="cob-num">${pages.length - activePg}</span><span class="cob-lbl">inativas</span></div>
+      <div class="cob-sep"></div>
+      <div class="cob-pill"><span class="cob-num">${activeEl}</span><span class="cob-lbl">fluxos ativos</span></div>
+      <div class="cob-pill"><span class="cob-num">${flows.length - activeEl}</span><span class="cob-lbl">inativos</span></div>
+      <div class="cob-sep"></div>
+      <div class="cob-pill"><span class="cob-num">${activePop}</span><span class="cob-lbl">popup(s) verificado(s)</span></div>
+    `;
+
+    // ── Páginas ──────────────────────────────────────────────────────────────
+    const pgEl = document.getElementById('cob-pages');
+    if (!pages.length) {
+      pgEl.innerHTML = '<div class="empty">Nenhuma página configurada</div>';
+    } else {
+      pgEl.innerHTML = `<div class="cob-pages-grid">${pages.map(p => `
+        <div class="cob-page-card ${p.active ? '' : 'cob-inactive'}">
+          <div class="cob-page-status">${p.active ? '● Ativa' : '○ Inativa'}</div>
+          <div class="cob-page-name">${esc(p.name)}</div>
+          <a class="cob-page-url" href="${esc(baseUrl + p.url)}" target="_blank">${esc(p.url)}</a>
+          <div class="cob-page-meta">
+            ${p.viewports.map(v => `<span class="vp-badge">${v}</span>`).join('')}
+            ${p.lighthouse_skip ? '<span class="mo-badge">sem Lighthouse</span>' : ''}
+          </div>
+        </div>`).join('')}
+      </div>`;
+    }
+
+    // ── Fluxos ───────────────────────────────────────────────────────────────
+    const flEl = document.getElementById('cob-flows');
+    if (!flows.length) {
+      flEl.innerHTML = '<div class="empty">Nenhum fluxo configurado</div>';
+    } else {
+      flEl.innerHTML = `<div class="item-list">${flows.map(f => `
+        <div class="item-row ${f.active ? '' : 'cob-row-inactive'}">
+          <div class="cob-flow-dot ${f.active ? 'dot-on' : 'dot-off'}"></div>
+          <div class="item-info">
+            <div class="item-name">${esc(f.name)}</div>
+            <div class="item-sub">
+              <span class="muted">${f.steps} step${f.steps !== 1 ? 's' : ''}</span>
+              ${f.viewports.map(v => `<span class="vp-badge">${v}</span>`).join('')}
+              ${f.run_mode === 'manual_only' ? '<span class="mo-badge">manual only</span>' : ''}
+              ${!f.active ? '<span class="mo-badge">desativado</span>' : ''}
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>`;
+    }
+
+    // ── Popups ───────────────────────────────────────────────────────────────
+    const popEl = document.getElementById('cob-popups');
+    if (!popups.length) {
+      popEl.innerHTML = '<div class="empty">Nenhum popup configurado</div>';
+    } else {
+      popEl.innerHTML = popups.map(p => `
+        <div class="cob-popup-card ${p.active ? '' : 'cob-inactive'}">
+          <div class="cob-popup-head">
+            <div class="cob-flow-dot ${p.active ? 'dot-on' : 'dot-off'}" style="flex-shrink:0"></div>
+            <div>
+              <div class="item-name">${esc(p.name)}</div>
+              <div class="item-sub">
+                Disparado em <code>${esc(p.trigger_page)}</code>
+                ${p.viewports.map(v => `<span class="vp-badge">${v}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+          ${p.checks.length ? `
+          <div class="cob-checks">
+            ${p.checks.map(c => `<span class="cob-check">✓ ${esc(c)}</span>`).join('')}
+          </div>` : ''}
+        </div>`).join('');
+    }
+
+  } catch (e) { console.error('loadCobertura:', e); }
 }
 
 /* ── Dashboard ───────────────────────────────────────────────────────────── */

@@ -18,6 +18,7 @@
     <!-- Tab nav -->
     <nav class="tab-nav">
       <button class="tab-btn active" data-tab="config"    onclick="switchTab('config')">⚙ Configuração</button>
+      <button class="tab-btn"        data-tab="cobertura" onclick="switchTab('cobertura')">🔍 Cobertura</button>
       <button class="tab-btn"        data-tab="dashboard" onclick="switchTab('dashboard')">📊 Dashboard</button>
       <button class="tab-btn"        data-tab="reports"   onclick="switchTab('reports')">📋 Relatórios</button>
     </nav>
@@ -106,6 +107,26 @@
       </div>
 
     </div><!-- /tab-config -->
+
+    <!-- ── Aba: Cobertura ───────────────────────────────────────────────── -->
+    <div id="tab-cobertura" class="tab-pane">
+      <div id="cob-summary" class="cob-summary"></div>
+
+      <div class="card">
+        <div class="card-header"><h2>Páginas auditadas</h2></div>
+        <div id="cob-pages"><div class="loading">Carregando…</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Fluxos funcionais</h2></div>
+        <div id="cob-flows"><div class="loading">Carregando…</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2>Popups verificados</h2></div>
+        <div id="cob-popups"><div class="loading">Carregando…</div></div>
+      </div>
+    </div><!-- /tab-cobertura -->
 
     <!-- ── Aba: Dashboard ────────────────────────────────────────────────── -->
     <div id="tab-dashboard" class="tab-pane">

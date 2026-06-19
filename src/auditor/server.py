@@ -178,10 +178,41 @@ async def api_get_config() -> dict:
                 "viewports": [v.value for v in f.viewports],
                 "active": flow_ov.get(f.id, {}).get("active", f.active),
                 "run_mode": f.run_mode.value,
+                "steps": len(f.steps),
             }
             for f in config.flows
         ],
+        "popups": [
+            {
+                "name": p.name,
+                "trigger_page": p.trigger_page,
+                "viewports": [v.value for v in p.viewports],
+                "active": p.active,
+                "checks": _popup_check_names(p.checks),
+            }
+            for p in config.popups
+        ],
     }
+
+
+def _popup_check_names(checks: list | None) -> list[str]:
+    if not checks:
+        return []
+    labels = {
+        "dispara_apos_delay": "Dispara após delay",
+        "botao_fechar_visivel": "Botão fechar visível",
+        "fechar_funciona": "Fechar funciona",
+        "nao_bloqueia_scroll": "Não bloqueia scroll",
+        "nao_bloqueia_clique": "Não bloqueia cliques",
+        "nao_dispara_no_checkout": "Não dispara no checkout",
+        "nao_dispara_loop": "Não reaparece na sessão",
+    }
+    result = []
+    for item in checks:
+        for key, enabled in item.items():
+            if enabled:
+                result.append(labels.get(key, key))
+    return result
 
 
 class _ToggleBody(BaseModel):
