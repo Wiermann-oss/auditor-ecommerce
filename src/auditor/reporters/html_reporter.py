@@ -113,9 +113,27 @@ _HTML_TEMPLATE = """\
       font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
       font-weight: 700; color: #9ca3af; margin-bottom: 8px;
     }
-    .failure-screenshot img {
-      width: 100%; border-radius: 8px; border: 1px solid #e5e7eb;
-      box-shadow: 0 4px 16px rgba(0,0,0,.10); display: block;
+    .screenshot-wrap {
+      position: relative; cursor: zoom-in; border-radius: 8px; overflow: hidden;
+      border: 1px solid #e5e7eb; box-shadow: 0 2px 12px rgba(0,0,0,.08);
+      max-width: 720px;
+    }
+    .screenshot-wrap img {
+      display: block; width: 100%; height: 260px;
+      object-fit: cover; object-position: top;
+      transition: height .25s ease;
+    }
+    .screenshot-wrap.expanded img { height: auto; cursor: zoom-out; }
+    .screenshot-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 56px;
+      background: linear-gradient(transparent, rgba(0,0,0,.45));
+      display: flex; align-items: flex-end; padding: 10px 14px;
+      pointer-events: none; transition: opacity .2s;
+    }
+    .screenshot-wrap.expanded .screenshot-overlay { display: none; }
+    .screenshot-hint {
+      font-size: 11px; color: rgba(255,255,255,.9); font-weight: 600;
+      letter-spacing: .3px;
     }
   </style>
 </head>
@@ -189,8 +207,13 @@ _HTML_TEMPLATE = """\
       {% if r.screenshot_b64 %}
       <div class="failure-screenshot">
         <div class="failure-screenshot-label">Estado da página no momento da falha</div>
-        <img src="data:image/png;base64,{{ r.screenshot_b64 }}"
-             alt="Screenshot da página no momento da falha — {{ r.check_name }}">
+        <div class="screenshot-wrap" onclick="this.classList.toggle('expanded')">
+          <img src="data:image/png;base64,{{ r.screenshot_b64 }}"
+               alt="Screenshot da página no momento da falha — {{ r.check_name }}">
+          <div class="screenshot-overlay">
+            <span class="screenshot-hint">🔍 Clique para ampliar</span>
+          </div>
+        </div>
       </div>
       {% endif %}
     </div>
