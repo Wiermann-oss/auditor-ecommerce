@@ -308,6 +308,51 @@ async function loadCobertura() {
         </div>`).join('');
     }
 
+    // ── Como funciona ────────────────────────────────────────────────────────
+    document.getElementById('cob-how').innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:24px;padding:4px 0">
+
+        <div class="how-section">
+          <div class="how-title">🌐 Saúde técnica de cada página</div>
+          <div class="how-desc">Para cada página configurada, o auditor abre um navegador real (Chrome) e executa as seguintes verificações:</div>
+          <div class="how-checks">
+            <div class="how-check"><span class="how-icon">🔗</span><div><strong>Status HTTP</strong><br>Confirma que a página responde com código 200 (OK). Qualquer outro código — como 404 (não encontrada) ou 500 (erro de servidor) — gera uma falha.</div></div>
+            <div class="how-check"><span class="how-icon">⚠️</span><div><strong>Erros de JavaScript</strong><br>Lê o console do navegador enquanto a página carrega. Erros de JS podem quebrar funcionalidades invisíveis ao usuário, como o botão de adicionar ao carrinho ou cálculos de desconto.</div></div>
+            <div class="how-check"><span class="how-icon">📡</span><div><strong>Requisições com falha</strong><br>Monitora todas as chamadas de rede da página (imagens, scripts, APIs). Se alguma falhar, pode significar que um recurso visual não carregou ou que uma integração está quebrada.</div></div>
+            <div class="how-check"><span class="how-icon">⏱️</span><div><strong>Tempo de carregamento</strong><br>Mede quantos milissegundos a página leva para carregar completamente (evento <em>load</em>). O limiar configurado é 5 segundos — acima disso o comprador tende a abandonar.</div></div>
+            <div class="how-check"><span class="how-icon">🖼️</span><div><strong>LCP — Largest Contentful Paint</strong><br>Mede quando o maior elemento visível aparece na tela (geralmente a foto principal do produto). O Google considera acima de 2.5s uma experiência ruim. O auditor alerta acima de 4s.</div></div>
+            <div class="how-check"><span class="how-icon">📐</span><div><strong>CLS — Cumulative Layout Shift</strong><br>Mede se elementos da página "pulam" de posição enquanto outros recursos carregam. Uma pontuação acima de 0.25 indica problema de estabilidade visual.</div></div>
+            <div class="how-check"><span class="how-icon">👆</span><div><strong>FID — First Input Delay</strong><br>Mede quanto tempo o site demora para responder ao primeiro clique ou toque. Acima de 300ms o usuário percebe como travamento.</div></div>
+          </div>
+        </div>
+
+        <div class="how-section">
+          <div class="how-title">🧭 Fluxos funcionais</div>
+          <div class="how-desc">O auditor simula um comprador real navegando pelo site passo a passo. Se qualquer passo falhar, tira um screenshot automático e registra o erro com detalhe técnico.</div>
+          <div class="how-checks">
+            <div class="how-check"><span class="how-icon">🏠</span><div><strong>Descoberta até PDP</strong><br>Abre a home → entra na coleção → clica no primeiro produto → confirma que a página carregou com preço e imagem.</div></div>
+            <div class="how-check"><span class="how-icon">👕</span><div><strong>Seleção de variante</strong><br>Verifica se o seletor de tamanho aparece e se, ao selecionar um tamanho, o botão "Adicionar ao carrinho" fica disponível.</div></div>
+            <div class="how-check"><span class="how-icon">🛒</span><div><strong>Add to cart</strong><br>Clica em "Adicionar ao carrinho" e confirma que o contador do carrinho aumentou.</div></div>
+            <div class="how-check"><span class="how-icon">🏷️</span><div><strong>Desconto progressivo</strong><br>Adiciona um produto da coleção de desconto progressivo e verifica que a mensagem de desconto aparece no carrinho.</div></div>
+            <div class="how-check"><span class="how-icon">💳</span><div><strong>Início de checkout</strong><br>Adiciona item, vai ao carrinho, clica em "Finalizar compra" e confirma que o formulário de checkout renderizou.</div></div>
+            <div class="how-check"><span class="how-icon">☰</span><div><strong>Menu mobile (hamburger)</strong><br>No mobile, verifica se o botão de menu aparece, abre ao clicar, e se os links de coleção estão visíveis.</div></div>
+            <div class="how-check"><span class="how-icon">🔍</span><div><strong>Busca</strong><br>Clica no ícone de busca, digita "camiseta", verifica se os resultados aparecem e clica no primeiro resultado.</div></div>
+          </div>
+        </div>
+
+        <div class="how-section">
+          <div class="how-title">💬 Popup de captura</div>
+          <div class="how-desc">Verifica o comportamento do popup Klaviyo que aparece para novos visitantes:</div>
+          <div class="how-checks">
+            <div class="how-check"><span class="how-icon">⏳</span><div><strong>Dispara após o delay</strong><br>Confirma que o popup aparece após ~3 segundos na home, como configurado.</div></div>
+            <div class="how-check"><span class="how-icon">✕</span><div><strong>Botão fechar visível e funcional</strong><br>Verifica que o "X" está visível e que clicar nele remove o popup.</div></div>
+            <div class="how-check"><span class="how-icon">🚫</span><div><strong>Não bloqueia a navegação</strong><br>Após fechar o popup, testa que o scroll e os cliques voltam a funcionar normalmente.</div></div>
+            <div class="how-check"><span class="how-icon">🛒</span><div><strong>Não aparece no checkout</strong><br>Confirma que o popup nunca aparece na página de checkout — o que poderia fazer o comprador desistir na etapa mais crítica do funil.</div></div>
+          </div>
+        </div>
+
+      </div>`;
+
   } catch (e) { console.error('loadCobertura:', e); }
 }
 
