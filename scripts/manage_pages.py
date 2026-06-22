@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Adiciona, ativa, desativa ou remove MÚLTIPLAS páginas em config/pages.yaml.
-Chamado pelo workflow manage-pages.yml via GitHub Actions.
+Adiciona, desativa ou remove páginas em config/pages.yaml.
+Chamado pelo workflow manage-pages.yml.
 
 Variáveis de ambiente:
-  ACTION        : add | activate | deactivate | remove
-  PAGE_URLS     : uma URL por linha (ou separadas por vírgula)
-  PAGE_VIEWPORTS: "desktop e mobile" | "só desktop" | "só mobile"  (só para 'add')
+  ADD_URLS        : URLs para adicionar, separadas por vírgula
+  DEACTIVATE_URLS : URLs para desativar, separadas por vírgula
+  REMOVE_URLS     : URLs para remover definitivamente, separadas por vírgula
+  PAGE_VIEWPORTS  : "desktop e mobile" | "só desktop" | "só mobile"
 """
 
 from __future__ import annotations
@@ -20,12 +21,12 @@ PAGES_PATH = Path("config/pages.yaml")
 
 VIEWPORT_MAP = {
     "desktop e mobile": "[desktop, mobile]",
-    "só desktop": "[desktop]",
-    "só mobile": "[mobile]",
+    "só desktop":       "[desktop]",
+    "só mobile":        "[mobile]",
 }
 
 
-# ── Leitura e escrita preservando comentários ─────────────────────────────────
+# ── Leitura preservando comentários ───────────────────────────────────────────
 
 def _load_raw() -> str:
     if not PAGES_PATH.exists():
@@ -37,15 +38,15 @@ def _parse_pages(raw: str) -> list[dict]:
     pages: list[dict] = []
     current: dict | None = None
     for line in raw.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("- name:"):
+        s = line.strip()
+        if s.startswith("- name:"):
             if current is not None:
                 pages.append(current)
-            current = {"name": _val(stripped, "name")}
+            current = {"name": _val(s, "name")}
         elif current is not None:
-            for field in ("url", "active", "viewports", "lighthouse_skip"):
-                if stripped.startswith(f"{field}:"):
-                    current[field] = _val(stripped, field)
+            for f in ("url", "active", "viewports", "lighthouse_skip"):
+                if s.startswith(f"{f}:"):
+                    current[f] = _val(s, f)
     if current is not None:
         pages.append(current)
     return pages
@@ -64,7 +65,14 @@ def _url_exists(raw: str, url: str) -> bool:
     return any(_url_eq(p.get("url", ""), url) for p in _parse_pages(raw))
 
 
-# ── Auto-nome a partir da URL ─────────────────────────────────────────────────
+def _is_active(raw: str, url: str) -> bool:
+    for p in _parse_pages(raw):
+        if _url_eq(p.get("url", ""), url):
+            return p.get("active", "true") != "false"
+    return False
+
+
+# ── Auto-nome ─────────────────────────────────────────────────────────────────
 
 def _auto_name(url: str) -> str:
     path = url.strip("/")
@@ -93,16 +101,14 @@ def _set_active(raw: str, url: str, active: bool) -> str | None:
         return None
     lines = raw.splitlines(keepends=True)
     result: list[str] = []
-    in_target = False
-    replaced = False
+    in_target = replaced = False
     for line in lines:
-        stripped = line.strip()
-        if stripped.startswith("- name:"):
-            in_target = False
-            replaced = False
+        s = line.strip()
+        if s.startswith("- name:"):
+            in_target = replaced = False
         if f'url: "{url}"' in line or f"url: {url}" in line or f"url: '{url}'" in line:
             in_target = True
-        if in_target and stripped.startswith("active:") and not replaced:
+        if in_target and s.startswith("active:") and not replaced:
             indent = len(line) - len(line.lstrip())
             line = " " * indent + f"active: {'true' if active else 'false'}\n"
             replaced = True
@@ -118,8 +124,7 @@ def _remove_page(raw: str, url: str) -> str | None:
     result: list[str] = []
     skip = False
     for i, line in enumerate(lines):
-        stripped = line.strip()
-        if stripped.startswith("- name:"):
+        if line.strip().startswith("- name:"):
             block = "".join(lines[i: i + 8])
             skip = (
                 f'url: "{url}"' in block
@@ -140,17 +145,14 @@ def _add_page(raw: str, name: str, url: str, viewports_label: str) -> str:
         f"    viewports: {viewports}\n"
     )
     marker = "  # ── Páginas de campanha"
-    if marker in raw:
-        return raw.replace(marker, block + marker, 1)
-    return raw.rstrip() + "\n" + block
+    return raw.replace(marker, block + marker, 1) if marker in raw else raw.rstrip() + "\n" + block
 
 
-# ── Parse de múltiplas URLs ───────────────────────────────────────────────────
+# ── Parse de múltiplas URLs (vírgula ou espaço como separador) ────────────────
 
-def _parse_urls(raw_input: str) -> list[str]:
-    """Extrai lista de URLs de um bloco de texto (uma por linha ou vírgula)."""
+def _parse_urls(raw: str) -> list[str]:
     urls: list[str] = []
-    for part in re.split(r"[\n,]+", raw_input):
+    for part in re.split(r"[,\s]+", raw):
         url = part.strip()
         if not url or url.startswith("#"):
             continue
@@ -164,18 +166,17 @@ def _parse_urls(raw_input: str) -> list[str]:
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> None:
-    action    = os.environ.get("ACTION", "").strip().lower()
-    urls_raw  = os.environ.get("PAGE_URLS", os.environ.get("PAGE_URL", "")).strip()
-    viewports = os.environ.get("PAGE_VIEWPORTS", "desktop e mobile").strip()
+    add_raw        = os.environ.get("ADD_URLS",        "").strip()
+    deactivate_raw = os.environ.get("DEACTIVATE_URLS", "").strip()
+    remove_raw     = os.environ.get("REMOVE_URLS",     "").strip()
+    viewports      = os.environ.get("PAGE_VIEWPORTS",  "desktop e mobile").strip()
 
-    urls = _parse_urls(urls_raw)
-    if not urls:
-        print("Erro: PAGE_URLS não definida ou vazia. Informe ao menos uma URL.")
-        sys.exit(1)
+    add_urls        = _parse_urls(add_raw)
+    deactivate_urls = _parse_urls(deactivate_raw)
+    remove_urls     = _parse_urls(remove_raw)
 
-    valid_actions = ("add", "activate", "deactivate", "remove")
-    if action not in valid_actions:
-        print(f"Ação inválida: '{action}'. Use: {' | '.join(valid_actions)}")
+    if not any([add_urls, deactivate_urls, remove_urls]):
+        print("Erro: nenhuma URL informada. Preencha ao menos um dos campos.")
         sys.exit(1)
 
     raw = _load_raw()
@@ -183,39 +184,42 @@ def main() -> None:
     skipped: list[str] = []
     errors: list[str] = []
 
-    for url in urls:
-        if action == "add":
-            if _url_exists(raw, url):
-                skipped.append(f"  ~ {url}  (já existe, ignorado)")
-                continue
+    for url in add_urls:
+        if _url_exists(raw, url):
+            if not _is_active(raw, url):
+                raw = _set_active(raw, url, True) or raw
+                ok.append(f"  ↑ {url}  (reativada)")
+            else:
+                skipped.append(f"  ~ {url}  (já existe e está ativa, ignorada)")
+        else:
             name = _auto_name(url)
             raw = _add_page(raw, name, url, viewports)
             ok.append(f"  + {url}  →  \"{name}\"")
 
-        elif action in ("activate", "deactivate"):
-            result = _set_active(raw, url, active=(action == "activate"))
-            if result is None:
-                errors.append(f"  ✗ {url}  (não encontrada)")
-            else:
-                raw = result
-                symbol = "✓" if action == "activate" else "○"
-                ok.append(f"  {symbol} {url}")
+    for url in deactivate_urls:
+        result = _set_active(raw, url, active=False)
+        if result is None:
+            errors.append(f"  ✗ {url}  (não encontrada)")
+        else:
+            raw = result
+            ok.append(f"  ○ {url}  (desativada)")
 
-        elif action == "remove":
-            result = _remove_page(raw, url)
-            if result is None:
-                errors.append(f"  ✗ {url}  (não encontrada)")
-            else:
-                raw = result
-                ok.append(f"  - {url}")
+    for url in remove_urls:
+        result = _remove_page(raw, url)
+        if result is None:
+            errors.append(f"  ✗ {url}  (não encontrada)")
+        else:
+            raw = result
+            ok.append(f"  − {url}  (removida)")
 
     PAGES_PATH.write_text(raw, encoding="utf-8")
 
-    print(f"\n{'═' * 50}")
-    print(f"  Ação: {action.upper()} | {len(urls)} URL(s) processada(s)")
-    print(f"{'═' * 50}\n")
+    print(f"\n{'═' * 52}")
+    total = len(add_urls) + len(deactivate_urls) + len(remove_urls)
+    print(f"  {total} URL(s) processada(s) | {len(ok)} ok | {len(errors)} erro(s)")
+    print(f"{'═' * 52}")
     if ok:
-        print("Executado com sucesso:")
+        print("\nExecutado:")
         print("\n".join(ok))
     if skipped:
         print("\nIgnorado:")
@@ -223,7 +227,7 @@ def main() -> None:
     if errors:
         print("\nErros:")
         print("\n".join(errors))
-    print(f"\nArquivo salvo: {PAGES_PATH}")
+    print(f"\nSalvo: {PAGES_PATH}")
 
     if errors and not ok and not skipped:
         sys.exit(1)

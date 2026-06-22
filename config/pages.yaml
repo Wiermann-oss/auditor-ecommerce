@@ -1,23 +1,28 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# pages.yaml — Páginas que entram na auditoria
+# pages.yaml — Lista de páginas da auditoria
 # ─────────────────────────────────────────────────────────────────────────────
 #
-# COMO EDITAR SEM ABRIR O VS CODE:
-#   1. Acesse o repositório no GitHub
-#   2. Clique neste arquivo → ícone de lápis (Edit)
-#   3. Ajuste o que precisar
-#   4. Clique em "Commit changes" e confirme
+# COMO ADICIONAR PÁGINAS (sem abrir VS Code):
+#   No dashboard → aba Cobertura → botão "Editar lista"
+#   Isso abre este arquivo no editor do GitHub. Copie um bloco abaixo,
+#   ajuste a URL e o name, e clique em "Commit changes".
+#   O dashboard atualiza sozinho em ~1 minuto.
 #
-# OU use o workflow "Gerenciar Páginas" em Actions → Run workflow
-#   para adicionar, ativar, desativar ou remover páginas por formulário.
+# OU use Actions → "Gerenciar Páginas" → campos separados por vírgula.
 #
 # ─────────────────────────────────────────────────────────────────────────────
-# Campos:
-#   name        Nome legível (aparece no relatório)
-#   url         Caminho relativo da loja (ex: /collections/verao-2026)
-#   active      true = entra na auditoria | false = ignorada
-#   viewports   [desktop, mobile] | [desktop] | [mobile]
-#   lighthouse_skip  true = pula Lighthouse nessa página (usar em /checkout)
+# CAMPOS:
+#   name            Nome que aparece no relatório (gerado automaticamente se
+#                   adicionado via workflow)
+#   url             Caminho da página (sempre começa com /)
+#   active          true = auditar | false = ignorar (sem deletar do arquivo)
+#   viewports       [desktop, mobile] | [desktop] | [mobile]
+#   lighthouse_skip true = pula métricas Lighthouse (use no /checkout)
+#
+# DICA RÁPIDA:
+#   Adicionar  → copie um bloco, mude url e name, active: true
+#   Desativar  → mude active: false  (mantém histórico)
+#   Remover    → delete o bloco inteiro
 # ─────────────────────────────────────────────────────────────────────────────
 
 pages:

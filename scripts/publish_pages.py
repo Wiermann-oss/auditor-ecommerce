@@ -42,6 +42,10 @@ MANAGE_WORKFLOW_URL  = (
     f"https://github.com/{GITHUB_REPO}/actions/workflows/manage-pages.yml"
     if GITHUB_REPO else "#"
 )
+EDIT_PAGES_URL = (
+    f"https://github.com/{GITHUB_REPO}/edit/master/config/pages.yaml"
+    if GITHUB_REPO else "#"
+)
 PAGES_BASE = (
     f"https://{GITHUB_REPO.split('/')[0]}.github.io/{GITHUB_REPO.split('/')[-1]}"
     if GITHUB_REPO else ""
@@ -518,9 +522,16 @@ def _cobertura_html() -> str:
       <div class="cob-pill"><span class="cob-num">{len(cfg_flows)-active_fl}</span><span class="cob-lbl">inativos</span></div>
       <div class="cob-sep"></div>
       <div class="cob-pill"><span class="cob-num">{active_pop}</span><span class="cob-lbl">popup(s) verificado(s)</span></div>
-      <a class="btn btn-sm-outline" href="{MANAGE_WORKFLOW_URL}" target="_blank" style="margin-left:auto">
-        + Gerenciar páginas
-      </a>
+      <div style="display:flex;gap:8px;margin-left:auto;flex-shrink:0">
+        <a class="btn btn-sm-outline" href="{EDIT_PAGES_URL}" target="_blank"
+           title="Abre o editor do GitHub — cole quantas URLs quiser, uma por linha, e salve">
+          ✏ Editar lista
+        </a>
+        <a class="btn btn-sm-outline" href="{MANAGE_WORKFLOW_URL}" target="_blank"
+           title="Formulário rápido para adicionar ou remover URLs via Actions">
+          ⚡ Ação rápida
+        </a>
+      </div>
     </div>
 
     <!-- Páginas -->
