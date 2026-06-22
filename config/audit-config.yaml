@@ -261,14 +261,15 @@ flows:
         selector: ".discount-message, .progressive-discount, [class*='progressive'], [class*='discount-tier']"  # VERIFICAR
 
   # F5 — Aplicação de cupom PRIMEIRA12
-  # DESATIVADO por padrão: submit real cria lead no Klaviyo e dispara fluxo de boas-vindas.
-  # Ativar apenas em modo manual com e-mail de teste designado (alinhar com Daniel/CRM antes).
+  # ATENÇÃO: este fluxo aplica o cupom real PRIMEIRA12 — cria lead no Klaviyo e dispara
+  # o fluxo de boas-vindas. Use apenas com e-mail de teste (alinhar com Daniel/CRM antes).
+  # Para desabilitar: mude active para false.
   - id: "f5_coupon"
     name: "F5 — Aplicação de cupom (PRIMEIRA12)"
     viewports: [desktop, mobile]
     abort_on_failure: true
-    active: false           # manter false — ver nota acima
-    run_mode: manual_only   # nunca rodar em modo agendado
+    active: true            # só roda quando checkbox "Incluir fluxos manuais" está marcado
+    run_mode: manual_only   # nunca roda em execuções agendadas
     steps:
       - name: "Acessar carrinho com item"
         action: goto
