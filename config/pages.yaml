@@ -185,6 +185,11 @@ pages:
     url: "/pages/kit-2x-jeans-carteira"
     active: true
     viewports: [desktop, mobile]
+
+  - name: "Produto — Kit 4X Camisetas Masculinas"
+    url: "/products/kit-4x-camisetas-masculinas"
+    active: true
+    viewports: [desktop, mobile]
   # ── Páginas de campanha (ative/desative conforme a campanha) ───────────────
   # Exemplo — descomente e ajuste a URL quando ativar uma campanha:
   #
