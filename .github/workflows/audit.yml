@@ -18,7 +18,7 @@ jobs:
   audit:
     name: Executar auditoria
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     permissions:
       contents: write   # necessário para publicar no gh-pages
 
