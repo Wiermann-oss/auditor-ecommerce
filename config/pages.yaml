@@ -39,16 +39,6 @@ pages:
     active: true
     viewports: [desktop, mobile]
 
-  - name: "Coleção — Todas"
-    url: "/collections/all"
-    active: true
-    viewports: [desktop, mobile]
-
-  - name: "Página de produto (referência)"
-    url: "/products/camiseta-basica"
-    active: true
-    viewports: [desktop, mobile]
-
   - name: "Carrinho"
     url: "/cart"
     active: true
@@ -65,6 +55,136 @@ pages:
     active: true
     viewports: [desktop, mobile]
 
+
+  - name: "Página — Camiseta Minimal T"
+    url: "/pages/camiseta-minimal-t"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Camiseta Compre 3 Leve 4 E"
+    url: "/pages/camiseta-compre-3-leve-4-e"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Overshirt T"
+    url: "/pages/overshirt-t"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Camiseta A Melhor Oportunidade"
+    url: "/pages/camiseta-a-melhor-oportunidade"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Compre 3 Leve 4 Mais Carteira Obrigado"
+    url: "/pages/compre-3-leve-4-mais-carteira-obrigado"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Compre 3 Leve 4 Brinde Anc"
+    url: "/pages/compre-3-leve-4-brinde-anc"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Compre 3 Leve 4 Mais Carteira Anc"
+    url: "/pages/compre-3-leve-4-mais-carteira-anc"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Jeans Novos"
+    url: "/pages/jeans-novos"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Sueter Tricot T Sd"
+    url: "/pages/sueter-tricot-t-sd"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Camiseta Gola Alta Manga Longa Lp"
+    url: "/pages/camiseta-gola-alta-manga-longa-lp"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Camiseta Gola Alta Manga Longa Lp Sd"
+    url: "/pages/camiseta-gola-alta-manga-longa-lp-sd"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Camiseta Gola Alta Manga Curta Lp Sd"
+    url: "/pages/camiseta-gola-alta-manga-curta-lp-sd"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Camiseta Gola Alta Manga Curta Lp"
+    url: "/pages/camiseta-gola-alta-manga-curta-lp"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Calca Jeans Unitaria Ultima Oportunidade"
+    url: "/pages/calca-jeans-unitaria-ultima-oportunidade"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Compre 3 Leve 4 Brinde"
+    url: "/pages/compre-3-leve-4-brinde"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Camiseta Minimal T Bo"
+    url: "/pages/camiseta-minimal-t-bo"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Overshirt T Sd"
+    url: "/pages/overshirt-t-sd"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Conjunto Essential T"
+    url: "/pages/conjunto-essential-t"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Camisetatofcompre 3 Leve 4"
+    url: "/pages/camisetatofcompre-3-leve-4"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Sueter Classic T Sd"
+    url: "/pages/sueter-classic-t-sd"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Calca Essential T"
+    url: "/pages/calca-essential-t"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Sueter Classic T"
+    url: "/pages/sueter-classic-t"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Jaqueta Westfield T"
+    url: "/pages/jaqueta-westfield-t"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Conjunto Essential T Sd"
+    url: "/pages/conjunto-essential-t-sd"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Camiseta Compre 4 Leve 5 Cueca"
+    url: "/pages/camiseta-compre-4-leve-5-cueca"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Kit 2X Jeans Carteira"
+    url: "/pages/kit-2x-jeans-carteira"
+    active: true
+    viewports: [desktop, mobile]
   # ── Páginas de campanha (ative/desative conforme a campanha) ───────────────
   # Exemplo — descomente e ajuste a URL quando ativar uma campanha:
   #
