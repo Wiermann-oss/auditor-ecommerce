@@ -67,6 +67,29 @@ jobs:
             git commit -m "pages: atualização via workflow (${{ github.actor }})"
           git push origin master
 
+      - name: Recuperar histórico existente do gh-pages
+        run: |
+          git fetch origin gh-pages 2>/dev/null || true
+          mkdir -p gh-pages-output
+          git show origin/gh-pages:reports.json > gh-pages-output/reports.json 2>/dev/null \
+            || echo '[]' > gh-pages-output/reports.json
+
+      - name: Gerar dashboard de cobertura
+        run: python scripts/publish_pages.py
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GOOGLE_CLIENT_ID:  ${{ vars.GOOGLE_CLIENT_ID }}
+
+      - name: Publicar no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages-output
+          keep_files: true
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_message: "Cobertura: páginas atualizadas"
+
       - name: Disparar auditoria completa (opcional)
         if: ${{ github.event.inputs.run_audit == 'true' }}
         uses: actions/github-script@v7
