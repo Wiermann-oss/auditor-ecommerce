@@ -58,9 +58,10 @@ _ALLOWED_DOMAINS  = ["minimalclub.com.br", "moonventures.com.br", "hoomy.com.br"
 # ── Copiar relatórios e screenshots ───────────────────────────────────────────
 
 copied = 0
-for html_file in REPORTS_DIR.glob("*.html"):
-    shutil.copy2(html_file, OUTPUT_REPORTS / html_file.name)
-    copied += 1
+if REPORTS_DIR.exists():
+    for html_file in REPORTS_DIR.glob("*.html"):
+        shutil.copy2(html_file, OUTPUT_REPORTS / html_file.name)
+        copied += 1
 
 screenshots_src = REPORTS_DIR / "screenshots"
 if screenshots_src.exists():
@@ -557,7 +558,8 @@ def _cobertura_html() -> str:
 
 # ── Gerar index.html ──────────────────────────────────────────────────────────
 
-generated_at = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
+from zoneinfo import ZoneInfo as _ZoneInfo
+generated_at = datetime.now(_ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M")
 
 HTML = f"""<!DOCTYPE html>
 <html lang="pt-BR">
