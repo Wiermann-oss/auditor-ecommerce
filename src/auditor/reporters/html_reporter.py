@@ -1,10 +1,11 @@
 """
 Gera relatório HTML self-contained via Jinja2.
-Zero dependências externas — CSS inline, sem CDN, sem JS.
+Zero dependências externas — CSS inline, sem CDN.
 """
 
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -12,7 +13,7 @@ from typing import Optional
 from jinja2 import Environment
 
 from ..reporters.explanations import explain_expected
-from ..types import AuditRun, AuditStatus, CheckResult, CheckStatus
+from ..types import AuditRun, AuditStatus, Categoria, CheckResult, CheckStatus
 
 
 _HTML_TEMPLATE = """\
@@ -26,8 +27,7 @@ _HTML_TEMPLATE = """\
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
            font-size: 14px; color: #1a1a1a; background: #f0f0f0; padding: 24px; }
-    h2 { font-size: 15px; font-weight: 600; margin: 32px 0 12px; }
-    .header { margin-bottom: 20px; }
+    .header { margin-bottom: 16px; }
     .header h1 { font-size: 20px; font-weight: 700; }
     .meta { color: #666; font-size: 12px; margin-top: 4px; }
 
@@ -38,8 +38,7 @@ _HTML_TEMPLATE = """\
     .banner-err  { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
 
     .stats { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
-    .stat { background: #fff; border-radius: 8px; padding: 14px 20px; text-align: center;
-            min-width: 90px; }
+    .stat { background: #fff; border-radius: 8px; padding: 14px 20px; text-align: center; min-width: 90px; }
     .stat .num { font-size: 28px; font-weight: 700; }
     .stat .lbl { font-size: 11px; color: #777; text-transform: uppercase; margin-top: 2px; }
     .num-ok   { color: #10b981; }
@@ -49,7 +48,7 @@ _HTML_TEMPLATE = """\
     table { width: 100%; border-collapse: collapse; background: #fff;
             border-radius: 8px; overflow: hidden; font-size: 13px; margin-bottom: 8px; }
     th { background: #f4f4f4; padding: 9px 12px; text-align: left;
-         font-weight: 600; border-bottom: 1px solid #e5e5e5; white-space: nowrap; }
+         font-weight: 600; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
     td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #fafafa; }
@@ -69,16 +68,28 @@ _HTML_TEMPLATE = """\
              white-space: nowrap; color: #444; }
     .footer { margin-top: 32px; color: #aaa; font-size: 11px; }
 
+    /* ── Tabs ── */
+    .tab-nav { display: flex; gap: 0; border-bottom: 2px solid #e5e7eb;
+               margin: 0 0 24px; background: #fff; border-radius: 8px 8px 0 0;
+               overflow-x: auto; }
+    .tab-btn { padding: 11px 20px; border: none; background: none; cursor: pointer;
+               font-size: 13px; font-weight: 600; color: #6b7280;
+               border-bottom: 2px solid transparent; margin-bottom: -2px;
+               transition: all .15s; white-space: nowrap; }
+    .tab-btn:hover { color: #111; }
+    .tab-btn.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+    .tab-count { background: #e5e7eb; color: #4b5563; border-radius: 99px;
+                 padding: 1px 7px; font-size: 11px; margin-left: 5px; }
+    .tab-btn.active .tab-count { background: #ede9fe; color: #4f46e5; }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
     /* ── Failure cards ── */
-    .failure-card {
-      background: #fff; border-radius: 10px; border: 1px solid #e5e7eb;
-      border-left: 4px solid #ef4444; margin-bottom: 20px; overflow: hidden;
-    }
+    .failure-card { background: #fff; border-radius: 10px; border: 1px solid #e5e7eb;
+                    border-left: 4px solid #ef4444; margin-bottom: 20px; overflow: hidden; }
     .failure-card.is-erro { border-left-color: #f59e0b; }
-    .failure-card-head {
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-      padding: 14px 18px; border-bottom: 1px solid #f3f4f6;
-    }
+    .failure-card-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+                         padding: 14px 18px; border-bottom: 1px solid #f3f4f6; }
     .failure-card-head strong { font-size: 14px; flex: 1; }
     .failure-card-body { padding: 18px; display: flex; flex-direction: column; gap: 16px; }
     .scope-line { font-size: 12px; color: #6b7280; font-family: monospace; }
@@ -97,44 +108,44 @@ _HTML_TEMPLATE = """\
     .block-detail.is-erro { background: #fffbeb; border-color: #fde68a; }
     .block-detail.is-erro label { color: #d97706; }
     .block-detail.is-erro p { color: #78350f; }
-
     .block-expected { background: #f0fdf4; border: 1px solid #bbf7d0; }
     .block-expected label { color: #15803d; }
     .block-expected p { color: #14532d; }
-
     .block-impact { background: #f8fafc; border: 1px solid #e2e8f0; }
     .block-impact label { color: #475569; }
     .block-impact p { color: #334155; }
 
-    .failure-screenshot {
-      border-top: 1px solid #f3f4f6; padding-top: 16px;
-    }
-    .failure-screenshot-label {
-      font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
-      font-weight: 700; color: #9ca3af; margin-bottom: 8px;
-    }
-    .screenshot-wrap {
-      position: relative; cursor: zoom-in; border-radius: 8px; overflow: hidden;
-      border: 1px solid #e5e7eb; box-shadow: 0 2px 12px rgba(0,0,0,.08);
-      max-width: 720px;
-    }
-    .screenshot-wrap img {
-      display: block; width: 100%; height: 260px;
-      object-fit: cover; object-position: top;
-      transition: height .25s ease;
-    }
+    /* ── Screenshot ── */
+    .failure-screenshot { border-top: 1px solid #f3f4f6; padding-top: 16px; }
+    .failure-screenshot-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px;
+                                 font-weight: 700; color: #9ca3af; margin-bottom: 8px; }
+    .screenshot-wrap { position: relative; cursor: zoom-in; border-radius: 8px; overflow: hidden;
+                        border: 1px solid #e5e7eb; box-shadow: 0 2px 12px rgba(0,0,0,.08); max-width: 720px; }
+    .screenshot-wrap img { display: block; width: 100%; height: 260px;
+                            object-fit: cover; object-position: top; transition: height .25s ease; }
     .screenshot-wrap.expanded img { height: auto; cursor: zoom-out; }
-    .screenshot-overlay {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 56px;
-      background: linear-gradient(transparent, rgba(0,0,0,.45));
-      display: flex; align-items: flex-end; padding: 10px 14px;
-      pointer-events: none; transition: opacity .2s;
-    }
+    .screenshot-overlay { position: absolute; bottom: 0; left: 0; right: 0; height: 56px;
+                           background: linear-gradient(transparent, rgba(0,0,0,.45));
+                           display: flex; align-items: flex-end; padding: 10px 14px;
+                           pointer-events: none; }
     .screenshot-wrap.expanded .screenshot-overlay { display: none; }
-    .screenshot-hint {
-      font-size: 11px; color: rgba(255,255,255,.9); font-weight: 600;
-      letter-spacing: .3px;
-    }
+    .screenshot-hint { font-size: 11px; color: rgba(255,255,255,.9); font-weight: 600; }
+
+    /* ── Section cards (saúde / fluxos) ── */
+    .section-card { background: #fff; border-radius: 8px; border: 1px solid #e5e7eb;
+                    margin-bottom: 16px; overflow: hidden; }
+    .section-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+                    border-bottom: 1px solid #f3f4f6; background: #fafafa; flex-wrap: wrap; }
+    .section-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dot-ok   { background: #10b981; }
+    .dot-fail { background: #ef4444; }
+    .section-title { font-size: 13px; font-weight: 600; font-family: monospace; flex: 1; }
+    .section-fail-tag { font-size: 12px; font-weight: 700; color: #ef4444; margin-left: auto; }
+    .section-ok-tag  { font-size: 12px; font-weight: 600; color: #10b981; margin-left: auto; }
+    .row-fail td { background: #fef2f2; }
+    .row-erro td  { background: #fffbeb; }
+    .empty-section { padding: 32px; text-align: center; color: #9ca3af; font-size: 13px; }
+    h2 { font-size: 15px; font-weight: 600; margin: 0 0 12px; }
   </style>
 </head>
 <body>
@@ -147,109 +158,230 @@ _HTML_TEMPLATE = """\
     </div>
   </div>
 
-  <div class="banner {{ banner_class }}">{{ banner_text }}</div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('resumo', this)">Resumo</button>
+    <button class="tab-btn" onclick="switchTab('saude', this)">
+      Saúde das Páginas <span class="tab-count">{{ page_groups|length }}</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('fluxos', this)">
+      Fluxos <span class="tab-count">{{ flow_groups|length }}</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('tabela', this)">Tabela Completa</button>
+  </nav>
 
-  <div class="stats">
-    <div class="stat">
-      <div class="num">{{ total_checks }}</div>
-      <div class="lbl">checagens</div>
-    </div>
-    <div class="stat">
-      <div class="num num-ok">{{ total_passou }}</div>
-      <div class="lbl">passaram</div>
-    </div>
-    <div class="stat">
-      <div class="num num-fail">{{ total_falhou }}</div>
-      <div class="lbl">falharam</div>
-    </div>
-    <div class="stat">
-      <div class="num num-err">{{ total_erro }}</div>
-      <div class="lbl">com erro</div>
-    </div>
-  </div>
+  <!-- ── Resumo ─────────────────────────────────────────────────────────── -->
+  <div id="tab-resumo" class="tab-pane active">
+    <div class="banner {{ banner_class }}">{{ banner_text }}</div>
 
-  {% if failures %}
-  <h2>Falhas e erros detectados</h2>
-  {% for r in failures %}
-  <div class="failure-card{% if r.status == 'erro' %} is-erro{% endif %}">
-    <div class="failure-card-head">
-      <span class="badge badge-{{ r.status }}">{{ r.status }}</span>
-      <strong>{{ r.check_name }}</strong>
-      <span class="vp">{{ r.viewport }}</span>
-      {% if r.value_display %}<span class="val">{{ r.value_display }}</span>{% endif %}
-    </div>
-    <div class="failure-card-body">
-      <div class="scope-line">{{ r.full_scope }}</div>
-
-      <div class="info-blocks">
-        {% if r.detail %}
-        <div class="info-block block-detail{% if r.status == 'erro' %} is-erro{% endif %}">
-          <label>O que aconteceu</label>
-          <p>{{ r.detail }}</p>
-        </div>
-        {% endif %}
-
-        {% if r.expected %}
-        <div class="info-block block-expected">
-          <label>O que era esperado</label>
-          <p>{{ r.expected }}</p>
-        </div>
-        {% endif %}
-
-        {% if r.explanation %}
-        <div class="info-block block-impact">
-          <label>Impacto no negócio</label>
-          <p>{{ r.explanation }}</p>
-        </div>
-        {% endif %}
+    <div class="stats">
+      <div class="stat">
+        <div class="num">{{ total_checks }}</div>
+        <div class="lbl">checagens</div>
       </div>
+      <div class="stat">
+        <div class="num num-ok">{{ total_passou }}</div>
+        <div class="lbl">passaram</div>
+      </div>
+      <div class="stat">
+        <div class="num num-fail">{{ total_falhou }}</div>
+        <div class="lbl">falharam</div>
+      </div>
+      <div class="stat">
+        <div class="num num-err">{{ total_erro }}</div>
+        <div class="lbl">com erro</div>
+      </div>
+    </div>
 
-      {% if r.screenshot_b64 %}
-      <div class="failure-screenshot">
-        <div class="failure-screenshot-label">Estado da página no momento da falha</div>
-        <div class="screenshot-wrap" onclick="this.classList.toggle('expanded')">
-          <img src="data:image/png;base64,{{ r.screenshot_b64 }}"
-               alt="Screenshot da página no momento da falha — {{ r.check_name }}">
-          <div class="screenshot-overlay">
-            <span class="screenshot-hint">🔍 Clique para ampliar</span>
+    {% if failures %}
+    <h2>Falhas e erros detectados</h2>
+    {% for r in failures %}
+    <div class="failure-card{% if r.status == 'erro' %} is-erro{% endif %}">
+      <div class="failure-card-head">
+        <span class="badge badge-{{ r.status }}">{{ r.status }}</span>
+        <strong>{{ r.check_name }}</strong>
+        <span class="vp">{{ r.viewport }}</span>
+        {% if r.value_display %}<span class="val">{{ r.value_display }}</span>{% endif %}
+      </div>
+      <div class="failure-card-body">
+        <div class="scope-line">{{ r.full_scope }}</div>
+        <div class="info-blocks">
+          {% if r.detail %}
+          <div class="info-block block-detail{% if r.status == 'erro' %} is-erro{% endif %}">
+            <label>O que aconteceu</label>
+            <p>{{ r.detail }}</p>
+          </div>
+          {% endif %}
+          {% if r.expected %}
+          <div class="info-block block-expected">
+            <label>O que era esperado</label>
+            <p>{{ r.expected }}</p>
+          </div>
+          {% endif %}
+          {% if r.explanation %}
+          <div class="info-block block-impact">
+            <label>Impacto no negócio</label>
+            <p>{{ r.explanation }}</p>
+          </div>
+          {% endif %}
+        </div>
+        {% if r.screenshot_b64 %}
+        <div class="failure-screenshot">
+          <div class="failure-screenshot-label">Estado da página no momento da falha</div>
+          <div class="screenshot-wrap" onclick="this.classList.toggle('expanded')">
+            <img src="data:image/png;base64,{{ r.screenshot_b64 }}"
+                 alt="Screenshot — {{ r.check_name }}">
+            <div class="screenshot-overlay">
+              <span class="screenshot-hint">🔍 Clique para ampliar</span>
+            </div>
           </div>
         </div>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
+    {% endfor %}
+    {% else %}
+    <div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;padding:20px 24px;color:#065f46;font-weight:600">
+      Nenhuma falha ou erro nesta execução.
+    </div>
+    {% endif %}
   </div>
-  {% endfor %}
-  {% endif %}
 
-  <h2>Todos os resultados</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Página / Fluxo</th>
-        <th>Checagem</th>
-        <th>Viewport</th>
-        <th>Status</th>
-        <th>Valor → Limiar</th>
-        <th>Detalhe</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in all_results %}
-      <tr>
-        <td class="scope" title="{{ r.full_scope }}">{{ r.scope }}</td>
-        <td>{{ r.check_name }}</td>
-        <td><span class="vp">{{ r.viewport }}</span></td>
-        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
-        <td class="val">{{ r.value_display }}</td>
-        <td>{{ r.detail or "" }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <!-- ── Saúde das Páginas ───────────────────────────────────────────────── -->
+  <div id="tab-saude" class="tab-pane">
+    {% if page_groups %}
+    {% for pg in page_groups %}
+    <div class="section-card">
+      <div class="section-head">
+        <span class="section-dot {% if pg.all_ok %}dot-ok{% else %}dot-fail{% endif %}"></span>
+        <span class="section-title">{{ pg.url }}</span>
+        {% if pg.all_ok %}
+        <span class="section-ok-tag">✓ Tudo OK</span>
+        {% else %}
+        <span class="section-fail-tag">{{ pg.fail_count }} falha(s)</span>
+        {% endif %}
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Checagem</th>
+            <th>Viewport</th>
+            <th>Status</th>
+            <th>Valor → Limiar</th>
+            <th>Detalhe</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in pg.checks %}
+          <tr class="{% if r.status == 'falhou' %}row-fail{% elif r.status == 'erro' %}row-erro{% endif %}">
+            <td>{{ r.check_name }}</td>
+            <td><span class="vp">{{ r.viewport }}</span></td>
+            <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+            <td class="val">{{ r.value_display }}</td>
+            <td class="{% if r.status == 'falhou' %}detail-fail{% elif r.status == 'erro' %}detail-err{% endif %}">{{ r.detail or '' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-section">Nenhuma checagem de saúde técnica nesta execução.</div>
+    {% endif %}
+  </div>
+
+  <!-- ── Fluxos ─────────────────────────────────────────────────────────── -->
+  <div id="tab-fluxos" class="tab-pane">
+    {% if flow_groups %}
+    {% for fl in flow_groups %}
+    <div class="section-card">
+      <div class="section-head">
+        <span class="section-dot {% if fl.all_ok %}dot-ok{% else %}dot-fail{% endif %}"></span>
+        <span class="section-title">{{ fl.name }}</span>
+        {% if fl.all_ok %}
+        <span class="section-ok-tag">✓ Todos os steps OK</span>
+        {% else %}
+        <span class="section-fail-tag">{{ fl.fail_count }} falha(s)</span>
+        {% endif %}
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Viewport</th>
+            <th>Status</th>
+            <th>Detalhe</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in fl.checks %}
+          <tr class="{% if r.status == 'falhou' %}row-fail{% elif r.status == 'erro' %}row-erro{% endif %}">
+            <td>{{ r.check_name }}</td>
+            <td><span class="vp">{{ r.viewport }}</span></td>
+            <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+            <td class="{% if r.status == 'falhou' %}detail-fail{% elif r.status == 'erro' %}detail-err{% endif %}">
+              {{ r.detail or '' }}
+              {% if r.screenshot_b64 %}
+              <div style="margin-top:10px">
+                <div class="screenshot-wrap" style="max-width:480px" onclick="this.classList.toggle('expanded')">
+                  <img src="data:image/png;base64,{{ r.screenshot_b64 }}" alt="Screenshot">
+                  <div class="screenshot-overlay">
+                    <span class="screenshot-hint">🔍 Clique para ampliar</span>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-section">Nenhum fluxo funcional nesta execução.</div>
+    {% endif %}
+  </div>
+
+  <!-- ── Tabela Completa ────────────────────────────────────────────────── -->
+  <div id="tab-tabela" class="tab-pane">
+    <table>
+      <thead>
+        <tr>
+          <th>Página / Fluxo</th>
+          <th>Checagem</th>
+          <th>Viewport</th>
+          <th>Status</th>
+          <th>Valor → Limiar</th>
+          <th>Detalhe</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in all_results %}
+        <tr>
+          <td class="scope" title="{{ r.full_scope }}">{{ r.scope }}</td>
+          <td>{{ r.check_name }}</td>
+          <td><span class="vp">{{ r.viewport }}</span></td>
+          <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+          <td class="val">{{ r.value_display }}</td>
+          <td>{{ r.detail or "" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
   <div class="footer">
     run_id: {{ run_id }} &nbsp;·&nbsp; gerado em {{ generated_at }}
   </div>
+
+  <script>
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.getElementById('tab-' + name).classList.add('active');
+      if (btn) btn.classList.add('active');
+    }
+  </script>
 </body>
 </html>
 """
@@ -266,6 +398,36 @@ def generate_html_report(run: AuditRun, reports_dir: Path) -> Path:
 
     failures = [r for r in run.check_results if r.status != CheckStatus.PASSOU]
 
+    # Group by categoria → page / flow
+    page_map: dict[str, list[dict]] = defaultdict(list)
+    flow_map: dict[str, list[dict]] = defaultdict(list)
+    for r in run.check_results:
+        fmt = _format_result(r)
+        if r.categoria == Categoria.SAUDE_TECNICA:
+            page_map[r.page_url or ""].append(fmt)
+        else:
+            flow_map[r.flow_name or ""].append(fmt)
+
+    page_groups = [
+        {
+            "url": url,
+            "checks": checks,
+            "all_ok": all(c["status"] == "passou" for c in checks),
+            "fail_count": sum(1 for c in checks if c["status"] in ("falhou", "erro")),
+        }
+        for url, checks in sorted(page_map.items())
+    ]
+
+    flow_groups = [
+        {
+            "name": name,
+            "checks": checks,
+            "all_ok": all(c["status"] == "passou" for c in checks),
+            "fail_count": sum(1 for c in checks if c["status"] in ("falhou", "erro")),
+        }
+        for name, checks in sorted(flow_map.items())
+    ]
+
     html = template.render(
         store_name="Minimal Club",
         run_id=run.run_id,
@@ -281,6 +443,8 @@ def generate_html_report(run: AuditRun, reports_dir: Path) -> Path:
         total_erro=run.total_erro,
         failures=[_format_result(r) for r in failures],
         all_results=[_format_result(r) for r in run.check_results],
+        page_groups=page_groups,
+        flow_groups=flow_groups,
         generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     )
 
@@ -346,7 +510,6 @@ def _format_result(r: CheckResult) -> dict:
 def _shorten_scope(scope: str) -> str:
     if len(scope) <= 50:
         return scope
-    # Para URLs, mostrar só o path
     if "://" in scope:
         try:
             path = scope.split("://", 1)[1].split("/", 1)[1] if "/" in scope.split("://", 1)[1] else "/"

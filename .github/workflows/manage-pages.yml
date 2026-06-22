@@ -73,6 +73,8 @@ jobs:
           mkdir -p gh-pages-output
           git show origin/gh-pages:reports.json > gh-pages-output/reports.json 2>/dev/null \
             || echo '[]' > gh-pages-output/reports.json
+          git show origin/gh-pages:analytics.json > gh-pages-output/analytics.json 2>/dev/null \
+            || echo '{}' > gh-pages-output/analytics.json
 
       - name: Gerar dashboard de cobertura
         run: python scripts/publish_pages.py

@@ -122,6 +122,87 @@ else:
 )
 
 
+# ── Analytics ─────────────────────────────────────────────────────────────────
+
+def _build_analytics(db: Path) -> dict:
+    """Query SQLite for analytics data. Returns {} if unavailable."""
+    import sqlite3 as _sq
+    try:
+        conn = _sq.connect(str(db))
+        conn.row_factory = _sq.Row
+
+        top = conn.execute("""
+            SELECT cr.check_id, cr.check_name, COUNT(*) as cnt,
+                   MAX(ar.started_at) as last_seen
+            FROM check_results cr
+            JOIN audit_runs ar ON cr.run_id = ar.run_id
+            WHERE cr.status IN ('falhou','erro') AND ar.status = 'concluida'
+              AND ar.started_at >= datetime('now','-60 days')
+            GROUP BY cr.check_id, cr.check_name
+            ORDER BY cnt DESC LIMIT 15
+        """).fetchall()
+        top_failures = [
+            {"check_id": r["check_id"], "check_name": r["check_name"],
+             "fail_count": r["cnt"],
+             "last_seen": (r["last_seen"] or "")[:10]}
+            for r in top
+        ]
+
+        daily_rows = conn.execute("""
+            SELECT date(started_at) as date, COUNT(*) as run_count,
+                   SUM(COALESCE(total_passou,0)) as tp,
+                   SUM(COALESCE(total_falhou,0)) as tf,
+                   SUM(COALESCE(total_erro,0)) as te,
+                   SUM(COALESCE(total_checks,0)) as tc
+            FROM audit_runs WHERE status='concluida'
+              AND started_at >= datetime('now','-90 days')
+            GROUP BY date(started_at) ORDER BY date ASC
+        """).fetchall()
+        daily = [
+            {"date": r["date"], "run_count": r["run_count"],
+             "total_checks": r["tc"] or 0, "total_passou": r["tp"] or 0,
+             "total_falhou": r["tf"] or 0, "total_erro": r["te"] or 0,
+             "pass_rate": round((r["tp"] or 0) / (r["tc"] or 1) * 100)}
+            for r in daily_rows
+        ]
+
+        hl = conn.execute("""
+            SELECT cr.check_name, COUNT(*) as total,
+                   SUM(CASE WHEN cr.status='passou' THEN 1 ELSE 0 END) as ok
+            FROM check_results cr JOIN audit_runs ar ON cr.run_id = ar.run_id
+            WHERE ar.status='concluida' AND ar.started_at >= datetime('now','-30 days')
+            GROUP BY cr.check_name HAVING total >= 3
+            ORDER BY ok * 1.0 / total DESC
+        """).fetchall()
+        always_ok = [r["check_name"] for r in hl if r["ok"] == r["total"]][:8]
+        attention  = [r["check_name"] for r in hl
+                      if (r["ok"] or 0) < r["total"]
+                      and (r["ok"] or 0) / (r["total"] or 1) < 0.8][:8]
+
+        conn.close()
+        return {"top_failures": top_failures, "daily": daily,
+                "highlights": {"always_ok": always_ok, "attention": attention}}
+    except Exception as exc:
+        print(f"Aviso: analytics não gerado — {exc}")
+        return {}
+
+
+analytics: dict = {}
+if _HAS_AUDITOR and db_path.exists():
+    analytics = _build_analytics(db_path)
+else:
+    _fa = OUTPUT_DIR / "analytics.json"
+    if _fa.exists():
+        try:
+            analytics = json.loads(_fa.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+(OUTPUT_DIR / "analytics.json").write_text(
+    json.dumps(analytics, ensure_ascii=False, indent=2), encoding="utf-8"
+)
+
+
 # ── Auth helpers ──────────────────────────────────────────────────────────────
 
 def _auth_css() -> str:
@@ -556,6 +637,132 @@ def _cobertura_html() -> str:
     {como_funciona}"""
 
 
+# ── Analytics JS ─────────────────────────────────────────────────────────────
+
+_ANALYTICS_JS_FUNCS = """
+var _anlz_loaded = false;
+function loadAnalise() {
+  if (_anlz_loaded) return;
+  _anlz_loaded = true;
+  var d = _ANALYTICS;
+  var el = document.getElementById('analise-content');
+  if (!d || !d.daily || !d.daily.length) {
+    el.innerHTML = '<div style="text-align:center;padding:48px;color:#9ca3af;font-size:13px">Dados de an\\u00e1lise n\\u00e3o dispon\\u00edveis ainda.<br>Execute uma auditoria completa para gerar o hist\\u00f3rico.</div>';
+    return;
+  }
+  el.innerHTML = _anlzHL(d) + _anlzTopFail(d) + _anlzPeriod(d) + _anlzCmp(d);
+  document.getElementById('an-apply').addEventListener('click', function() {
+    document.getElementById('an-chart-wrap').innerHTML = _anlzChart(_anlzFilter(d.daily));
+  });
+  document.getElementById('an-cmp-btn').addEventListener('click', function() {
+    document.getElementById('an-cmp-result').innerHTML = _anlzCmpResult(d.daily);
+  });
+}
+function _anlzFilter(daily) {
+  var f = document.getElementById('an-from').value;
+  var t = document.getElementById('an-to').value;
+  return (daily||[]).filter(function(d){ return (!f||d.date>=f)&&(!t||d.date<=t); });
+}
+function _anlzHL(d) {
+  var hl = d.highlights || {};
+  var ok  = (hl.always_ok||[]).map(function(n){ return '<div class="an-hl-item">✓ '+_ae(n)+'</div>'; }).join('')
+            || '<div class="an-hl-item" style="color:#9ca3af">Sem dados suficientes</div>';
+  var att = (hl.attention||[]).map(function(n){ return '<div class="an-hl-item">⚠ '+_ae(n)+'</div>'; }).join('')
+            || '<div class="an-hl-item" style="color:#9ca3af">Nenhuma m\\u00e9trica cr\\u00edtica</div>';
+  return '<div class="an-section"><div class="an-title">Vis\\u00e3o geral — \\u00faltimos 30 dias</div>'
+       + '<div class="an-body"><div class="an-hl-grid">'
+       + '<div class="an-hl-card an-hl-ok"><div class="an-hl-head">✓ Funcionando bem</div>'+ok+'</div>'
+       + '<div class="an-hl-card an-hl-att"><div class="an-hl-head">⚠ Precisa de aten\\u00e7\\u00e3o</div>'+att+'</div>'
+       + '</div></div></div>';
+}
+function _anlzTopFail(d) {
+  var rows = (d.top_failures||[]).map(function(f,i){
+    return '<tr><td>'+(i+1)+'</td><td>'+_ae(f.check_name)+'</td>'
+         + '<td style="color:var(--fail);font-weight:700">'+(f.fail_count||0)+'</td>'
+         + '<td>'+(f.last_seen||'—')+'</td></tr>';
+  }).join('');
+  var body = rows
+    ? '<table><thead><tr><th>#</th><th>Checagem</th><th>Ocorr\\u00eancias</th><th>\\u00daltimo registro</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    : '<div style="text-align:center;padding:24px;color:#9ca3af">Nenhum erro registrado.</div>';
+  return '<div class="an-section"><div class="an-title">Erros mais recorrentes — \\u00faltimos 60 dias</div>'+body+'</div>';
+}
+function _anlzPeriod(d) {
+  var today = new Date(), from30 = new Date();
+  from30.setDate(from30.getDate()-30);
+  var toS = today.toISOString().slice(0,10), frS = from30.toISOString().slice(0,10);
+  var filtered = (d.daily||[]).filter(function(x){ return x.date>=frS; });
+  return '<div class="an-section"><div class="an-title">Evolu\\u00e7\\u00e3o por per\\u00edodo</div>'
+       + '<div class="an-body">'
+       + '<div class="an-filter"><label>De</label><input type="date" id="an-from" value="'+frS+'">'
+       + '<label>at\\u00e9</label><input type="date" id="an-to" value="'+toS+'">'
+       + '<button id="an-apply">Aplicar</button></div>'
+       + '<div id="an-chart-wrap">'+_anlzChart(filtered)+'</div>'
+       + '</div></div>';
+}
+function _anlzChart(days) {
+  if (!days||!days.length) return '<div style="text-align:center;padding:24px;color:#9ca3af">Sem dados para o per\\u00edodo.</div>';
+  return '<div class="an-chart">'
+    + days.map(function(d){
+        var h=Math.max(4,d.pass_rate||0), c=d.pass_rate>=90?'#10b981':d.pass_rate>=70?'#f59e0b':'#ef4444';
+        return '<div class="an-bar-col"><div class="an-bar" style="height:'+h+'%;background:'+c
+             + '" title="'+d.pass_rate+'% — '+d.date+' | '+(d.total_falhou||0)+' falha(s)"></div>'
+             + '<div class="an-bar-lbl">'+d.date.slice(5)+'</div></div>';
+      }).join('')
+    + '</div><div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--muted)">'
+    + '<span style="color:#10b981">■ ≥90%</span>'
+    + '<span style="color:#f59e0b">■ 70–89%</span>'
+    + '<span style="color:#ef4444">■ &lt;70%</span></div>';
+}
+function _anlzCmp(d) {
+  var t=new Date(), d14=new Date(), d28=new Date();
+  d14.setDate(d14.getDate()-14); d28.setDate(d28.getDate()-28);
+  var fmt=function(dt){ return dt.toISOString().slice(0,10); };
+  return '<div class="an-section"><div class="an-title">Comparar per\\u00edodos</div>'
+       + '<div class="an-body">'
+       + '<div class="an-compare-grid" style="margin-bottom:14px">'
+       + '<div><div class="an-compare-head">Per\\u00edodo A</div><div class="an-filter" style="margin-bottom:0">'
+       + '<label>De</label><input type="date" id="an-a-from" value="'+fmt(d28)+'">'
+       + '<label>at\\u00e9</label><input type="date" id="an-a-to" value="'+fmt(d14)+'">'
+       + '</div></div>'
+       + '<div><div class="an-compare-head">Per\\u00edodo B</div><div class="an-filter" style="margin-bottom:0">'
+       + '<label>De</label><input type="date" id="an-b-from" value="'+fmt(d14)+'">'
+       + '<label>at\\u00e9</label><input type="date" id="an-b-to" value="'+fmt(t)+'">'
+       + '</div></div></div>'
+       + '<div style="text-align:center;margin-bottom:14px"><button id="an-cmp-btn">Comparar</button></div>'
+       + '<div id="an-cmp-result"></div></div></div>';
+}
+function _anlzCmpResult(daily) {
+  var fa=document.getElementById('an-a-from').value, ta=document.getElementById('an-a-to').value;
+  var fb=document.getElementById('an-b-from').value, tb=document.getElementById('an-b-to').value;
+  function agg(f,t){
+    var rows=(daily||[]).filter(function(d){ return d.date>=f&&d.date<=t; });
+    if (!rows.length) return null;
+    var tc=rows.reduce(function(s,d){ return s+(d.total_checks||0); },0);
+    var tp=rows.reduce(function(s,d){ return s+(d.total_passou||0); },0);
+    var tf=rows.reduce(function(s,d){ return s+(d.total_falhou||0); },0);
+    return { runs:rows.length, tc:tc, tp:tp, tf:tf, rate:tc?Math.round(tp/tc*100):0 };
+  }
+  var a=agg(fa,ta), b=agg(fb,tb);
+  if (!a||!b) return '<div style="text-align:center;padding:16px;color:#9ca3af">Sem dados para os per\\u00edodos selecionados.</div>';
+  var diff=b.rate-a.rate, ds=(diff>=0?'+':'')+diff+' p.p.';
+  var dc=diff>0?'var(--ok)':diff<0?'var(--fail)':'var(--muted)';
+  function card(lbl,period,s){
+    var c=s.rate>=90?'var(--ok)':s.rate>=70?'var(--err)':'var(--fail)';
+    return '<div class="an-compare-card"><div class="an-compare-head">'+lbl+' <span style="font-weight:400">('+period+')</span></div>'
+         + '<div class="an-stat-big" style="color:'+c+'">'+s.rate+'%</div>'
+         + '<div class="an-stat-sub">'+s.tc+' checagens · '+s.tf+' falha(s) · '+s.runs+' run(s)</div></div>';
+  }
+  return '<div class="an-compare-grid">'+card('Per\\u00edodo A',fa+' a '+ta,a)+card('Per\\u00edodo B',fb+' a '+tb,b)+'</div>'
+       + '<div style="text-align:center;padding:16px;font-size:15px">Varia\\u00e7\\u00e3o: <strong style="color:'+dc+';font-size:20px">'+ds+'</strong></div>';
+}
+function _ae(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+"""
+
+
+def _analytics_js(data: dict) -> str:
+    return "var _ANALYTICS = " + json.dumps(data, ensure_ascii=False) + ";\n" + _ANALYTICS_JS_FUNCS
+
+
 # ── Gerar index.html ──────────────────────────────────────────────────────────
 
 from zoneinfo import ZoneInfo as _ZoneInfo
@@ -723,6 +930,39 @@ HTML = f"""<!DOCTYPE html>
                 border-top-color:var(--pri); border-radius:50%;
                 animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }}
     @keyframes spin {{ to {{ transform:rotate(360deg); }} }}
+    /* Analytics tab */
+    .an-section {{ background:var(--card); border:1px solid var(--border);
+                   border-radius:var(--radius); margin-bottom:16px; overflow:hidden; }}
+    .an-title   {{ padding:14px 18px; border-bottom:1px solid var(--border);
+                   font-weight:700; font-size:14px; }}
+    .an-body    {{ padding:18px; }}
+    .an-hl-grid {{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }}
+    @media (max-width:640px) {{ .an-hl-grid {{ grid-template-columns:1fr; }} }}
+    .an-hl-card  {{ border-radius:8px; padding:14px; }}
+    .an-hl-ok    {{ background:#f0fdf4; border:1px solid #bbf7d0; }}
+    .an-hl-att   {{ background:#fef2f2; border:1px solid #fecaca; }}
+    .an-hl-head  {{ font-size:12px; font-weight:700; margin-bottom:10px; }}
+    .an-hl-ok .an-hl-head {{ color:#15803d; }}
+    .an-hl-att .an-hl-head {{ color:#dc2626; }}
+    .an-hl-item  {{ font-size:13px; padding:4px 0; border-bottom:1px solid rgba(0,0,0,.05); }}
+    .an-hl-item:last-child {{ border-bottom:none; }}
+    .an-chart    {{ display:flex; align-items:flex-end; gap:3px; height:110px; overflow-x:auto; padding-bottom:2px; }}
+    .an-bar-col  {{ display:flex; flex-direction:column; align-items:center; flex-shrink:0; }}
+    .an-bar      {{ width:20px; border-radius:3px 3px 0 0; min-height:4px; transition:opacity .15s; }}
+    .an-bar:hover {{ opacity:.7; cursor:default; }}
+    .an-bar-lbl  {{ font-size:9px; color:var(--muted); margin-top:3px; }}
+    .an-filter   {{ display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }}
+    .an-filter label {{ font-size:12px; color:var(--muted); }}
+    .an-filter input[type=date] {{ border:1px solid var(--border); border-radius:6px;
+                                    padding:5px 9px; font-size:12px; font-family:inherit; }}
+    .an-filter button, #an-cmp-btn {{ padding:6px 16px; background:var(--pri); color:#fff;
+                     border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; }}
+    .an-compare-grid {{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }}
+    @media (max-width:640px) {{ .an-compare-grid {{ grid-template-columns:1fr; }} }}
+    .an-compare-card {{ border:1px solid var(--border); border-radius:8px; padding:14px; }}
+    .an-compare-head {{ font-size:12px; font-weight:700; color:var(--muted); margin-bottom:10px; }}
+    .an-stat-big {{ font-size:36px; font-weight:800; }}
+    .an-stat-sub {{ font-size:12px; color:var(--muted); margin-top:4px; }}
     {_auth_css()}
   </style>
 </head>
@@ -743,6 +983,7 @@ HTML = f"""<!DOCTYPE html>
   <nav class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('historico', this)">📋 Histórico</button>
     <button class="tab-btn"        onclick="switchTab('cobertura', this)">🔍 Cobertura</button>
+    <button class="tab-btn"        onclick="switchTab('analise',   this)">📊 Análise</button>
   </nav>
 
   <!-- ── Aba: Histórico ───────────────────────────────────────────── -->
@@ -784,6 +1025,13 @@ HTML = f"""<!DOCTYPE html>
     </div>
   </div>
 
+  <!-- ── Aba: Análise ───────────────────────────────────────────── -->
+  <div id="tab-analise" class="tab-pane">
+    <div class="main">
+      <div id="analise-content"></div>
+    </div>
+  </div>
+
   <div class="footer">
     Auditor Técnico Minimal Club &nbsp;·&nbsp;
     <a href="{ACTIONS_WORKFLOW_URL}" target="_blank" style="color:inherit">GitHub Actions</a>
@@ -791,11 +1039,13 @@ HTML = f"""<!DOCTYPE html>
 
   <script>
     {_auth_js()}
+    {_analytics_js(analytics)}
     function switchTab(name, btn) {{
       document.querySelectorAll('.tab-pane').forEach(function(p) {{ p.classList.remove('active'); }});
       document.querySelectorAll('.tab-btn').forEach(function(b) {{ b.classList.remove('active'); }});
       document.getElementById('tab-' + name).classList.add('active');
       btn.classList.add('active');
+      if (name === 'analise') loadAnalise();
     }}
 
     // Detecta workflow em andamento
