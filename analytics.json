@@ -1,0 +1,136 @@
+{
+  "top_failures": [
+    {
+      "check_id": "failed_requests",
+      "check_name": "Requisições de rede com falha",
+      "fail_count": 149,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "console_errors",
+      "check_name": "Erros de JavaScript no console",
+      "fail_count": 132,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "fid",
+      "check_name": "FID — First Input Delay (max potencial)",
+      "fail_count": 61,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "lcp",
+      "check_name": "LCP — Largest Contentful Paint",
+      "fail_count": 58,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "cls",
+      "check_name": "CLS — Cumulative Layout Shift",
+      "fail_count": 27,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "lighthouse",
+      "check_name": "Lighthouse (LCP / CLS / FID)",
+      "fail_count": 22,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "http_status",
+      "check_name": "Status HTTP",
+      "fail_count": 19,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "f10_account_login_step_0",
+      "check_name": "F10 — Login (render) → Página de login renderiza",
+      "fail_count": 16,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "f10_account_login_step_1",
+      "check_name": "F10 — Login (render) → Botão de submit visível",
+      "fail_count": 16,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "f10_account_login_step_2",
+      "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
+      "fail_count": 16,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "f11_popup_checkout_block_step_0",
+      "check_name": "F11 — Popup não dispara no checkout → [Setup] Acessar produto com variante disponível",
+      "fail_count": 16,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "f11_popup_checkout_block_step_1",
+      "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
+      "fail_count": 16,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "f11_popup_checkout_block_step_2",
+      "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
+      "fail_count": 16,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "f11_popup_checkout_block_step_3",
+      "check_name": "F11 — Popup não dispara no checkout → Popup NÃO deve aparecer no checkout",
+      "fail_count": 16,
+      "last_seen": "2026-06-22"
+    },
+    {
+      "check_id": "f2_variant_selection_step_1",
+      "check_name": "F2 — Seleção de variante (tamanho) → Abrir PDP",
+      "fail_count": 16,
+      "last_seen": "2026-06-22"
+    }
+  ],
+  "daily": [
+    {
+      "date": "2026-06-19",
+      "run_count": 6,
+      "total_checks": 1098,
+      "total_passou": 427,
+      "total_falhou": 426,
+      "total_erro": 245,
+      "pass_rate": 39
+    },
+    {
+      "date": "2026-06-22",
+      "run_count": 2,
+      "total_checks": 742,
+      "total_passou": 364,
+      "total_falhou": 292,
+      "total_erro": 86,
+      "pass_rate": 49
+    }
+  ],
+  "highlights": {
+    "always_ok": [
+      "Tempo de carregamento (load event)",
+      "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay",
+      "F9 — Filtro na coleção → Acessar coleção",
+      "F8 — Busca → Ícone de busca visível",
+      "F8 — Busca → Home carregada",
+      "F8 — Busca → Digitar termo de busca",
+      "F8 — Busca → Abrir busca",
+      "F7 — Navegação mobile (hamburger) → Home carregada no mobile"
+    ],
+    "attention": [
+      "CLS — Cumulative Layout Shift",
+      "LCP — Largest Contentful Paint",
+      "FID — First Input Delay (max potencial)",
+      "F9 — Filtro na coleção → Controle de filtro/sort visível",
+      "Erros de JavaScript no console",
+      "F1 — Descoberta até PDP → PDP exibe preço",
+      "F1 — Descoberta até PDP → PDP exibe imagem do produto",
+      "Requisições de rede com falha"
+    ]
+  }
+}

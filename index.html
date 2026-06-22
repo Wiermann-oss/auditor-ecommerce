@@ -160,6 +160,39 @@
                 border-top-color:var(--pri); border-radius:50%;
                 animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }
     @keyframes spin { to { transform:rotate(360deg); } }
+    /* Analytics tab */
+    .an-section { background:var(--card); border:1px solid var(--border);
+                   border-radius:var(--radius); margin-bottom:16px; overflow:hidden; }
+    .an-title   { padding:14px 18px; border-bottom:1px solid var(--border);
+                   font-weight:700; font-size:14px; }
+    .an-body    { padding:18px; }
+    .an-hl-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media (max-width:640px) { .an-hl-grid { grid-template-columns:1fr; } }
+    .an-hl-card  { border-radius:8px; padding:14px; }
+    .an-hl-ok    { background:#f0fdf4; border:1px solid #bbf7d0; }
+    .an-hl-att   { background:#fef2f2; border:1px solid #fecaca; }
+    .an-hl-head  { font-size:12px; font-weight:700; margin-bottom:10px; }
+    .an-hl-ok .an-hl-head { color:#15803d; }
+    .an-hl-att .an-hl-head { color:#dc2626; }
+    .an-hl-item  { font-size:13px; padding:4px 0; border-bottom:1px solid rgba(0,0,0,.05); }
+    .an-hl-item:last-child { border-bottom:none; }
+    .an-chart    { display:flex; align-items:flex-end; gap:3px; height:110px; overflow-x:auto; padding-bottom:2px; }
+    .an-bar-col  { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+    .an-bar      { width:20px; border-radius:3px 3px 0 0; min-height:4px; transition:opacity .15s; }
+    .an-bar:hover { opacity:.7; cursor:default; }
+    .an-bar-lbl  { font-size:9px; color:var(--muted); margin-top:3px; }
+    .an-filter   { display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+    .an-filter label { font-size:12px; color:var(--muted); }
+    .an-filter input[type=date] { border:1px solid var(--border); border-radius:6px;
+                                    padding:5px 9px; font-size:12px; font-family:inherit; }
+    .an-filter button, #an-cmp-btn { padding:6px 16px; background:var(--pri); color:#fff;
+                     border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; }
+    .an-compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    @media (max-width:640px) { .an-compare-grid { grid-template-columns:1fr; } }
+    .an-compare-card { border:1px solid var(--border); border-radius:8px; padding:14px; }
+    .an-compare-head { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:10px; }
+    .an-stat-big { font-size:36px; font-weight:800; }
+    .an-stat-sub { font-size:12px; color:var(--muted); margin-top:4px; }
     
   </style>
 </head>
@@ -172,7 +205,7 @@
   <header class="header">
     <span class="logo">⚡ Auditor Minimal Club</span>
     <div style="display:flex;align-items:center;gap:16px">
-      <span class="header-meta">Atualizado em 22/06/2026 14:59</span>
+      <span class="header-meta">Atualizado em 22/06/2026 16:09</span>
       
     </div>
   </header>
@@ -180,6 +213,7 @@
   <nav class="tab-nav">
     <button class="tab-btn active" onclick="switchTab('historico', this)">📋 Histórico</button>
     <button class="tab-btn"        onclick="switchTab('cobertura', this)">🔍 Cobertura</button>
+    <button class="tab-btn"        onclick="switchTab('analise',   this)">📊 Análise</button>
   </nav>
 
   <!-- ── Aba: Histórico ───────────────────────────────────────────── -->
@@ -189,16 +223,16 @@
     <div class="hero-card fail">
       <div class="hero-icon">✗</div>
       <div class="hero-info">
-        <div class="hero-title">214 falha(s) detectada(s)</div>
-        <div class="hero-date">Última auditoria: 22/06/2026 14:15</div>
+        <div class="hero-title">221 falha(s) detectada(s)</div>
+        <div class="hero-date">Última auditoria: 22/06/2026 15:33</div>
         <div class="hero-stats">
-          <span class="stat-pill ok">280 passaram</span>
-          <span class="stat-pill fail">214 falharam</span>
-          <span class="stat-pill err">52 erros</span>
-          <span class="stat-pill gray">51% taxa de sucesso</span>
+          <span class="stat-pill ok">293 passaram</span>
+          <span class="stat-pill fail">221 falharam</span>
+          <span class="stat-pill err">45 erros</span>
+          <span class="stat-pill gray">52% taxa de sucesso</span>
         </div>
       </div>
-      <a class="btn btn-outline" href="reports/2026-06-22T17-15-23.html" target="_blank">Ver relatório completo</a>
+      <a class="btn btn-outline" href="reports/2026-06-22T18-33-33.html" target="_blank">Ver relatório completo</a>
     </div>
 
       <div class="actions-row">
@@ -224,10 +258,10 @@
           </thead>
           <tbody>
         <tr>
-          <td>22/06/2026 14:15</td><td><span class="badge b-fail">✗ Com falhas</span></td>
-          <td class="num">546</td><td class="num ok">280</td>
-          <td class="num fail">214</td><td class="num err">52</td>
-          <td class="num">51%</td><td><a class="report-link" href="reports/2026-06-22T17-15-23.html" target="_blank">Ver relatório →</a></td>
+          <td>22/06/2026 15:33</td><td><span class="badge b-fail">✗ Com falhas</span></td>
+          <td class="num">559</td><td class="num ok">293</td>
+          <td class="num fail">221</td><td class="num err">45</td>
+          <td class="num">52%</td><td><a class="report-link" href="reports/2026-06-22T18-33-33.html" target="_blank">Ver relatório →</a></td>
         </tr>
 
         <tr>
@@ -292,8 +326,8 @@
       <div class="cob-pill"><span class="cob-num">33</span><span class="cob-lbl">páginas ativas</span></div>
       <div class="cob-pill"><span class="cob-num">0</span><span class="cob-lbl">inativas</span></div>
       <div class="cob-sep"></div>
-      <div class="cob-pill"><span class="cob-num">10</span><span class="cob-lbl">fluxos ativos</span></div>
-      <div class="cob-pill"><span class="cob-num">1</span><span class="cob-lbl">inativos</span></div>
+      <div class="cob-pill"><span class="cob-num">11</span><span class="cob-lbl">fluxos ativos</span></div>
+      <div class="cob-pill"><span class="cob-num">0</span><span class="cob-lbl">inativos</span></div>
       <div class="cob-sep"></div>
       <div class="cob-pill"><span class="cob-num">1</span><span class="cob-lbl">popup(s) verificado(s)</span></div>
       <div style="display:flex;gap:8px;margin-left:auto;flex-shrink:0">
@@ -548,12 +582,12 @@
               <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span></div>
           </div>
         </div>
-        <div class="item-row cob-row-inactive">
-          <div class="cob-flow-dot dot-off"></div>
+        <div class="item-row ">
+          <div class="cob-flow-dot dot-on"></div>
           <div class="item-info">
             <div class="item-name">F5 — Aplicação de cupom (PRIMEIRA12)</div>
             <div class="item-sub"><span class="muted">4 steps</span>
-              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span><span class="mo-badge">manual only</span><span class="mo-badge">desativado</span></div>
+              <span class="vp-badge">desktop</span><span class="vp-badge">mobile</span><span class="mo-badge">manual only</span></div>
           </div>
         </div>
         <div class="item-row ">
@@ -671,6 +705,13 @@
     </div>
   </div>
 
+  <!-- ── Aba: Análise ───────────────────────────────────────────── -->
+  <div id="tab-analise" class="tab-pane">
+    <div class="main">
+      <div id="analise-content"></div>
+    </div>
+  </div>
+
   <div class="footer">
     Auditor Técnico Minimal Club &nbsp;·&nbsp;
     <a href="https://github.com/Wiermann-oss/auditor-ecommerce/actions/workflows/audit.yml" target="_blank" style="color:inherit">GitHub Actions</a>
@@ -678,11 +719,131 @@
 
   <script>
     
+    var _ANALYTICS = {"top_failures": [{"check_id": "failed_requests", "check_name": "Requisições de rede com falha", "fail_count": 149, "last_seen": "2026-06-22"}, {"check_id": "console_errors", "check_name": "Erros de JavaScript no console", "fail_count": 132, "last_seen": "2026-06-22"}, {"check_id": "fid", "check_name": "FID — First Input Delay (max potencial)", "fail_count": 61, "last_seen": "2026-06-22"}, {"check_id": "lcp", "check_name": "LCP — Largest Contentful Paint", "fail_count": 58, "last_seen": "2026-06-22"}, {"check_id": "cls", "check_name": "CLS — Cumulative Layout Shift", "fail_count": 27, "last_seen": "2026-06-22"}, {"check_id": "lighthouse", "check_name": "Lighthouse (LCP / CLS / FID)", "fail_count": 22, "last_seen": "2026-06-22"}, {"check_id": "http_status", "check_name": "Status HTTP", "fail_count": 19, "last_seen": "2026-06-22"}, {"check_id": "f10_account_login_step_0", "check_name": "F10 — Login (render) → Página de login renderiza", "fail_count": 16, "last_seen": "2026-06-22"}, {"check_id": "f10_account_login_step_1", "check_name": "F10 — Login (render) → Botão de submit visível", "fail_count": 16, "last_seen": "2026-06-22"}, {"check_id": "f10_account_login_step_2", "check_name": "F10 — Login (render) → Validação de campo vazio dispara", "fail_count": 16, "last_seen": "2026-06-22"}, {"check_id": "f11_popup_checkout_block_step_0", "check_name": "F11 — Popup não dispara no checkout → [Setup] Acessar produto com variante disponível", "fail_count": 16, "last_seen": "2026-06-22"}, {"check_id": "f11_popup_checkout_block_step_1", "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho", "fail_count": 16, "last_seen": "2026-06-22"}, {"check_id": "f11_popup_checkout_block_step_2", "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout", "fail_count": 16, "last_seen": "2026-06-22"}, {"check_id": "f11_popup_checkout_block_step_3", "check_name": "F11 — Popup não dispara no checkout → Popup NÃO deve aparecer no checkout", "fail_count": 16, "last_seen": "2026-06-22"}, {"check_id": "f2_variant_selection_step_1", "check_name": "F2 — Seleção de variante (tamanho) → Abrir PDP", "fail_count": 16, "last_seen": "2026-06-22"}], "daily": [{"date": "2026-06-19", "run_count": 6, "total_checks": 1098, "total_passou": 427, "total_falhou": 426, "total_erro": 245, "pass_rate": 39}, {"date": "2026-06-22", "run_count": 2, "total_checks": 742, "total_passou": 364, "total_falhou": 292, "total_erro": 86, "pass_rate": 49}], "highlights": {"always_ok": ["Tempo de carregamento (load event)", "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay", "F9 — Filtro na coleção → Acessar coleção", "F8 — Busca → Ícone de busca visível", "F8 — Busca → Home carregada", "F8 — Busca → Digitar termo de busca", "F8 — Busca → Abrir busca", "F7 — Navegação mobile (hamburger) → Home carregada no mobile"], "attention": ["CLS — Cumulative Layout Shift", "LCP — Largest Contentful Paint", "FID — First Input Delay (max potencial)", "F9 — Filtro na coleção → Controle de filtro/sort visível", "Erros de JavaScript no console", "F1 — Descoberta até PDP → PDP exibe preço", "F1 — Descoberta até PDP → PDP exibe imagem do produto", "Requisições de rede com falha"]}};
+
+var _anlz_loaded = false;
+function loadAnalise() {
+  if (_anlz_loaded) return;
+  _anlz_loaded = true;
+  var d = _ANALYTICS;
+  var el = document.getElementById('analise-content');
+  if (!d || !d.daily || !d.daily.length) {
+    el.innerHTML = '<div style="text-align:center;padding:48px;color:#9ca3af;font-size:13px">Dados de an\u00e1lise n\u00e3o dispon\u00edveis ainda.<br>Execute uma auditoria completa para gerar o hist\u00f3rico.</div>';
+    return;
+  }
+  el.innerHTML = _anlzHL(d) + _anlzTopFail(d) + _anlzPeriod(d) + _anlzCmp(d);
+  document.getElementById('an-apply').addEventListener('click', function() {
+    document.getElementById('an-chart-wrap').innerHTML = _anlzChart(_anlzFilter(d.daily));
+  });
+  document.getElementById('an-cmp-btn').addEventListener('click', function() {
+    document.getElementById('an-cmp-result').innerHTML = _anlzCmpResult(d.daily);
+  });
+}
+function _anlzFilter(daily) {
+  var f = document.getElementById('an-from').value;
+  var t = document.getElementById('an-to').value;
+  return (daily||[]).filter(function(d){ return (!f||d.date>=f)&&(!t||d.date<=t); });
+}
+function _anlzHL(d) {
+  var hl = d.highlights || {};
+  var ok  = (hl.always_ok||[]).map(function(n){ return '<div class="an-hl-item">✓ '+_ae(n)+'</div>'; }).join('')
+            || '<div class="an-hl-item" style="color:#9ca3af">Sem dados suficientes</div>';
+  var att = (hl.attention||[]).map(function(n){ return '<div class="an-hl-item">⚠ '+_ae(n)+'</div>'; }).join('')
+            || '<div class="an-hl-item" style="color:#9ca3af">Nenhuma m\u00e9trica cr\u00edtica</div>';
+  return '<div class="an-section"><div class="an-title">Vis\u00e3o geral — \u00faltimos 30 dias</div>'
+       + '<div class="an-body"><div class="an-hl-grid">'
+       + '<div class="an-hl-card an-hl-ok"><div class="an-hl-head">✓ Funcionando bem</div>'+ok+'</div>'
+       + '<div class="an-hl-card an-hl-att"><div class="an-hl-head">⚠ Precisa de aten\u00e7\u00e3o</div>'+att+'</div>'
+       + '</div></div></div>';
+}
+function _anlzTopFail(d) {
+  var rows = (d.top_failures||[]).map(function(f,i){
+    return '<tr><td>'+(i+1)+'</td><td>'+_ae(f.check_name)+'</td>'
+         + '<td style="color:var(--fail);font-weight:700">'+(f.fail_count||0)+'</td>'
+         + '<td>'+(f.last_seen||'—')+'</td></tr>';
+  }).join('');
+  var body = rows
+    ? '<table><thead><tr><th>#</th><th>Checagem</th><th>Ocorr\u00eancias</th><th>\u00daltimo registro</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    : '<div style="text-align:center;padding:24px;color:#9ca3af">Nenhum erro registrado.</div>';
+  return '<div class="an-section"><div class="an-title">Erros mais recorrentes — \u00faltimos 60 dias</div>'+body+'</div>';
+}
+function _anlzPeriod(d) {
+  var today = new Date(), from30 = new Date();
+  from30.setDate(from30.getDate()-30);
+  var toS = today.toISOString().slice(0,10), frS = from30.toISOString().slice(0,10);
+  var filtered = (d.daily||[]).filter(function(x){ return x.date>=frS; });
+  return '<div class="an-section"><div class="an-title">Evolu\u00e7\u00e3o por per\u00edodo</div>'
+       + '<div class="an-body">'
+       + '<div class="an-filter"><label>De</label><input type="date" id="an-from" value="'+frS+'">'
+       + '<label>at\u00e9</label><input type="date" id="an-to" value="'+toS+'">'
+       + '<button id="an-apply">Aplicar</button></div>'
+       + '<div id="an-chart-wrap">'+_anlzChart(filtered)+'</div>'
+       + '</div></div>';
+}
+function _anlzChart(days) {
+  if (!days||!days.length) return '<div style="text-align:center;padding:24px;color:#9ca3af">Sem dados para o per\u00edodo.</div>';
+  return '<div class="an-chart">'
+    + days.map(function(d){
+        var h=Math.max(4,d.pass_rate||0), c=d.pass_rate>=90?'#10b981':d.pass_rate>=70?'#f59e0b':'#ef4444';
+        return '<div class="an-bar-col"><div class="an-bar" style="height:'+h+'%;background:'+c
+             + '" title="'+d.pass_rate+'% — '+d.date+' | '+(d.total_falhou||0)+' falha(s)"></div>'
+             + '<div class="an-bar-lbl">'+d.date.slice(5)+'</div></div>';
+      }).join('')
+    + '</div><div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--muted)">'
+    + '<span style="color:#10b981">■ ≥90%</span>'
+    + '<span style="color:#f59e0b">■ 70–89%</span>'
+    + '<span style="color:#ef4444">■ &lt;70%</span></div>';
+}
+function _anlzCmp(d) {
+  var t=new Date(), d14=new Date(), d28=new Date();
+  d14.setDate(d14.getDate()-14); d28.setDate(d28.getDate()-28);
+  var fmt=function(dt){ return dt.toISOString().slice(0,10); };
+  return '<div class="an-section"><div class="an-title">Comparar per\u00edodos</div>'
+       + '<div class="an-body">'
+       + '<div class="an-compare-grid" style="margin-bottom:14px">'
+       + '<div><div class="an-compare-head">Per\u00edodo A</div><div class="an-filter" style="margin-bottom:0">'
+       + '<label>De</label><input type="date" id="an-a-from" value="'+fmt(d28)+'">'
+       + '<label>at\u00e9</label><input type="date" id="an-a-to" value="'+fmt(d14)+'">'
+       + '</div></div>'
+       + '<div><div class="an-compare-head">Per\u00edodo B</div><div class="an-filter" style="margin-bottom:0">'
+       + '<label>De</label><input type="date" id="an-b-from" value="'+fmt(d14)+'">'
+       + '<label>at\u00e9</label><input type="date" id="an-b-to" value="'+fmt(t)+'">'
+       + '</div></div></div>'
+       + '<div style="text-align:center;margin-bottom:14px"><button id="an-cmp-btn">Comparar</button></div>'
+       + '<div id="an-cmp-result"></div></div></div>';
+}
+function _anlzCmpResult(daily) {
+  var fa=document.getElementById('an-a-from').value, ta=document.getElementById('an-a-to').value;
+  var fb=document.getElementById('an-b-from').value, tb=document.getElementById('an-b-to').value;
+  function agg(f,t){
+    var rows=(daily||[]).filter(function(d){ return d.date>=f&&d.date<=t; });
+    if (!rows.length) return null;
+    var tc=rows.reduce(function(s,d){ return s+(d.total_checks||0); },0);
+    var tp=rows.reduce(function(s,d){ return s+(d.total_passou||0); },0);
+    var tf=rows.reduce(function(s,d){ return s+(d.total_falhou||0); },0);
+    return { runs:rows.length, tc:tc, tp:tp, tf:tf, rate:tc?Math.round(tp/tc*100):0 };
+  }
+  var a=agg(fa,ta), b=agg(fb,tb);
+  if (!a||!b) return '<div style="text-align:center;padding:16px;color:#9ca3af">Sem dados para os per\u00edodos selecionados.</div>';
+  var diff=b.rate-a.rate, ds=(diff>=0?'+':'')+diff+' p.p.';
+  var dc=diff>0?'var(--ok)':diff<0?'var(--fail)':'var(--muted)';
+  function card(lbl,period,s){
+    var c=s.rate>=90?'var(--ok)':s.rate>=70?'var(--err)':'var(--fail)';
+    return '<div class="an-compare-card"><div class="an-compare-head">'+lbl+' <span style="font-weight:400">('+period+')</span></div>'
+         + '<div class="an-stat-big" style="color:'+c+'">'+s.rate+'%</div>'
+         + '<div class="an-stat-sub">'+s.tc+' checagens · '+s.tf+' falha(s) · '+s.runs+' run(s)</div></div>';
+  }
+  return '<div class="an-compare-grid">'+card('Per\u00edodo A',fa+' a '+ta,a)+card('Per\u00edodo B',fb+' a '+tb,b)+'</div>'
+       + '<div style="text-align:center;padding:16px;font-size:15px">Varia\u00e7\u00e3o: <strong style="color:'+dc+';font-size:20px">'+ds+'</strong></div>';
+}
+function _ae(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
     function switchTab(name, btn) {
       document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
       document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
       document.getElementById('tab-' + name).classList.add('active');
       btn.classList.add('active');
+      if (name === 'analise') loadAnalise();
     }
 
     // Detecta workflow em andamento
