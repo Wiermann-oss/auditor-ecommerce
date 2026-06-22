@@ -190,6 +190,11 @@ pages:
     url: "/products/kit-4x-camisetas-masculinas"
     active: true
     viewports: [desktop, mobile]
+
+  - name: "Produto — Camiseta Gola Alta Manga Longa"
+    url: "/products/camiseta-gola-alta-manga-longa"
+    active: true
+    viewports: [desktop, mobile]
   # ── Páginas de campanha (ative/desative conforme a campanha) ───────────────
   # Exemplo — descomente e ajuste a URL quando ativar uma campanha:
   #
