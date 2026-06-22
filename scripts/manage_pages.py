@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """
-Adiciona, ativa, desativa ou remove páginas em config/pages.yaml.
+Adiciona, ativa, desativa ou remove MÚLTIPLAS páginas em config/pages.yaml.
 Chamado pelo workflow manage-pages.yml via GitHub Actions.
 
-Variáveis de ambiente esperadas:
-  ACTION       : add | activate | deactivate | remove
-  PAGE_NAME    : nome da página (obrigatório para 'add')
-  PAGE_URL     : URL da página, ex: /collections/verao-2026
-  PAGE_VIEWPORTS: "desktop e mobile" | "só desktop" | "só mobile"
+Variáveis de ambiente:
+  ACTION        : add | activate | deactivate | remove
+  PAGE_URLS     : uma URL por linha (ou separadas por vírgula)
+  PAGE_VIEWPORTS: "desktop e mobile" | "só desktop" | "só mobile"  (só para 'add')
 """
 
 from __future__ import annotations
@@ -35,146 +34,199 @@ def _load_raw() -> str:
 
 
 def _parse_pages(raw: str) -> list[dict]:
-    """Extrai blocos de página do YAML sem depender de lib externa."""
-    pages = []
+    pages: list[dict] = []
     current: dict | None = None
     for line in raw.splitlines():
         stripped = line.strip()
         if stripped.startswith("- name:"):
             if current is not None:
                 pages.append(current)
-            current = {"name": _extract_value(stripped, "name"), "_line": line}
+            current = {"name": _val(stripped, "name")}
         elif current is not None:
             for field in ("url", "active", "viewports", "lighthouse_skip"):
                 if stripped.startswith(f"{field}:"):
-                    current[field] = _extract_value(stripped, field)
+                    current[field] = _val(stripped, field)
     if current is not None:
         pages.append(current)
     return pages
 
 
-def _extract_value(line: str, field: str) -> str:
+def _val(line: str, field: str) -> str:
     m = re.match(rf"^\s*-?\s*{field}:\s*(.+)$", line)
     return m.group(1).strip().strip('"').strip("'") if m else ""
 
 
-def _url_matches(page_url: str, target: str) -> bool:
-    return page_url.rstrip("/") == target.rstrip("/")
+def _url_eq(a: str, b: str) -> bool:
+    return a.rstrip("/") == b.rstrip("/")
+
+
+def _url_exists(raw: str, url: str) -> bool:
+    return any(_url_eq(p.get("url", ""), url) for p in _parse_pages(raw))
+
+
+# ── Auto-nome a partir da URL ─────────────────────────────────────────────────
+
+def _auto_name(url: str) -> str:
+    path = url.strip("/")
+    if not path:
+        return "Home"
+    parts = path.split("/")
+    slug = parts[-1].replace("-", " ").replace("_", " ").title()
+    prefixes = {
+        "collections": "Coleção",
+        "products":    "Produto",
+        "pages":       "Página",
+        "blogs":       "Blog",
+        "cart":        "Carrinho",
+        "search":      "Busca",
+        "account":     "Conta",
+    }
+    if len(parts) > 1 and parts[0] in prefixes:
+        return f"{prefixes[parts[0]]} — {slug}"
+    return slug
 
 
 # ── Operações ─────────────────────────────────────────────────────────────────
 
-def _set_active(raw: str, url: str, active: bool) -> str:
-    """Altera o campo active da página com a URL dada."""
-    pages = _parse_pages(raw)
-    found = any(_url_matches(p.get("url", ""), url) for p in pages)
-    if not found:
-        print(f"Página com URL '{url}' não encontrada em {PAGES_PATH}.")
-        sys.exit(1)
-
+def _set_active(raw: str, url: str, active: bool) -> str | None:
+    if not _url_exists(raw, url):
+        return None
     lines = raw.splitlines(keepends=True)
-    result = []
+    result: list[str] = []
     in_target = False
-    active_replaced = False
+    replaced = False
     for line in lines:
         stripped = line.strip()
         if stripped.startswith("- name:"):
             in_target = False
-            active_replaced = False
-        if f"url: \"{url}\"" in line or f"url: {url}" in line or f"url: '{url}'" in line:
+            replaced = False
+        if f'url: "{url}"' in line or f"url: {url}" in line or f"url: '{url}'" in line:
             in_target = True
-        if in_target and stripped.startswith("active:") and not active_replaced:
+        if in_target and stripped.startswith("active:") and not replaced:
             indent = len(line) - len(line.lstrip())
             line = " " * indent + f"active: {'true' if active else 'false'}\n"
-            active_replaced = True
+            replaced = True
             in_target = False
         result.append(line)
     return "".join(result)
 
 
-def _remove_page(raw: str, url: str) -> str:
-    """Remove o bloco inteiro da página com a URL dada."""
-    pages = _parse_pages(raw)
-    found = any(_url_matches(p.get("url", ""), url) for p in pages)
-    if not found:
-        print(f"Página com URL '{url}' não encontrada em {PAGES_PATH}.")
-        sys.exit(1)
-
+def _remove_page(raw: str, url: str) -> str | None:
+    if not _url_exists(raw, url):
+        return None
     lines = raw.splitlines(keepends=True)
-    result = []
+    result: list[str] = []
     skip = False
     for i, line in enumerate(lines):
         stripped = line.strip()
         if stripped.startswith("- name:"):
-            # Verifica se alguma linha próxima tem a URL alvo
             block = "".join(lines[i: i + 8])
-            if f'url: "{url}"' in block or f"url: {url}" in block or f"url: '{url}'" in block:
-                skip = True
-            else:
-                skip = False
-        elif skip and stripped.startswith("- name:"):
-            skip = False
+            skip = (
+                f'url: "{url}"' in block
+                or f"url: {url}" in block
+                or f"url: '{url}'" in block
+            )
         if not skip:
             result.append(line)
     return "".join(result)
 
 
 def _add_page(raw: str, name: str, url: str, viewports_label: str) -> str:
-    """Adiciona nova página antes da seção de comentários de campanha."""
     viewports = VIEWPORT_MAP.get(viewports_label, "[desktop, mobile]")
     block = (
         f'\n  - name: "{name}"\n'
-        f"    url: \"{url}\"\n"
+        f'    url: "{url}"\n'
         f"    active: true\n"
         f"    viewports: {viewports}\n"
     )
-    # Inserir antes do bloco de comentários de campanha, se existir
     marker = "  # ── Páginas de campanha"
     if marker in raw:
         return raw.replace(marker, block + marker, 1)
-    # Ou no final
     return raw.rstrip() + "\n" + block
+
+
+# ── Parse de múltiplas URLs ───────────────────────────────────────────────────
+
+def _parse_urls(raw_input: str) -> list[str]:
+    """Extrai lista de URLs de um bloco de texto (uma por linha ou vírgula)."""
+    urls: list[str] = []
+    for part in re.split(r"[\n,]+", raw_input):
+        url = part.strip()
+        if not url or url.startswith("#"):
+            continue
+        if not url.startswith("/"):
+            url = "/" + url.lstrip("/")
+        if url not in urls:
+            urls.append(url)
+    return urls
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> None:
-    action = os.environ.get("ACTION", "").strip().lower()
-    name = os.environ.get("PAGE_NAME", "").strip()
-    url = os.environ.get("PAGE_URL", "").strip()
+    action    = os.environ.get("ACTION", "").strip().lower()
+    urls_raw  = os.environ.get("PAGE_URLS", os.environ.get("PAGE_URL", "")).strip()
     viewports = os.environ.get("PAGE_VIEWPORTS", "desktop e mobile").strip()
 
-    if not url:
-        print("Erro: PAGE_URL não definida.")
+    urls = _parse_urls(urls_raw)
+    if not urls:
+        print("Erro: PAGE_URLS não definida ou vazia. Informe ao menos uma URL.")
+        sys.exit(1)
+
+    valid_actions = ("add", "activate", "deactivate", "remove")
+    if action not in valid_actions:
+        print(f"Ação inválida: '{action}'. Use: {' | '.join(valid_actions)}")
         sys.exit(1)
 
     raw = _load_raw()
+    ok: list[str] = []
+    skipped: list[str] = []
+    errors: list[str] = []
 
-    if action == "add":
-        if not name:
-            print("Erro: PAGE_NAME é obrigatório para adicionar uma página.")
-            sys.exit(1)
-        raw = _add_page(raw, name, url, viewports)
-        print(f"Página '{name}' ({url}) adicionada com active: true.")
+    for url in urls:
+        if action == "add":
+            if _url_exists(raw, url):
+                skipped.append(f"  ~ {url}  (já existe, ignorado)")
+                continue
+            name = _auto_name(url)
+            raw = _add_page(raw, name, url, viewports)
+            ok.append(f"  + {url}  →  \"{name}\"")
 
-    elif action == "activate":
-        raw = _set_active(raw, url, active=True)
-        print(f"Página '{url}' ativada.")
+        elif action in ("activate", "deactivate"):
+            result = _set_active(raw, url, active=(action == "activate"))
+            if result is None:
+                errors.append(f"  ✗ {url}  (não encontrada)")
+            else:
+                raw = result
+                symbol = "✓" if action == "activate" else "○"
+                ok.append(f"  {symbol} {url}")
 
-    elif action == "deactivate":
-        raw = _set_active(raw, url, active=False)
-        print(f"Página '{url}' desativada.")
-
-    elif action == "remove":
-        raw = _remove_page(raw, url)
-        print(f"Página '{url}' removida.")
-
-    else:
-        print(f"Ação desconhecida: '{action}'. Use: add | activate | deactivate | remove")
-        sys.exit(1)
+        elif action == "remove":
+            result = _remove_page(raw, url)
+            if result is None:
+                errors.append(f"  ✗ {url}  (não encontrada)")
+            else:
+                raw = result
+                ok.append(f"  - {url}")
 
     PAGES_PATH.write_text(raw, encoding="utf-8")
-    print(f"Arquivo salvo: {PAGES_PATH}")
+
+    print(f"\n{'═' * 50}")
+    print(f"  Ação: {action.upper()} | {len(urls)} URL(s) processada(s)")
+    print(f"{'═' * 50}\n")
+    if ok:
+        print("Executado com sucesso:")
+        print("\n".join(ok))
+    if skipped:
+        print("\nIgnorado:")
+        print("\n".join(skipped))
+    if errors:
+        print("\nErros:")
+        print("\n".join(errors))
+    print(f"\nArquivo salvo: {PAGES_PATH}")
+
+    if errors and not ok and not skipped:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

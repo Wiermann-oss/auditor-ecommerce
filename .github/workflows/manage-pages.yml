@@ -4,21 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "O que você quer fazer?"
+        description: "O que fazer com as páginas?"
         required: true
         type: choice
         options:
           - "add"
-          - "activate"
           - "deactivate"
+          - "activate"
           - "remove"
-      url:
-        description: "URL da página (ex: /collections/verao-2026)"
+      urls:
+        description: "URLs das páginas — uma por linha (ex: /collections/verao-2026)"
         required: true
-        default: ""
-      name:
-        description: "Nome da página — só para 'add' (ex: Landing Verão 2026)"
-        required: false
         default: ""
       viewports:
         description: "Dispositivos — só para 'add'"
@@ -30,7 +26,7 @@ on:
           - "só mobile"
         default: "desktop e mobile"
       run_audit:
-        description: "Rodar auditoria nessa página após salvar?"
+        description: "Rodar auditoria completa após salvar?"
         type: boolean
         default: false
 
@@ -52,11 +48,13 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Instalar PyYAML
+        run: pip install pyyaml
+
       - name: Executar manage_pages.py
         env:
           ACTION: ${{ github.event.inputs.action }}
-          PAGE_NAME: ${{ github.event.inputs.name }}
-          PAGE_URL: ${{ github.event.inputs.url }}
+          PAGE_URLS: ${{ github.event.inputs.urls }}
           PAGE_VIEWPORTS: ${{ github.event.inputs.viewports }}
         run: python scripts/manage_pages.py
 
@@ -66,10 +64,33 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add config/pages.yaml
           git diff --staged --quiet && echo "Nenhuma alteração para commitar." || \
-            git commit -m "pages: ${{ github.event.inputs.action }} ${{ github.event.inputs.url }}"
+            git commit -m "pages: ${{ github.event.inputs.action }} ($(echo '${{ github.event.inputs.urls }}' | head -1)...)"
           git push origin master
 
-      - name: Disparar auditoria (opcional)
+      - name: Recuperar histórico existente do gh-pages
+        run: |
+          git fetch origin gh-pages 2>/dev/null || true
+          mkdir -p gh-pages-output
+          git show origin/gh-pages:reports.json > gh-pages-output/reports.json 2>/dev/null \
+            || echo '[]' > gh-pages-output/reports.json
+
+      - name: Atualizar dashboard de cobertura
+        run: python scripts/publish_pages.py
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+
+      - name: Publicar no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages-output
+          keep_files: true
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_message: "Cobertura: ${{ github.event.inputs.action }} páginas"
+
+      - name: Disparar auditoria completa (opcional)
         if: ${{ github.event.inputs.run_audit == 'true' }}
         uses: actions/github-script@v7
         with:
@@ -80,8 +101,8 @@ jobs:
               workflow_id: 'audit.yml',
               ref: 'master',
               inputs: {
-                url_filter: '${{ github.event.inputs.url }}',
+                url_filter: '',
                 include_manual_flows: 'false'
               }
             });
-            console.log('Auditoria disparada para: ${{ github.event.inputs.url }}');
+            console.log('Auditoria completa disparada.');

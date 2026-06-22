@@ -19,7 +19,12 @@ import yaml
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from auditor.storage.history import DEFAULT_DB_PATH, get_recent_runs  # noqa: E402
+try:
+    from auditor.storage.history import get_recent_runs as _get_recent_runs
+    _HAS_AUDITOR = True
+except ImportError:
+    _get_recent_runs = None  # type: ignore[assignment]
+    _HAS_AUDITOR = False
 
 REPORTS_DIR  = ROOT / "reports"
 OUTPUT_DIR   = ROOT / "gh-pages-output"
@@ -60,8 +65,7 @@ if screenshots_src.exists():
 
 # ── Histórico do SQLite ───────────────────────────────────────────────────────
 
-db_path  = ROOT / "auditor-history.db"
-runs_raw = get_recent_runs(limit=200, db_path=db_path) if db_path.exists() else []
+db_path = ROOT / "auditor-history.db"
 
 
 def _report_url(started_at: str | None) -> str | None:
@@ -75,20 +79,38 @@ def _report_url(started_at: str | None) -> str | None:
         return None
 
 
-runs = [
-    {
-        "run_id":       r.get("run_id", ""),
-        "started_at":   r.get("started_at", ""),
-        "status":       r.get("status", ""),
-        "resultado":    r.get("resultado") or "",
-        "total_checks": r.get("total_checks") or 0,
-        "total_passou": r.get("total_passou") or 0,
-        "total_falhou": r.get("total_falhou") or 0,
-        "total_erro":   r.get("total_erro") or 0,
-        "report_url":   _report_url(r.get("started_at")),
-    }
-    for r in runs_raw
-]
+# Tenta ler do SQLite; se não disponível, usa reports.json existente como fallback
+runs_raw = (
+    _get_recent_runs(limit=200, db_path=db_path)
+    if _HAS_AUDITOR and db_path.exists()
+    else []
+)
+
+if runs_raw:
+    runs: list[dict] = [
+        {
+            "run_id":       r.get("run_id", ""),
+            "started_at":   r.get("started_at", ""),
+            "status":       r.get("status", ""),
+            "resultado":    r.get("resultado") or "",
+            "total_checks": r.get("total_checks") or 0,
+            "total_passou": r.get("total_passou") or 0,
+            "total_falhou": r.get("total_falhou") or 0,
+            "total_erro":   r.get("total_erro") or 0,
+            "report_url":   _report_url(r.get("started_at")),
+        }
+        for r in runs_raw
+    ]
+else:
+    # Fallback: usa reports.json pré-populado do gh-pages (copiado pelo workflow antes de rodar)
+    _fallback = OUTPUT_DIR / "reports.json"
+    if _fallback.exists():
+        try:
+            runs = json.loads(_fallback.read_text(encoding="utf-8"))
+        except Exception:
+            runs = []
+    else:
+        runs = []
 
 (OUTPUT_DIR / "reports.json").write_text(
     json.dumps(runs, ensure_ascii=False, indent=2), encoding="utf-8"
