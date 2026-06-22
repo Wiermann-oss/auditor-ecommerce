@@ -5,7 +5,7 @@ Zero dependências externas — CSS inline, sem CDN.
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -67,6 +67,20 @@ _HTML_TEMPLATE = """\
     .scope { max-width: 260px; overflow: hidden; text-overflow: ellipsis;
              white-space: nowrap; color: #444; }
     .footer { margin-top: 32px; color: #aaa; font-size: 11px; }
+
+    /* ── Summary box ── */
+    .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #94a3b8;
+                   border-radius: 8px; padding: 16px 20px; margin-bottom: 24px;
+                   font-size: 13px; line-height: 1.8; color: #334155; }
+    .summary-label { font-size: 10px; text-transform: uppercase; letter-spacing: .6px;
+                     font-weight: 700; color: #94a3b8; margin-bottom: 6px; }
+
+    /* ── Page filter ── */
+    .filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-row label { font-size: 13px; color: #6b7280; font-weight: 500; }
+    .filter-row select { border: 1px solid #e5e7eb; border-radius: 6px; padding: 7px 12px;
+                         font-size: 13px; font-family: inherit; background: #fff;
+                         cursor: pointer; min-width: 260px; max-width: 100%; }
 
     /* ── Tabs ── */
     .tab-nav { display: flex; gap: 0; border-bottom: 2px solid #e5e7eb;
@@ -173,6 +187,11 @@ _HTML_TEMPLATE = """\
   <div id="tab-resumo" class="tab-pane active">
     <div class="banner {{ banner_class }}">{{ banner_text }}</div>
 
+    <div class="summary-box">
+      <div class="summary-label">Resumo da auditoria</div>
+      {{ summary }}
+    </div>
+
     <div class="stats">
       <div class="stat">
         <div class="num">{{ total_checks }}</div>
@@ -249,8 +268,17 @@ _HTML_TEMPLATE = """\
   <!-- ── Saúde das Páginas ───────────────────────────────────────────────── -->
   <div id="tab-saude" class="tab-pane">
     {% if page_groups %}
+    <div class="filter-row">
+      <label>Filtrar página:</label>
+      <select onchange="filterPage(this.value)">
+        <option value="">Todas as páginas ({{ page_groups|length }})</option>
+        {% for pg in page_groups %}
+        <option value="{{ pg.url }}">{{ pg.url }}</option>
+        {% endfor %}
+      </select>
+    </div>
     {% for pg in page_groups %}
-    <div class="section-card">
+    <div class="section-card" data-page-url="{{ pg.url }}">
       <div class="section-head">
         <span class="section-dot {% if pg.all_ok %}dot-ok{% else %}dot-fail{% endif %}"></span>
         <span class="section-title">{{ pg.url }}</span>
@@ -381,10 +409,115 @@ _HTML_TEMPLATE = """\
       document.getElementById('tab-' + name).classList.add('active');
       if (btn) btn.classList.add('active');
     }
+
+    function filterPage(url) {
+      document.querySelectorAll('.section-card[data-page-url]').forEach(function(card) {
+        card.style.display = (!url || card.dataset.pageUrl === url) ? '' : 'none';
+      });
+    }
   </script>
 </body>
 </html>
 """
+
+
+def _generate_summary(run: AuditRun) -> str:
+    """Gera parágrafo de resumo em linguagem natural com os principais achados."""
+    date_str = run.started_at.strftime("%d/%m/%Y às %H:%M")
+    n_checks = run.total_checks
+
+    if run.status == AuditStatus.FALHOU:
+        return (
+            f"A auditoria de {date_str} não pôde ser concluída devido a um erro interno "
+            f"no auditor: {run.execution_error or 'ver logs do GitHub Actions'}. "
+            "Os resultados da loja são desconhecidos para esta execução."
+        )
+
+    page_urls = sorted(set(r.page_url for r in run.check_results if r.page_url))
+    flow_names = sorted(set(r.flow_name for r in run.check_results if r.flow_name))
+    n_pages = len(page_urls)
+    n_flows = len(flow_names)
+
+    scope_parts = []
+    if n_pages:
+        scope_parts.append(f"{n_pages} {'página' if n_pages == 1 else 'páginas'}")
+    if n_flows:
+        scope_parts.append(f"{n_flows} {'fluxo funcional' if n_flows == 1 else 'fluxos funcionais'}")
+    scope_str = " e ".join(scope_parts) if scope_parts else "nenhum escopo"
+
+    if run.total_falhou == 0 and run.total_erro == 0:
+        return (
+            f"A auditoria de {date_str} executou {n_checks} checagens em {scope_str} "
+            "e não encontrou nenhuma falha técnica. "
+            "Todos os indicadores — status HTTP, erros de JavaScript, tempo de carregamento "
+            "e Core Web Vitals — estão dentro dos limiares configurados."
+        )
+
+    failures = [r for r in run.check_results if r.status != CheckStatus.PASSOU]
+    fail_by_check: Counter = Counter(r.check_name for r in failures)
+    fail_by_page: Counter  = Counter(r.page_url   for r in failures if r.page_url)
+
+    top_checks = [name for name, _ in fail_by_check.most_common(3)]
+    top_pages  = [url  for url,  _ in fail_by_page.most_common(2)]
+
+    parts: list[str] = []
+
+    # Abertura
+    n_fail = run.total_falhou
+    n_err  = run.total_erro
+    issue_str = ""
+    if n_fail and n_err:
+        issue_str = f"{n_fail} {'falha' if n_fail == 1 else 'falhas'} e {n_err} {'erro' if n_err == 1 else 'erros'}"
+    elif n_fail:
+        issue_str = f"{n_fail} {'falha técnica' if n_fail == 1 else 'falhas técnicas'}"
+    else:
+        issue_str = f"{n_err} {'erro de execução' if n_err == 1 else 'erros de execução'}"
+
+    parts.append(
+        f"A auditoria de {date_str} executou {n_checks} checagens em {scope_str} "
+        f"e identificou {issue_str}."
+    )
+
+    # Principais tipos de falha
+    if top_checks:
+        quoted = [f'"{c}"' for c in top_checks]
+        if len(quoted) == 1:
+            checks_str = quoted[0]
+        elif len(quoted) == 2:
+            checks_str = f"{quoted[0]} e {quoted[1]}"
+        else:
+            checks_str = f"{quoted[0]}, {quoted[1]} e {quoted[2]}"
+        parts.append(f"As checagens com mais falhas foram {checks_str}.")
+
+    # Páginas mais afetadas
+    if top_pages:
+        short = [_shorten_scope(p) for p in top_pages]
+        if len(short) == 1:
+            parts.append(f'A página mais afetada foi "{short[0]}".')
+        else:
+            parts.append(f'As páginas mais afetadas foram "{short[0]}" e "{short[1]}".')
+
+    # Alertas críticos
+    http_fails = [r for r in failures if "http_status" in r.check_id or "status_code" in (r.unit or "")]
+    flow_fails = [r for r in failures if r.categoria == Categoria.FLUXO]
+
+    if http_fails:
+        n = len(set(r.page_url for r in http_fails))
+        parts.append(
+            f"{'Uma página retornou' if n == 1 else f'{n} páginas retornaram'} "
+            "status HTTP de erro — isso pode estar impedindo compradores de acessar o conteúdo."
+        )
+
+    if flow_fails:
+        fail_flows = set(r.flow_name for r in flow_fails)
+        n_ff = len(fail_flows)
+        fnames = ", ".join(f'"{f}"' for f in list(fail_flows)[:2])
+        parts.append(
+            f"{'Um fluxo funcional falhou' if n_ff == 1 else f'{n_ff} fluxos falharam'} "
+            f"({fnames}), indicando possível impacto direto na jornada de compra."
+        )
+
+    return " ".join(parts)
 
 
 def generate_html_report(run: AuditRun, reports_dir: Path) -> Path:
@@ -437,6 +570,7 @@ def generate_html_report(run: AuditRun, reports_dir: Path) -> Path:
         duration=_format_duration(run),
         banner_class=_banner_class(run),
         banner_text=_banner_text(run),
+        summary=_generate_summary(run),
         total_checks=run.total_checks,
         total_passou=run.total_passou,
         total_falhou=run.total_falhou,
