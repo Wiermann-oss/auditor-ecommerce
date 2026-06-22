@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Auditor — Minimal Club</title>
+  
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -159,16 +160,21 @@
                 border-top-color:var(--pri); border-radius:50%;
                 animation:spin .7s linear infinite; vertical-align:middle; margin-right:6px; }
     @keyframes spin { to { transform:rotate(360deg); } }
+    
   </style>
 </head>
 <body>
+  
   <div id="running-banner">
     <span class="spinner"></span> Auditoria em andamento no GitHub Actions — página atualiza ao concluir
   </div>
 
   <header class="header">
     <span class="logo">⚡ Auditor Minimal Club</span>
-    <span class="header-meta">Atualizado em 19/06/2026 20:19 UTC</span>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span class="header-meta">Atualizado em 22/06/2026 16:33 UTC</span>
+      
+    </div>
   </header>
 
   <nav class="tab-nav">
@@ -183,16 +189,16 @@
     <div class="hero-card fail">
       <div class="hero-icon">✗</div>
       <div class="hero-info">
-        <div class="hero-title">69 falha(s) detectada(s)</div>
-        <div class="hero-date">Última auditoria: 19/06/2026 17:11</div>
+        <div class="hero-title">71 falha(s) detectada(s)</div>
+        <div class="hero-date">Última auditoria: 22/06/2026 13:24</div>
         <div class="hero-stats">
-          <span class="stat-pill ok">78 passaram</span>
-          <span class="stat-pill fail">69 falharam</span>
-          <span class="stat-pill err">38 erros</span>
-          <span class="stat-pill gray">42% taxa de sucesso</span>
+          <span class="stat-pill ok">71 passaram</span>
+          <span class="stat-pill fail">71 falharam</span>
+          <span class="stat-pill err">41 erros</span>
+          <span class="stat-pill gray">39% taxa de sucesso</span>
         </div>
       </div>
-      <a class="btn btn-outline" href="reports/2026-06-19T20-11-09.html" target="_blank">Ver relatório completo</a>
+      <a class="btn btn-outline" href="reports/2026-06-22T16-24-19.html" target="_blank">Ver relatório completo</a>
     </div>
 
       <div class="actions-row">
@@ -205,7 +211,7 @@
       <div class="card">
         <div class="card-header">
           Histórico de auditorias
-          <span style="font-weight:400;color:var(--muted);font-size:12px;margin-left:auto">6 execuções</span>
+          <span style="font-weight:400;color:var(--muted);font-size:12px;margin-left:auto">7 execuções</span>
         </div>
         <table>
           <thead>
@@ -217,6 +223,13 @@
             </tr>
           </thead>
           <tbody>
+        <tr>
+          <td>22/06/2026 13:24</td><td><span class="badge b-fail">✗ Com falhas</span></td>
+          <td class="num">183</td><td class="num ok">71</td>
+          <td class="num fail">71</td><td class="num err">41</td>
+          <td class="num">39%</td><td><a class="report-link" href="reports/2026-06-22T16-24-19.html" target="_blank">Ver relatório →</a></td>
+        </tr>
+
         <tr>
           <td>19/06/2026 17:11</td><td><span class="badge b-fail">✗ Com falhas</span></td>
           <td class="num">185</td><td class="num ok">78</td>
@@ -494,6 +507,7 @@
   </div>
 
   <script>
+    
     function switchTab(name, btn) {
       document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
       document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
