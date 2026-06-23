@@ -3,10 +3,12 @@ name: Sincronizar Dashboard de Cobertura
 # Roda automaticamente sempre que config/pages.yaml for alterado no master
 # (pelo workflow manage-pages OU por edição direta no GitHub)
 on:
+  workflow_dispatch:
   push:
     branches: [master]
     paths:
       - "config/pages.yaml"
+      - "scripts/publish_pages.py"
 
 jobs:
   sync:
