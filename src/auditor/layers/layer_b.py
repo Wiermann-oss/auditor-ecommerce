@@ -10,6 +10,7 @@ import asyncio
 import json
 import re
 import time
+from collections import defaultdict, deque
 from pathlib import Path
 from typing import Optional
 
@@ -89,7 +90,7 @@ async def run_page_health_checks(
 
         check_results_raw = [
             _check_http_status(url, response, viewport, nav_duration_ms),
-            _check_console_errors(url, console_errors, viewport),
+            _check_console_errors(url, _enrich_console_errors(console_errors, failed_requests), viewport),
             _check_failed_requests(url, failed_requests, viewport),
         ]
 
@@ -180,6 +181,44 @@ def _check_http_status(
         unit="status_code",
         duration_ms=duration_ms,
     )
+
+
+def _enrich_console_errors(
+    console_errors: list[str],
+    failed_requests: list[str],
+) -> list[str]:
+    """Substitui mensagens genéricas 'Failed to load resource' pela URL real da requisição."""
+    # Constrói índice: assinatura_de_falha → fila de URLs
+    url_by_sig: dict[str, deque[str]] = defaultdict(deque)
+    for entry in failed_requests:
+        if " — HTTP " in entry:
+            url, _, code = entry.rpartition(" — HTTP ")
+            url_by_sig[f"http_{code.strip()}"].append(url)
+        elif " — " in entry:
+            url, _, failure = entry.rpartition(" — ")
+            url_by_sig[failure.strip()].append(url)
+
+    enriched: list[str] = []
+    for msg in console_errors:
+        # "Failed to load resource: the server responded with a status of 401 ()"
+        m = re.search(r"Failed to load resource: the server responded with a status of (\d+)", msg)
+        if m:
+            sig = f"http_{m.group(1)}"
+            if url_by_sig[sig]:
+                enriched.append(f"Failed to load resource: HTTP {m.group(1)} — {url_by_sig[sig].popleft()}")
+                continue
+
+        # "Failed to load resource: net::ERR_FAILED" e similares
+        m = re.search(r"Failed to load resource: (net::ERR_\w+)", msg)
+        if m:
+            sig = m.group(1)
+            if url_by_sig[sig]:
+                enriched.append(f"Failed to load resource: {sig} — {url_by_sig[sig].popleft()}")
+                continue
+
+        enriched.append(msg)
+
+    return enriched
 
 
 def _check_console_errors(
