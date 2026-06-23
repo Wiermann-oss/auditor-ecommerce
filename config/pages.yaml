@@ -31,174 +31,174 @@ pages:
 
   - name: "Home"
     url: "/"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Coleção — Desconto Progressivo"
     url: "/collections/desconto-progressivo-1"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Carrinho"
     url: "/cart"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Checkout (ponto de parada)"
     url: "/checkout"
-    active: true
+    active: false
     viewports: [desktop, mobile]
     lighthouse_skip: true
 
   - name: "Login / Conta"
     url: "/account/login"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
 
   - name: "Página — Camiseta Minimal T"
     url: "/pages/camiseta-minimal-t"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Camiseta Compre 3 Leve 4 E"
     url: "/pages/camiseta-compre-3-leve-4-e"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Overshirt T"
     url: "/pages/overshirt-t"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Camiseta A Melhor Oportunidade"
     url: "/pages/camiseta-a-melhor-oportunidade"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Compre 3 Leve 4 Mais Carteira Obrigado"
     url: "/pages/compre-3-leve-4-mais-carteira-obrigado"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Compre 3 Leve 4 Brinde Anc"
     url: "/pages/compre-3-leve-4-brinde-anc"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Compre 3 Leve 4 Mais Carteira Anc"
     url: "/pages/compre-3-leve-4-mais-carteira-anc"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Jeans Novos"
     url: "/pages/jeans-novos"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Sueter Tricot T Sd"
     url: "/pages/sueter-tricot-t-sd"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Camiseta Gola Alta Manga Longa Lp"
     url: "/pages/camiseta-gola-alta-manga-longa-lp"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Camiseta Gola Alta Manga Longa Lp Sd"
     url: "/pages/camiseta-gola-alta-manga-longa-lp-sd"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Camiseta Gola Alta Manga Curta Lp Sd"
     url: "/pages/camiseta-gola-alta-manga-curta-lp-sd"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Camiseta Gola Alta Manga Curta Lp"
     url: "/pages/camiseta-gola-alta-manga-curta-lp"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Calca Jeans Unitaria Ultima Oportunidade"
     url: "/pages/calca-jeans-unitaria-ultima-oportunidade"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Compre 3 Leve 4 Brinde"
     url: "/pages/compre-3-leve-4-brinde"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Camiseta Minimal T Bo"
     url: "/pages/camiseta-minimal-t-bo"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Overshirt T Sd"
     url: "/pages/overshirt-t-sd"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Conjunto Essential T"
     url: "/pages/conjunto-essential-t"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Camisetatofcompre 3 Leve 4"
     url: "/pages/camisetatofcompre-3-leve-4"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Sueter Classic T Sd"
     url: "/pages/sueter-classic-t-sd"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Calca Essential T"
     url: "/pages/calca-essential-t"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Sueter Classic T"
     url: "/pages/sueter-classic-t"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Jaqueta Westfield T"
     url: "/pages/jaqueta-westfield-t"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Conjunto Essential T Sd"
     url: "/pages/conjunto-essential-t-sd"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Camiseta Compre 4 Leve 5 Cueca"
     url: "/pages/camiseta-compre-4-leve-5-cueca"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Kit 2X Jeans Carteira"
     url: "/pages/kit-2x-jeans-carteira"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Produto — Kit 4X Camisetas Masculinas"
     url: "/products/kit-4x-camisetas-masculinas"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Produto — Camiseta Gola Alta Manga Longa"
     url: "/products/camiseta-gola-alta-manga-longa"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Blog — Dia Dos Namorados Blog"
     url: "/blogs/blog-minimal-club/dia-dos-namorados-blog"
-    active: true
+    active: false
     viewports: [desktop, mobile]
   # ── Páginas de campanha (ative/desative conforme a campanha) ───────────────
   # Exemplo — descomente e ajuste a URL quando ativar uma campanha:
