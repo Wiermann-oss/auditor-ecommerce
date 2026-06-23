@@ -68,6 +68,8 @@
                        color:var(--pri); border:1.5px solid var(--pri);
                        border-radius:6px; text-decoration:none; font-weight:600; white-space:nowrap; }
     .btn-sm-outline:hover { opacity:.8; }
+    .btn-green { color:#15803d; border-color:#15803d; }
+    .btn-red   { color:#b91c1c; border-color:#b91c1c; }
 
     .actions-row { display:flex; align-items:center; gap:12px; margin-bottom:24px; flex-wrap:wrap; }
     .actions-hint { font-size:12px; color:var(--muted); }
@@ -205,7 +207,7 @@
   <header class="header">
     <span class="logo">⚡ Auditor Minimal Club</span>
     <div style="display:flex;align-items:center;gap:16px">
-      <span class="header-meta">Atualizado em 23/06/2026 15:19</span>
+      <span class="header-meta">Atualizado em 23/06/2026 15:37</span>
       
     </div>
   </header>
@@ -344,7 +346,15 @@
       <div class="cob-pill"><span class="cob-num">0</span><span class="cob-lbl">inativos</span></div>
       <div class="cob-sep"></div>
       <div class="cob-pill"><span class="cob-num">1</span><span class="cob-lbl">popup(s) verificado(s)</span></div>
-      <div style="display:flex;gap:8px;margin-left:auto;flex-shrink:0">
+      <div style="display:flex;gap:8px;margin-left:auto;flex-shrink:0;flex-wrap:wrap">
+        <a class="btn btn-sm-outline btn-green" href="https://github.com/Wiermann-oss/auditor-ecommerce/actions/workflows/activate-all-pages.yml" target="_blank"
+           title="Ativa TODAS as páginas de uma vez — abre o workflow no GitHub Actions (clique em Run workflow)">
+          ✓ Ativar todas
+        </a>
+        <a class="btn btn-sm-outline btn-red" href="https://github.com/Wiermann-oss/auditor-ecommerce/actions/workflows/deactivate-all-pages.yml" target="_blank"
+           title="Desativa TODAS as páginas de uma vez — abre o workflow no GitHub Actions (clique em Run workflow)">
+          ○ Desativar todas
+        </a>
         <a class="btn btn-sm-outline" href="https://github.com/Wiermann-oss/auditor-ecommerce/edit/master/config/pages.yaml" target="_blank"
            title="Abre o editor do GitHub — cole quantas URLs quiser, uma por linha, e salve">
           ✏ Editar lista
