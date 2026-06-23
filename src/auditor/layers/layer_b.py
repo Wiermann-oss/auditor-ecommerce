@@ -21,6 +21,13 @@ from ..reporters.explanations import explain_failure
 from ..types import Categoria, CheckResult, CheckStatus, Viewport
 from ._screenshot import capture_failure_screenshot, enrich_failure
 
+# Padrões de erros de terceiros decorativos — aparecem no relatório mas não reprovam a checagem.
+# Adicione aqui domínios/prefixos cujos erros de JS são ruído esperado sem impacto na jornada.
+_THIRD_PARTY_NOISE: tuple[str, ...] = (
+    "reclameaqui.com.br",
+    "RA-Reputation",
+)
+
 _VIEWPORT_DIMS = {
     Viewport.DESKTOP: {"width": 1280, "height": 800},
     Viewport.MOBILE: {"width": 390, "height": 844},  # iPhone 14 Pro
@@ -226,13 +233,29 @@ def _check_console_errors(
     errors: list[str],
     viewport: Viewport,
 ) -> CheckResult:
-    passed = len(errors) == 0
-    detail: Optional[str] = None
-    if not passed:
-        sample = errors[:5]
-        detail = f"{len(errors)} erro(s) de JS no console: " + " | ".join(sample)
-        if len(errors) > 5:
-            detail += f" ... (+{len(errors) - 5} mais)"
+    def _is_noise(msg: str) -> bool:
+        return any(p in msg for p in _THIRD_PARTY_NOISE)
+
+    real_errors = [e for e in errors if not _is_noise(e)]
+    noise_warnings = [e for e in errors if _is_noise(e)]
+
+    passed = len(real_errors) == 0
+    detail_parts: list[str] = []
+
+    if real_errors:
+        sample = real_errors[:5]
+        part = f"{len(real_errors)} erro(s) de JS: " + " | ".join(sample)
+        if len(real_errors) > 5:
+            part += f" ... (+{len(real_errors) - 5} mais)"
+        detail_parts.append(part)
+
+    if noise_warnings:
+        sample = noise_warnings[:3]
+        part = f"⚠ {len(noise_warnings)} aviso(s) de terceiros sem impacto: " + " | ".join(sample)
+        if len(noise_warnings) > 3:
+            part += f" ... (+{len(noise_warnings) - 3} mais)"
+        detail_parts.append(part)
+
     return CheckResult(
         check_id="console_errors",
         check_name="Erros de JavaScript no console",
@@ -240,8 +263,8 @@ def _check_console_errors(
         viewport=viewport,
         status=CheckStatus.PASSOU if passed else CheckStatus.FALHOU,
         page_url=url,
-        detail=detail,
-        value=float(len(errors)),
+        detail=" || ".join(detail_parts) if detail_parts else None,
+        value=float(len(real_errors)),
         unit="count",
     )
 
