@@ -274,18 +274,32 @@ def _check_failed_requests(
     failures: list[str],
     viewport: Viewport,
 ) -> CheckResult:
-    # Filtrar requisições de extensões de navegador e analytics (ruído esperado)
-    filtered = [
-        f for f in failures
-        if not any(skip in f for skip in ["chrome-extension://", "favicon.ico"])
-    ]
-    passed = len(filtered) == 0
-    detail: Optional[str] = None
-    if not passed:
-        sample = filtered[:5]
-        detail = f"{len(filtered)} requisição(ões) com falha: " + " | ".join(sample)
-        if len(filtered) > 5:
-            detail += f" ... (+{len(filtered) - 5} mais)"
+    _SKIP = ("chrome-extension://", "favicon.ico")
+
+    def _is_noise(entry: str) -> bool:
+        return any(p in entry for p in _THIRD_PARTY_NOISE)
+
+    relevant = [f for f in failures if not any(s in f for s in _SKIP)]
+    real_failures = [f for f in relevant if not _is_noise(f)]
+    noise_warnings = [f for f in relevant if _is_noise(f)]
+
+    passed = len(real_failures) == 0
+    detail_parts: list[str] = []
+
+    if real_failures:
+        sample = real_failures[:5]
+        part = f"{len(real_failures)} requisição(ões) com falha: " + " | ".join(sample)
+        if len(real_failures) > 5:
+            part += f" ... (+{len(real_failures) - 5} mais)"
+        detail_parts.append(part)
+
+    if noise_warnings:
+        sample = noise_warnings[:3]
+        part = f"⚠ {len(noise_warnings)} requisição(ões) de terceiros sem impacto: " + " | ".join(sample)
+        if len(noise_warnings) > 3:
+            part += f" ... (+{len(noise_warnings) - 3} mais)"
+        detail_parts.append(part)
+
     return CheckResult(
         check_id="failed_requests",
         check_name="Requisições de rede com falha",
@@ -293,8 +307,8 @@ def _check_failed_requests(
         viewport=viewport,
         status=CheckStatus.PASSOU if passed else CheckStatus.FALHOU,
         page_url=url,
-        detail=detail,
-        value=float(len(filtered)),
+        detail=" || ".join(detail_parts) if detail_parts else None,
+        value=float(len(real_failures)),
         unit="count",
     )
 
