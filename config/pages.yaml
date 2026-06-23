@@ -31,7 +31,7 @@ pages:
 
   - name: "Home"
     url: "/"
-    active: false
+    active: true
     viewports: [desktop, mobile]
 
   - name: "Coleção — Desconto Progressivo"
@@ -68,7 +68,7 @@ pages:
 
   - name: "Página — Overshirt T"
     url: "/pages/overshirt-t"
-    active: false
+    active: true
     viewports: [desktop, mobile]
 
   - name: "Página — Camiseta A Melhor Oportunidade"
@@ -78,7 +78,7 @@ pages:
 
   - name: "Página — Compre 3 Leve 4 Mais Carteira Obrigado"
     url: "/pages/compre-3-leve-4-mais-carteira-obrigado"
-    active: false
+    active: true
     viewports: [desktop, mobile]
 
   - name: "Página — Compre 3 Leve 4 Brinde Anc"
@@ -198,7 +198,17 @@ pages:
 
   - name: "Blog — Dia Dos Namorados Blog"
     url: "/blogs/blog-minimal-club/dia-dos-namorados-blog"
-    active: false
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Página — Linha Inverno 2026"
+    url: "/pages/linha-inverno-2026"
+    active: true
+    viewports: [desktop, mobile]
+
+  - name: "Produto — Camisa Minimal Overshirt"
+    url: "/products/camisa-minimal-overshirt"
+    active: true
     viewports: [desktop, mobile]
   # ── Páginas de campanha (ative/desative conforme a campanha) ───────────────
   # Exemplo — descomente e ajuste a URL quando ativar uma campanha:
