@@ -136,6 +136,23 @@ def _remove_page(raw: str, url: str) -> str | None:
     return "".join(result)
 
 
+def _set_all_active(raw: str, active: bool) -> tuple[str, int]:
+    val = "true" if active else "false"
+    lines = raw.splitlines(keepends=True)
+    result: list[str] = []
+    changed = 0
+    for line in lines:
+        s = line.strip()
+        if s.startswith("active:"):
+            current = _val(s, "active")
+            if current != val:
+                indent = len(line) - len(line.lstrip())
+                line = " " * indent + f"active: {val}\n"
+                changed += 1
+        result.append(line)
+    return "".join(result), changed
+
+
 def _add_page(raw: str, name: str, url: str, viewports_label: str) -> str:
     viewports = VIEWPORT_MAP.get(viewports_label, "[desktop, mobile]")
     block = (
@@ -170,12 +187,14 @@ def main() -> None:
     deactivate_raw = os.environ.get("DEACTIVATE_URLS", "").strip()
     remove_raw     = os.environ.get("REMOVE_URLS",     "").strip()
     viewports      = os.environ.get("PAGE_VIEWPORTS",  "desktop e mobile").strip()
+    activate_all   = os.environ.get("ACTIVATE_ALL",   "").lower() in ("1", "true", "yes")
+    deactivate_all = os.environ.get("DEACTIVATE_ALL", "").lower() in ("1", "true", "yes")
 
     add_urls        = _parse_urls(add_raw)
     deactivate_urls = _parse_urls(deactivate_raw)
     remove_urls     = _parse_urls(remove_raw)
 
-    if not any([add_urls, deactivate_urls, remove_urls]):
+    if not any([add_urls, deactivate_urls, remove_urls, activate_all, deactivate_all]):
         print("Erro: nenhuma URL informada. Preencha ao menos um dos campos.")
         sys.exit(1)
 
@@ -183,6 +202,14 @@ def main() -> None:
     ok: list[str] = []
     skipped: list[str] = []
     errors: list[str] = []
+
+    if activate_all:
+        raw, n = _set_all_active(raw, True)
+        ok.append(f"  ✓ Todas as páginas ativadas ({n} alteração(ões)).")
+
+    if deactivate_all:
+        raw, n = _set_all_active(raw, False)
+        ok.append(f"  ○ Todas as páginas desativadas ({n} alteração(ões)).")
 
     for url in add_urls:
         if _url_exists(raw, url):

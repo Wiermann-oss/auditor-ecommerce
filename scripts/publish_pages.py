@@ -46,6 +46,14 @@ EDIT_PAGES_URL = (
     f"https://github.com/{GITHUB_REPO}/edit/master/config/pages.yaml"
     if GITHUB_REPO else "#"
 )
+ACTIVATE_ALL_URL = (
+    f"https://github.com/{GITHUB_REPO}/actions/workflows/activate-all-pages.yml"
+    if GITHUB_REPO else "#"
+)
+DEACTIVATE_ALL_URL = (
+    f"https://github.com/{GITHUB_REPO}/actions/workflows/deactivate-all-pages.yml"
+    if GITHUB_REPO else "#"
+)
 PAGES_BASE = (
     f"https://{GITHUB_REPO.split('/')[0]}.github.io/{GITHUB_REPO.split('/')[-1]}"
     if GITHUB_REPO else ""
@@ -604,7 +612,15 @@ def _cobertura_html() -> str:
       <div class="cob-pill"><span class="cob-num">{len(cfg_flows)-active_fl}</span><span class="cob-lbl">inativos</span></div>
       <div class="cob-sep"></div>
       <div class="cob-pill"><span class="cob-num">{active_pop}</span><span class="cob-lbl">popup(s) verificado(s)</span></div>
-      <div style="display:flex;gap:8px;margin-left:auto;flex-shrink:0">
+      <div style="display:flex;gap:8px;margin-left:auto;flex-shrink:0;flex-wrap:wrap">
+        <a class="btn btn-sm-outline btn-green" href="{ACTIVATE_ALL_URL}" target="_blank"
+           title="Ativa TODAS as páginas de uma vez — abre o workflow no GitHub Actions (clique em Run workflow)">
+          ✓ Ativar todas
+        </a>
+        <a class="btn btn-sm-outline btn-red" href="{DEACTIVATE_ALL_URL}" target="_blank"
+           title="Desativa TODAS as páginas de uma vez — abre o workflow no GitHub Actions (clique em Run workflow)">
+          ○ Desativar todas
+        </a>
         <a class="btn btn-sm-outline" href="{EDIT_PAGES_URL}" target="_blank"
            title="Abre o editor do GitHub — cole quantas URLs quiser, uma por linha, e salve">
           ✏ Editar lista
@@ -838,6 +854,8 @@ HTML = f"""<!DOCTYPE html>
                        color:var(--pri); border:1.5px solid var(--pri);
                        border-radius:6px; text-decoration:none; font-weight:600; white-space:nowrap; }}
     .btn-sm-outline:hover {{ opacity:.8; }}
+    .btn-green {{ color:#15803d; border-color:#15803d; }}
+    .btn-red   {{ color:#b91c1c; border-color:#b91c1c; }}
 
     .actions-row {{ display:flex; align-items:center; gap:12px; margin-bottom:24px; flex-wrap:wrap; }}
     .actions-hint {{ font-size:12px; color:var(--muted); }}

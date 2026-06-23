@@ -1,0 +1,64 @@
+name: Desativar Todas as Páginas
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deactivate:
+    name: Desativar todas as páginas
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar PyYAML
+        run: pip install pyyaml
+
+      - name: Desativar todas as páginas
+        run: python scripts/manage_pages.py
+        env:
+          DEACTIVATE_ALL: "true"
+
+      - name: Commit e push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add config/pages.yaml
+          git diff --staged --quiet && echo "Nenhuma alteração." || \
+            git commit -m "pages: todas desativadas (${{ github.actor }})"
+          git push origin master
+
+      - name: Recuperar histórico existente do gh-pages
+        run: |
+          git fetch origin gh-pages 2>/dev/null || true
+          mkdir -p gh-pages-output
+          git show origin/gh-pages:reports.json > gh-pages-output/reports.json 2>/dev/null \
+            || echo '[]' > gh-pages-output/reports.json
+          git show origin/gh-pages:analytics.json > gh-pages-output/analytics.json 2>/dev/null \
+            || echo '{}' > gh-pages-output/analytics.json
+
+      - name: Gerar dashboard de cobertura
+        run: python scripts/publish_pages.py
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GOOGLE_CLIENT_ID:  ${{ vars.GOOGLE_CLIENT_ID }}
+
+      - name: Publicar no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages-output
+          keep_files: true
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_message: "Cobertura: todas as páginas desativadas"
