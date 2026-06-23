@@ -84,6 +84,10 @@
         <div class="card-header">
           <h2>Páginas auditadas</h2>
           <span class="hint">Desative para excluir da próxima execução</span>
+          <div style="display:flex;gap:6px;margin-left:auto">
+            <button class="btn btn-secondary btn-sm" onclick="toggleAllPages(true)">Ativar todas</button>
+            <button class="btn btn-secondary btn-sm" onclick="toggleAllPages(false)">Desativar todas</button>
+          </div>
         </div>
         <div id="pages-list"><div class="loading">Carregando…</div></div>
       </div>

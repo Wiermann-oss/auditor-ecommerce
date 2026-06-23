@@ -112,6 +112,8 @@ function setBtnRun(running) {
 }
 
 /* ── Config ──────────────────────────────────────────────────────────────── */
+let _allPages = [];
+
 async function loadConfig() {
   try {
     const cfg = await api('/api/config');
@@ -125,6 +127,7 @@ async function loadConfig() {
 
 /* páginas */
 function renderPages(pages) {
+  _allPages = pages;
   const el = document.getElementById('pages-list');
   if (!pages.length) { el.innerHTML = '<div class="empty">Nenhuma página configurada</div>'; return; }
   el.innerHTML = '<div class="item-list">' + pages.map(p => `
@@ -148,6 +151,14 @@ function renderPages(pages) {
 
 async function togglePage(name, active) {
   await api(`/api/config/pages/${encodeURIComponent(name)}/active`, 'POST', { active });
+}
+
+async function toggleAllPages(active) {
+  if (!_allPages.length) return;
+  await Promise.all(
+    _allPages.map(p => api(`/api/config/pages/${encodeURIComponent(p.name)}/active`, 'POST', { active }))
+  );
+  await loadConfig();
 }
 
 /* fluxos */
