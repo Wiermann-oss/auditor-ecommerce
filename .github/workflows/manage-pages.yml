@@ -24,6 +24,14 @@ on:
           - "só desktop"
           - "só mobile"
         default: "desktop e mobile"
+      activate_all:
+        description: "Ativar TODAS as páginas (ignora campos acima)"
+        type: boolean
+        default: false
+      deactivate_all:
+        description: "Desativar TODAS as páginas (ignora campos acima)"
+        type: boolean
+        default: false
       run_audit:
         description: "Rodar auditoria completa após salvar?"
         type: boolean
@@ -56,6 +64,8 @@ jobs:
           DEACTIVATE_URLS: ${{ github.event.inputs.deactivate }}
           REMOVE_URLS:     ${{ github.event.inputs.remove }}
           PAGE_VIEWPORTS:  ${{ github.event.inputs.viewports }}
+          ACTIVATE_ALL:    ${{ github.event.inputs.activate_all }}
+          DEACTIVATE_ALL:  ${{ github.event.inputs.deactivate_all }}
         run: python scripts/manage_pages.py
 
       - name: Commit e push
