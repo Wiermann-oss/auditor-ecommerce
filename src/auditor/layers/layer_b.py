@@ -288,7 +288,15 @@ def _check_failed_requests(
     def _is_noise(entry: str) -> bool:
         return any(p in entry for p in _THIRD_PARTY_NOISE)
 
+    def _is_aborted(entry: str) -> bool:
+        # ERR_ABORTED nunca é falha de servidor — é o browser cancelando a requisição
+        # (context fechando, prefetch cancelado, navegação interrompida).
+        # No browser real essas requisições completam normalmente.
+        return "net::ERR_ABORTED" in entry
+
     relevant = [f for f in failures if not any(s in f for s in _SKIP)]
+    aborted   = [f for f in relevant if _is_aborted(f)]
+    relevant  = [f for f in relevant if not _is_aborted(f)]
     real_failures = [f for f in relevant if not _is_noise(f)]
     noise_warnings = [f for f in relevant if _is_noise(f)]
 
@@ -307,6 +315,13 @@ def _check_failed_requests(
         part = f"⚠ {len(noise_warnings)} requisição(ões) de terceiros sem impacto: " + " | ".join(sample)
         if len(noise_warnings) > 3:
             part += f" ... (+{len(noise_warnings) - 3} mais)"
+        detail_parts.append(part)
+
+    if aborted:
+        sample = aborted[:3]
+        part = f"ℹ {len(aborted)} requisição(ões) abortadas pelo browser (falso positivo do ambiente headless): " + " | ".join(sample)
+        if len(aborted) > 3:
+            part += f" ... (+{len(aborted) - 3} mais)"
         detail_parts.append(part)
 
     return CheckResult(
