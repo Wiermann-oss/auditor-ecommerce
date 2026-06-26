@@ -3,8 +3,8 @@
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 337,
-      "last_seen": "2026-06-25"
+      "fail_count": 349,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "console_errors",
@@ -15,80 +15,80 @@
     {
       "check_id": "fid",
       "check_name": "FID — First Input Delay (max potencial)",
-      "fail_count": 153,
-      "last_seen": "2026-06-25"
+      "fail_count": 159,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 148,
-      "last_seen": "2026-06-25"
+      "fail_count": 154,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 69,
-      "last_seen": "2026-06-25"
+      "fail_count": 70,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f11_popup_checkout_block_step_0",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Acessar produto com variante disponível",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f11_popup_checkout_block_step_3",
       "check_name": "F11 — Popup não dispara no checkout → Popup NÃO deve aparecer no checkout",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f2_variant_selection_step_1",
       "check_name": "F2 — Seleção de variante (tamanho) → Abrir PDP",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f2_variant_selection_step_2",
       "check_name": "F2 — Seleção de variante (tamanho) → Seletor de tamanho visível",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     },
     {
       "check_id": "f2_variant_selection_step_3",
       "check_name": "F2 — Seleção de variante (tamanho) → Selecionar primeiro tamanho disponível",
-      "fail_count": 30,
-      "last_seen": "2026-06-25"
+      "fail_count": 32,
+      "last_seen": "2026-06-26"
     }
   ],
   "daily": [
@@ -136,6 +136,15 @@
       "total_falhou": 63,
       "total_erro": 40,
       "pass_rate": 43
+    },
+    {
+      "date": "2026-06-26",
+      "run_count": 1,
+      "total_checks": 181,
+      "total_passou": 82,
+      "total_falhou": 59,
+      "total_erro": 40,
+      "pass_rate": 45
     }
   ],
   "highlights": {
