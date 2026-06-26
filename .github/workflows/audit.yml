@@ -2,7 +2,7 @@ name: Auditoria Técnica — Minimal Club
 
 on:
   schedule:
-    - cron: "0 12 * * 1-5"   # 09:00 BRT (UTC-3), segunda a sexta
+    - cron: "0 12 * * 1-5"   # 09:00 BRT (UTC 12h), Dias úteis (seg–sex)
   workflow_dispatch:
     inputs:
       url_filter:

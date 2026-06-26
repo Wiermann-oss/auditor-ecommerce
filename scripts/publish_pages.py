@@ -42,6 +42,10 @@ MANAGE_WORKFLOW_URL  = (
     f"https://github.com/{GITHUB_REPO}/actions/workflows/manage-pages.yml"
     if GITHUB_REPO else "#"
 )
+UPDATE_SCHEDULE_URL = (
+    f"https://github.com/{GITHUB_REPO}/actions/workflows/update-schedule.yml"
+    if GITHUB_REPO else "#"
+)
 EDIT_PAGES_URL = (
     f"https://github.com/{GITHUB_REPO}/edit/master/config/pages.yaml"
     if GITHUB_REPO else "#"
@@ -369,8 +373,9 @@ def _load_yaml(path: Path) -> dict:
         return {}
 
 
-_pages_yaml  = _load_yaml(ROOT / "config" / "pages.yaml")
-_audit_yaml  = _load_yaml(ROOT / "config" / "audit-config.yaml")
+_pages_yaml    = _load_yaml(ROOT / "config" / "pages.yaml")
+_audit_yaml    = _load_yaml(ROOT / "config" / "audit-config.yaml")
+_schedule_yaml = _load_yaml(ROOT / "config" / "schedule.yaml")
 
 cfg_pages  = _pages_yaml.get("pages") or _audit_yaml.get("critical_pages") or []
 cfg_flows  = _audit_yaml.get("flows") or []
@@ -490,6 +495,96 @@ def _rows_html() -> str:
           <td class="num">{rate}</td><td>{link}</td>
         </tr>""")
     return "\n".join(rows)
+
+
+# ── Agenda HTML ──────────────────────────────────────────────────────────────
+
+_DIAS_TO_ACTIVE_IDX: dict[str, set[int]] = {
+    "Dias úteis (seg–sex)":     {0, 1, 2, 3, 4},
+    "Dias úteis + sábado":      {0, 1, 2, 3, 4, 5},
+    "Todos os dias":            {0, 1, 2, 3, 4, 5, 6},
+    "Apenas fins de semana":    {5, 6},
+    "Desativado (não agendar)": set(),
+}
+_DAY_LABELS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
+
+
+def _agenda_html() -> str:
+    dias = _schedule_yaml.get("dias", "Dias úteis (seg–sex)")
+    hora = _schedule_yaml.get("hora", "09:00")
+    cron = _schedule_yaml.get("cron")
+
+    active_days = _DIAS_TO_ACTIVE_IDX.get(str(dias), set())
+    is_disabled = not bool(cron)
+
+    day_pills = "".join(
+        f'<div class="day-pill {"day-on" if i in active_days else "day-off"}">{lbl}</div>'
+        for i, lbl in enumerate(_DAY_LABELS)
+    )
+
+    if is_disabled:
+        status_html = '<div class="sched-status sched-status-off">Agendamento desativado — auditoria só roda manualmente</div>'
+        hora_html   = '<div class="sched-hora muted">—</div>'
+    else:
+        status_html = f'<div class="sched-status sched-status-on">Auditoria automática ativa · {_esc(str(dias))} às {_esc(str(hora))} BRT</div>'
+        hora_html   = f'<div class="sched-hora">{_esc(str(hora))} <span class="sched-tz">BRT</span></div>'
+
+    cron_hint = (
+        f'<div class="sched-cron-hint">Expressão cron (UTC): <code>{_esc(str(cron))}</code></div>'
+        if cron else ""
+    )
+
+    return f"""
+    <div class="card">
+      <div class="card-header">Agenda de auditorias automáticas</div>
+      <div style="padding:24px 24px 20px;display:flex;flex-direction:column;gap:20px">
+
+        {status_html}
+
+        <div>
+          <div class="sched-label">Dias de execução</div>
+          <div class="day-pills-row">{day_pills}</div>
+          <div class="sched-dias-desc">{_esc(str(dias))}</div>
+        </div>
+
+        <div>
+          <div class="sched-label">Horário</div>
+          {hora_html}
+          {cron_hint}
+        </div>
+
+        <div class="sched-action-row">
+          <a class="btn btn-primary" href="{UPDATE_SCHEDULE_URL}" target="_blank">Alterar agenda</a>
+          <span class="actions-hint">
+            Abre o GitHub Actions → <strong>Run workflow</strong> → escolha dias e horário → confirme.
+            A alteração é aplicada em segundos.
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Como alterar a agenda</div>
+      <div style="padding:16px 24px 20px;display:flex;flex-direction:column;gap:12px;font-size:13px;line-height:1.7;color:var(--text)">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="sched-step-num">1</div>
+          <div>Clique em <strong>Alterar agenda</strong> acima. Você será direcionado para o workflow no GitHub Actions.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="sched-step-num">2</div>
+          <div>Clique no botão <strong>Run workflow</strong> (canto superior direito da lista de execuções).</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="sched-step-num">3</div>
+          <div>Selecione os <strong>Dias de execução</strong> e o <strong>Horário (BRT)</strong> desejados.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="sched-step-num">4</div>
+          <div>Clique em <strong>Run workflow</strong> novamente para confirmar. O workflow atualiza o arquivo de configuração e republica o dashboard automaticamente.</div>
+        </div>
+      </div>
+    </div>"""
 
 
 # ── Cobertura HTML ────────────────────────────────────────────────────────────
@@ -981,6 +1076,24 @@ HTML = f"""<!DOCTYPE html>
     .an-compare-head {{ font-size:12px; font-weight:700; color:var(--muted); margin-bottom:10px; }}
     .an-stat-big {{ font-size:36px; font-weight:800; }}
     .an-stat-sub {{ font-size:12px; color:var(--muted); margin-top:4px; }}
+    /* Agenda tab */
+    .day-pills-row {{ display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 6px; }}
+    .day-pill {{ padding:7px 14px; border-radius:8px; font-size:13px; font-weight:700; }}
+    .day-on  {{ background:#ede9fe; color:#4f46e5; }}
+    .day-off {{ background:#f3f4f6; color:#9ca3af; }}
+    .sched-label {{ font-size:11px; font-weight:700; color:var(--muted);
+                    text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }}
+    .sched-status {{ padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600; }}
+    .sched-status-on  {{ background:#d1fae5; color:#065f46; }}
+    .sched-status-off {{ background:#fee2e2; color:#991b1b; }}
+    .sched-hora {{ font-size:30px; font-weight:800; color:var(--text); margin:6px 0 2px; }}
+    .sched-tz {{ font-size:14px; font-weight:600; color:var(--muted); }}
+    .sched-dias-desc {{ font-size:13px; color:var(--muted); }}
+    .sched-cron-hint {{ font-size:11px; color:var(--muted); margin-top:4px; }}
+    .sched-action-row {{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }}
+    .sched-step-num {{ width:24px; height:24px; border-radius:50%; background:var(--pri);
+                       color:#fff; font-size:12px; font-weight:700; display:flex;
+                       align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }}
     {_auth_css()}
   </style>
 </head>
@@ -1002,6 +1115,7 @@ HTML = f"""<!DOCTYPE html>
     <button class="tab-btn active" onclick="switchTab('historico', this)">📋 Histórico</button>
     <button class="tab-btn"        onclick="switchTab('cobertura', this)">🔍 Cobertura</button>
     <button class="tab-btn"        onclick="switchTab('analise',   this)">📊 Análise</button>
+    <button class="tab-btn"        onclick="switchTab('agenda',    this)">📅 Agenda</button>
   </nav>
 
   <!-- ── Aba: Histórico ───────────────────────────────────────────── -->
@@ -1047,6 +1161,13 @@ HTML = f"""<!DOCTYPE html>
   <div id="tab-analise" class="tab-pane">
     <div class="main">
       <div id="analise-content"></div>
+    </div>
+  </div>
+
+  <!-- ── Aba: Agenda ────────────────────────────────────────────── -->
+  <div id="tab-agenda" class="tab-pane">
+    <div class="main">
+      {_agenda_html()}
     </div>
   </div>
 
