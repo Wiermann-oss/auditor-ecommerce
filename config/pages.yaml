@@ -210,6 +210,11 @@ pages:
     url: "/products/camisa-minimal-overshirt"
     active: true
     viewports: [desktop, mobile]
+
+  - name: "Página — Overshirt Ultima Oportunidade"
+    url: "/pages/overshirt-ultima-oportunidade"
+    active: true
+    viewports: [desktop, mobile]
   # ── Páginas de campanha (ative/desative conforme a campanha) ───────────────
   # Exemplo — descomente e ajuste a URL quando ativar uma campanha:
   #
