@@ -96,6 +96,12 @@ async def run_page_health_checks(
             timeout=config.timeouts.navigation,
             wait_until="load",
         )
+        # Aguarda a rede quietar para dar tempo a beacons e analytics dispararem.
+        # networkidle = sem requisições ativas por 500ms consecutivos (máx 5s).
+        try:
+            await page.wait_for_load_state("networkidle", timeout=5000)
+        except Exception:
+            pass  # site com polling contínuo nunca atinge idle — ignora e segue
         nav_duration_ms = int((time.monotonic() - nav_start) * 1000)
 
         check_results_raw = [
