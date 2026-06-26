@@ -195,6 +195,24 @@
     .an-compare-head { font-size:12px; font-weight:700; color:var(--muted); margin-bottom:10px; }
     .an-stat-big { font-size:36px; font-weight:800; }
     .an-stat-sub { font-size:12px; color:var(--muted); margin-top:4px; }
+    /* Agenda tab */
+    .day-pills-row { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 6px; }
+    .day-pill { padding:7px 14px; border-radius:8px; font-size:13px; font-weight:700; }
+    .day-on  { background:#ede9fe; color:#4f46e5; }
+    .day-off { background:#f3f4f6; color:#9ca3af; }
+    .sched-label { font-size:11px; font-weight:700; color:var(--muted);
+                    text-transform:uppercase; letter-spacing:.4px; margin-bottom:2px; }
+    .sched-status { padding:12px 16px; border-radius:8px; font-size:13px; font-weight:600; }
+    .sched-status-on  { background:#d1fae5; color:#065f46; }
+    .sched-status-off { background:#fee2e2; color:#991b1b; }
+    .sched-hora { font-size:30px; font-weight:800; color:var(--text); margin:6px 0 2px; }
+    .sched-tz { font-size:14px; font-weight:600; color:var(--muted); }
+    .sched-dias-desc { font-size:13px; color:var(--muted); }
+    .sched-cron-hint { font-size:11px; color:var(--muted); margin-top:4px; }
+    .sched-action-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+    .sched-step-num { width:24px; height:24px; border-radius:50%; background:var(--pri);
+                       color:#fff; font-size:12px; font-weight:700; display:flex;
+                       align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
     
   </style>
 </head>
@@ -207,7 +225,7 @@
   <header class="header">
     <span class="logo">⚡ Auditor Minimal Club</span>
     <div style="display:flex;align-items:center;gap:16px">
-      <span class="header-meta">Atualizado em 26/06/2026 16:44</span>
+      <span class="header-meta">Atualizado em 26/06/2026 16:47</span>
       
     </div>
   </header>
@@ -216,6 +234,7 @@
     <button class="tab-btn active" onclick="switchTab('historico', this)">📋 Histórico</button>
     <button class="tab-btn"        onclick="switchTab('cobertura', this)">🔍 Cobertura</button>
     <button class="tab-btn"        onclick="switchTab('analise',   this)">📊 Análise</button>
+    <button class="tab-btn"        onclick="switchTab('agenda',    this)">📅 Agenda</button>
   </nav>
 
   <!-- ── Aba: Histórico ───────────────────────────────────────────── -->
@@ -813,6 +832,63 @@
   <div id="tab-analise" class="tab-pane">
     <div class="main">
       <div id="analise-content"></div>
+    </div>
+  </div>
+
+  <!-- ── Aba: Agenda ────────────────────────────────────────────── -->
+  <div id="tab-agenda" class="tab-pane">
+    <div class="main">
+      
+    <div class="card">
+      <div class="card-header">Agenda de auditorias automáticas</div>
+      <div style="padding:24px 24px 20px;display:flex;flex-direction:column;gap:20px">
+
+        <div class="sched-status sched-status-on">Auditoria automática ativa · Dias úteis (seg–sex) às 09:00 BRT</div>
+
+        <div>
+          <div class="sched-label">Dias de execução</div>
+          <div class="day-pills-row"><div class="day-pill day-on">Seg</div><div class="day-pill day-on">Ter</div><div class="day-pill day-on">Qua</div><div class="day-pill day-on">Qui</div><div class="day-pill day-on">Sex</div><div class="day-pill day-off">Sáb</div><div class="day-pill day-off">Dom</div></div>
+          <div class="sched-dias-desc">Dias úteis (seg–sex)</div>
+        </div>
+
+        <div>
+          <div class="sched-label">Horário</div>
+          <div class="sched-hora">09:00 <span class="sched-tz">BRT</span></div>
+          <div class="sched-cron-hint">Expressão cron (UTC): <code>0 12 * * 1-5</code></div>
+        </div>
+
+        <div class="sched-action-row">
+          <a class="btn btn-primary" href="https://github.com/Wiermann-oss/auditor-ecommerce/actions/workflows/update-schedule.yml" target="_blank">Alterar agenda</a>
+          <span class="actions-hint">
+            Abre o GitHub Actions → <strong>Run workflow</strong> → escolha dias e horário → confirme.
+            A alteração é aplicada em segundos.
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">Como alterar a agenda</div>
+      <div style="padding:16px 24px 20px;display:flex;flex-direction:column;gap:12px;font-size:13px;line-height:1.7;color:var(--text)">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="sched-step-num">1</div>
+          <div>Clique em <strong>Alterar agenda</strong> acima. Você será direcionado para o workflow no GitHub Actions.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="sched-step-num">2</div>
+          <div>Clique no botão <strong>Run workflow</strong> (canto superior direito da lista de execuções).</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="sched-step-num">3</div>
+          <div>Selecione os <strong>Dias de execução</strong> e o <strong>Horário (BRT)</strong> desejados.</div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <div class="sched-step-num">4</div>
+          <div>Clique em <strong>Run workflow</strong> novamente para confirmar. O workflow atualiza o arquivo de configuração e republica o dashboard automaticamente.</div>
+        </div>
+      </div>
+    </div>
     </div>
   </div>
 
