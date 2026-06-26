@@ -72,7 +72,10 @@ async def run_page_health_checks(
             console_errors.append(msg.text)
 
     def on_request_failed(req: Request) -> None:
-        failed_requests.append(f"{req.url} — {req.failure or 'unknown failure'}")
+        rtype = req.resource_type  # xhr, fetch, script, beacon, etc.
+        method = req.method
+        failure = req.failure or "unknown failure"
+        failed_requests.append(f"{req.url} — {failure} [{method} {rtype}]")
 
     def on_response(response: Response) -> None:
         if response.status >= 400 and response.request.resource_type != "document":
