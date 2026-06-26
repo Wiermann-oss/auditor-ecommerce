@@ -3,91 +3,91 @@
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 373,
+      "fail_count": 381,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 269,
+      "fail_count": 277,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "fid",
       "check_name": "FID — First Input Delay (max potencial)",
-      "fail_count": 171,
+      "fail_count": 178,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 166,
+      "fail_count": 173,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 71,
+      "fail_count": 72,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f11_popup_checkout_block_step_0",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Acessar produto com variante disponível",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f11_popup_checkout_block_step_3",
       "check_name": "F11 — Popup não dispara no checkout → Popup NÃO deve aparecer no checkout",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f2_variant_selection_step_1",
       "check_name": "F2 — Seleção de variante (tamanho) → Abrir PDP",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f2_variant_selection_step_2",
       "check_name": "F2 — Seleção de variante (tamanho) → Seletor de tamanho visível",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     },
     {
       "check_id": "f2_variant_selection_step_3",
       "check_name": "F2 — Seleção de variante (tamanho) → Selecionar primeiro tamanho disponível",
-      "fail_count": 36,
+      "fail_count": 38,
       "last_seen": "2026-06-26"
     }
   ],
@@ -139,12 +139,12 @@
     },
     {
       "date": "2026-06-26",
-      "run_count": 3,
-      "total_checks": 559,
-      "total_passou": 243,
-      "total_falhou": 186,
-      "total_erro": 130,
-      "pass_rate": 43
+      "run_count": 4,
+      "total_checks": 762,
+      "total_passou": 335,
+      "total_falhou": 253,
+      "total_erro": 174,
+      "pass_rate": 44
     }
   ],
   "highlights": {
@@ -159,13 +159,13 @@
       "F7 — Navegação mobile (hamburger) → Home carregada no mobile"
     ],
     "attention": [
-      "CLS — Cumulative Layout Shift",
       "F1 — Descoberta até PDP → Primeiro produto clicável",
       "F1 — Descoberta até PDP → Coleção carrega com produtos",
       "LCP — Largest Contentful Paint",
       "FID — First Input Delay (max potencial)",
       "F9 — Filtro na coleção → Controle de filtro/sort visível",
       "Erros de JavaScript no console",
+      "Requisições de rede com falha",
       "F1 — Descoberta até PDP → PDP exibe preço"
     ]
   }
