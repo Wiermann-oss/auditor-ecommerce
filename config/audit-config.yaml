@@ -85,7 +85,7 @@ popups:
     trigger: "page_load"
     trigger_page: "/"
     container_selector: ".klaviyo-form, [class*='klaviyo'], #popup-newsletter"   # VERIFICAR
-    close_selector: ".klaviyo-close-form, [aria-label*='Close'], .kl-close"      # VERIFICAR: botão branco à esquerda
+    close_selector: "[data-testid='CloseButton'], .klaviyo-close-form, [aria-label*='Close'], [aria-label*='close'], .kl-close"  # data-testid é estável entre versões do Klaviyo
     email_field_selector: "input[type='email']"                                  # VERIFICAR
     phone_field_selector: "input[type='tel'], input[type='phone']"               # VERIFICAR (etapa 2)
     cta_selector: "button[type='submit'], .klaviyo-form button"                   # VERIFICAR
