@@ -108,6 +108,7 @@ if runs_raw:
         {
             "run_id":       r.get("run_id", ""),
             "started_at":   r.get("started_at", ""),
+            "finished_at":  r.get("finished_at", ""),
             "status":       r.get("status", ""),
             "resultado":    r.get("resultado") or "",
             "total_checks": r.get("total_checks") or 0,
@@ -495,6 +496,68 @@ def _rows_html() -> str:
           <td class="num">{rate}</td><td>{link}</td>
         </tr>""")
     return "\n".join(rows)
+
+
+# ── Duração estimada e real ───────────────────────────────────────────────────
+
+def _fmt_duration(secs: int) -> str:
+    if secs < 60:
+        return f"{secs}s"
+    mins = secs // 60
+    if mins < 60:
+        return f"{mins} min"
+    return f"{mins // 60}h {mins % 60:02d}min"
+
+
+def _estimate_duration() -> str:
+    """Estima duração da auditoria com base na configuração atual."""
+    SECS_PAGE_LH    = 120  # por página/viewport com Lighthouse (~2 min no CI)
+    SECS_PAGE_NO_LH = 25   # por página/viewport sem Lighthouse
+    SECS_FLOW       = 45   # por fluxo/viewport
+    SECS_POPUP      = 70   # por popup/viewport
+
+    total = 0
+    for p in cfg_pages:
+        if not p.get("active", True):
+            continue
+        vps = len(p.get("viewports", ["desktop", "mobile"]))
+        total += (SECS_PAGE_NO_LH if p.get("lighthouse_skip") else SECS_PAGE_LH) * vps
+
+    for f in cfg_flows:
+        if not f.get("active", True):
+            continue
+        total += SECS_FLOW * len(f.get("viewports", ["desktop", "mobile"]))
+
+    for pop in cfg_popups:
+        if not pop.get("active", True):
+            continue
+        total += SECS_POPUP * len(pop.get("viewports", ["desktop", "mobile"]))
+
+    return _fmt_duration(total)
+
+
+def _duration_hint() -> str:
+    """Linha de tempo estimada + real para exibir perto do botão de rodar."""
+    est  = _estimate_duration()
+    real = _last_real_duration()
+    if real:
+        return f"⏱ Duração estimada: <strong>{est}</strong> &nbsp;·&nbsp; Última execução: <strong>{real}</strong>"
+    return f"⏱ Duração estimada: <strong>{est}</strong> (com base nas {sum(1 for p in cfg_pages if p.get('active', True))} páginas ativas)"
+
+
+def _last_real_duration() -> str | None:
+    """Retorna a duração real da última auditoria concluída, se disponível."""
+    for r in runs:
+        if r.get("status") == "concluida" and r.get("started_at") and r.get("finished_at"):
+            try:
+                start = datetime.fromisoformat(r["started_at"])
+                end   = datetime.fromisoformat(r["finished_at"])
+                secs  = int((end - start).total_seconds())
+                if secs > 0:
+                    return _fmt_duration(secs)
+            except Exception:
+                pass
+    return None
 
 
 # ── Agenda HTML ──────────────────────────────────────────────────────────────
@@ -1125,9 +1188,14 @@ HTML = f"""<!DOCTYPE html>
 
       <div class="actions-row">
         <a class="btn btn-primary" href="{ACTIONS_WORKFLOW_URL}" target="_blank">▶ Rodar Auditoria Agora</a>
-        <span class="actions-hint">
-          Abre o GitHub Actions → clique em <strong>Run workflow</strong>.
-        </span>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span class="actions-hint">
+            Abre o GitHub Actions → clique em <strong>Run workflow</strong>.
+          </span>
+          <span class="actions-hint">
+            {_duration_hint()}
+          </span>
+        </div>
       </div>
 
       <div class="card">
