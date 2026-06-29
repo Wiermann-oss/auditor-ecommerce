@@ -88,7 +88,7 @@ pages:
 
   - name: "Página — Compre 3 Leve 4 Mais Carteira Anc"
     url: "/pages/compre-3-leve-4-mais-carteira-anc"
-    active: false
+    active: true
     viewports: [desktop, mobile]
 
   - name: "Página — Jeans Novos"
@@ -198,7 +198,7 @@ pages:
 
   - name: "Blog — Dia Dos Namorados Blog"
     url: "/blogs/blog-minimal-club/dia-dos-namorados-blog"
-    active: true
+    active: false
     viewports: [desktop, mobile]
 
   - name: "Página — Linha Inverno 2026"
