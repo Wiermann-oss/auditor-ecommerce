@@ -243,8 +243,9 @@ def _enrich_console_errors(
 
 def _is_bare_err_failed(msg: str) -> bool:
     """net::ERR_FAILED sem URL — gerado pelo Chrome como companheiro de erros CORS.
-    Sozinho é inacionável: sem URL não há o que investigar."""
-    return bool(re.fullmatch(r"Failed to load resource: net::ERR_FAILED", msg.strip()))
+    Sozinho é inacionável: sem URL não há o que investigar.
+    Presença de '://' indica que a URL foi resolvida pelo enriquecimento — não é bare."""
+    return "net::ERR_FAILED" in msg and "://" not in msg
 
 
 def _check_console_errors(
