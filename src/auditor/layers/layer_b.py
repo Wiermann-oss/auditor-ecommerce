@@ -398,40 +398,73 @@ def _check_load_time(
 
 
 async def _get_lcp_element_playwright(page: object) -> str:
-    """Captura o elemento LCP via Performance API do browser — mais confiável que Lighthouse em CI."""
+    """Captura o elemento LCP com três estratégias em cascata:
+    1. Performance API (precisa — só funciona quando LCP ≤ ~10s em headless)
+    2. Maior img/video visível na viewport (heurística para LCP alto)
+    3. Retorna string vazia se nada encontrado
+    """
     try:
         result = await page.evaluate(  # type: ignore[attr-defined]
             """() => {
+                // — Estratégia 1: Performance API buffered —
                 const entries = performance.getEntriesByType('largest-contentful-paint');
-                if (!entries.length) return null;
-                const last = entries[entries.length - 1];
-                const el = last.element;
-                const url = last.url || '';
-                if (!el) return url ? { tag: '', src: url } : null;
-                return {
-                    tag:  el.tagName  || '',
-                    src:  el.src || el.currentSrc || el.getAttribute('src')
-                          || el.getAttribute('poster') || url || '',
-                    cls:  el.className || '',
-                    id:   el.id || ''
-                };
+                if (entries.length) {
+                    const last = entries[entries.length - 1];
+                    const el = last.element;
+                    const url = last.url || '';
+                    if (el) {
+                        const cls = (typeof el.className === 'string')
+                            ? el.className.trim().split(/\\s+/)[0] : '';
+                        return {
+                            via: 'perf',
+                            tag: el.tagName || '',
+                            src: el.src || el.currentSrc
+                                 || el.getAttribute('src')
+                                 || el.getAttribute('poster') || url || '',
+                            cls, id: el.id || ''
+                        };
+                    }
+                    if (url) return { via: 'perf', tag: 'RESOURCE', src: url };
+                }
+
+                // — Estratégia 2: maior img/video na viewport —
+                const vw = window.innerWidth, vh = window.innerHeight;
+                const hits = [];
+                document.querySelectorAll('img, video').forEach(el => {
+                    const r = el.getBoundingClientRect();
+                    if (r.width > 0 && r.height > 0 && r.top < vh && r.left < vw) {
+                        const src = el.src || el.currentSrc
+                                    || el.getAttribute('src')
+                                    || el.getAttribute('poster')
+                                    || el.getAttribute('data-src') || '';
+                        const cls = (typeof el.className === 'string')
+                            ? el.className.trim().split(/\\s+/)[0] : '';
+                        hits.push({ area: r.width * r.height, tag: el.tagName, src, cls });
+                    }
+                });
+                if (!hits.length) return null;
+                hits.sort((a, b) => b.area - a.area);
+                return { via: 'dom', ...hits[0] };
             }"""
         )
         if not result:
             return ""
+
         parts: list[str] = []
         if result.get("tag"):
             parts.append(result["tag"])
-        resource = (result.get("src") or "").strip()
-        if resource:
-            parts.append(resource[:120])
+        src = (result.get("src") or "").strip()
+        if src:
+            parts.append(src[:120])
         elif result.get("id"):
             parts.append(f"#{result['id']}")
         elif result.get("cls"):
-            first_cls = result["cls"].split()[0] if result["cls"].split() else ""
-            if first_cls:
-                parts.append(f".{first_cls}")
-        return " — ".join(p for p in parts if p)
+            parts.append(f".{result['cls']}")
+
+        desc = " — ".join(p for p in parts if p)
+        if desc and result.get("via") == "dom":
+            desc += " ⚠ (maior elemento visível — LCP muito alto para captura exata)"
+        return desc
     except Exception:
         return ""
 
