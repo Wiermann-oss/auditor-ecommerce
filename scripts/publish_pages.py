@@ -510,11 +510,11 @@ def _fmt_duration(secs: int) -> str:
 
 
 def _estimate_duration() -> str:
-    """Estima duração da auditoria com base na configuração atual."""
-    SECS_PAGE_LH    = 120  # por página/viewport com Lighthouse (~2 min no CI)
-    SECS_PAGE_NO_LH = 25   # por página/viewport sem Lighthouse
-    SECS_FLOW       = 45   # por fluxo/viewport
-    SECS_POPUP      = 70   # por popup/viewport
+    """Estimativa inicial baseada em fórmula — usada só quando não há histórico real."""
+    SECS_PAGE_LH    = 35   # por página/viewport com Lighthouse (calibrado com execuções reais)
+    SECS_PAGE_NO_LH = 10   # por página/viewport sem Lighthouse
+    SECS_FLOW       = 20   # por fluxo/viewport
+    SECS_POPUP      = 30   # por popup/viewport
 
     total = 0
     for p in cfg_pages:
@@ -522,42 +522,58 @@ def _estimate_duration() -> str:
             continue
         vps = len(p.get("viewports", ["desktop", "mobile"]))
         total += (SECS_PAGE_NO_LH if p.get("lighthouse_skip") else SECS_PAGE_LH) * vps
-
     for f in cfg_flows:
         if not f.get("active", True):
             continue
         total += SECS_FLOW * len(f.get("viewports", ["desktop", "mobile"]))
-
     for pop in cfg_popups:
         if not pop.get("active", True):
             continue
         total += SECS_POPUP * len(pop.get("viewports", ["desktop", "mobile"]))
-
     return _fmt_duration(total)
 
 
-def _duration_hint() -> str:
-    """Linha de tempo estimada + real para exibir perto do botão de rodar."""
-    est  = _estimate_duration()
-    real = _last_real_duration()
-    if real:
-        return f"⏱ Duração estimada: <strong>{est}</strong> &nbsp;·&nbsp; Última execução: <strong>{real}</strong>"
-    return f"⏱ Duração estimada: <strong>{est}</strong> (com base nas {sum(1 for p in cfg_pages if p.get('active', True))} páginas ativas)"
-
-
-def _last_real_duration() -> str | None:
-    """Retorna a duração real da última auditoria concluída, se disponível."""
+def _collect_durations(limit: int = 5) -> list[int]:
+    """Retorna lista de durações reais (em segundos) das últimas `limit` execuções concluídas."""
+    durations: list[int] = []
     for r in runs:
         if r.get("status") == "concluida" and r.get("started_at") and r.get("finished_at"):
             try:
-                start = datetime.fromisoformat(r["started_at"])
-                end   = datetime.fromisoformat(r["finished_at"])
-                secs  = int((end - start).total_seconds())
+                secs = int((
+                    datetime.fromisoformat(r["finished_at"]) -
+                    datetime.fromisoformat(r["started_at"])
+                ).total_seconds())
                 if secs > 0:
-                    return _fmt_duration(secs)
+                    durations.append(secs)
             except Exception:
                 pass
-    return None
+        if len(durations) >= limit:
+            break
+    return durations
+
+
+def _duration_hint() -> str:
+    """Linha de tempo para exibir perto do botão de rodar.
+    Usa média de execuções reais quando disponível; cai para estimativa de fórmula caso contrário."""
+    durations = _collect_durations()
+
+    if durations:
+        avg_secs = sum(durations) // len(durations)
+        last_secs = durations[0]
+        n = len(durations)
+        label = "Duração típica" if n >= 3 else "Última execução"
+        avg_str  = _fmt_duration(avg_secs)
+        last_str = _fmt_duration(last_secs)
+        if n >= 2 and last_secs != avg_secs:
+            return (f"⏱ {label}: <strong>{avg_str}</strong> (média de {n} execuções)"
+                    f" &nbsp;·&nbsp; Última: <strong>{last_str}</strong>")
+        return f"⏱ {label}: <strong>{avg_str}</strong>"
+
+    # Sem histórico: usa fórmula como estimativa inicial
+    est = _estimate_duration()
+    n_pages = sum(1 for p in cfg_pages if p.get("active", True))
+    return (f"⏱ Estimativa inicial: <strong>{est}</strong> "
+            f"({n_pages} pág. ativas — recalibra após a primeira execução)")
 
 
 # ── Agenda HTML ──────────────────────────────────────────────────────────────
