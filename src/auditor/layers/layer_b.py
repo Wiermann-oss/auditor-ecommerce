@@ -466,6 +466,34 @@ def _lighthouse_erro(url: str, viewport: Viewport, detail: str) -> CheckResult:
     )
 
 
+def _extract_lcp_element(audits: dict) -> str:
+    """Retorna descrição do elemento LCP a partir do audit do Lighthouse."""
+    items = audits.get("largest-contentful-paint-element", {}).get("details", {}).get("items", [])
+    if not items:
+        return ""
+    node = items[0].get("node", {})
+    node_type = node.get("nodeType", "")
+    label = (node.get("nodeLabel") or "")[:60]
+    snippet = (node.get("snippet") or "")[:80]
+    parts = [p for p in [node_type, label or snippet] if p]
+    return " — ".join(parts)
+
+
+def _extract_cls_elements(audits: dict) -> str:
+    """Retorna os elementos que mais contribuíram para o CLS."""
+    items = audits.get("layout-shift-elements", {}).get("details", {}).get("items", [])
+    if not items:
+        return ""
+    parts: list[str] = []
+    for item in items[:3]:
+        node = item.get("node", {})
+        label = (node.get("nodeLabel") or node.get("snippet") or "")[:50]
+        score = item.get("score", 0)
+        if label:
+            parts.append(f"{label} (shift={score:.3f})")
+    return " | ".join(parts)
+
+
 def _parse_lcp(
     url: str,
     audits: dict,
@@ -478,6 +506,13 @@ def _parse_lcp(
         return None
     value = float(value)
     passed = value <= threshold
+    if passed:
+        detail = None
+    else:
+        detail = f"LCP={value:.0f}ms excede limiar de {threshold:.0f}ms"
+        element = _extract_lcp_element(audits)
+        if element:
+            detail += f" — elemento: {element}"
     return CheckResult(
         check_id="lcp",
         check_name="LCP — Largest Contentful Paint",
@@ -485,7 +520,7 @@ def _parse_lcp(
         viewport=viewport,
         status=CheckStatus.PASSOU if passed else CheckStatus.FALHOU,
         page_url=url,
-        detail=None if passed else f"LCP={value:.0f}ms excede limiar de {threshold:.0f}ms",
+        detail=detail,
         value=value,
         unit="ms",
         threshold=threshold,
@@ -504,6 +539,13 @@ def _parse_cls(
         return None
     value = float(value)
     passed = value <= threshold
+    if passed:
+        detail = None
+    else:
+        detail = f"CLS={value:.3f} excede limiar de {threshold:.2f}"
+        elements = _extract_cls_elements(audits)
+        if elements:
+            detail += f" — elementos: {elements}"
     return CheckResult(
         check_id="cls",
         check_name="CLS — Cumulative Layout Shift",
@@ -511,7 +553,7 @@ def _parse_cls(
         viewport=viewport,
         status=CheckStatus.PASSOU if passed else CheckStatus.FALHOU,
         page_url=url,
-        detail=None if passed else f"CLS={value:.3f} excede limiar de {threshold:.2f} (histórico da loja: 1.3–2.5)",
+        detail=detail,
         value=value,
         unit="score",
         threshold=threshold,
