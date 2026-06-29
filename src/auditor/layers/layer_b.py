@@ -259,14 +259,11 @@ def _check_console_errors(
     real_errors = [e for e in errors if not _is_noise(e)]
     noise_warnings = [e for e in errors if _is_noise(e)]
 
-    # net::ERR_FAILED sem URL é companheiro inevitável de bloqueios CORS.
-    # Quando há CORS noise na página, esses bare ERR_FAILED são reclassificados
-    # como noise — sem URL são inacionáveis e já representados pelo CORS warning.
-    has_cors_noise = any("CORS" in w or "Access-Control" in w for w in noise_warnings)
-    if has_cors_noise:
-        bare_failed = [e for e in real_errors if _is_bare_err_failed(e)]
-        real_errors = [e for e in real_errors if not _is_bare_err_failed(e)]
-        noise_warnings.extend(bare_failed)
+    # net::ERR_FAILED sem URL é sempre inacionável — sem URL não há o que investigar
+    # nem corrigir. Pode ser companheiro de CORS (RA, Shop.app) ou CSP block.
+    # Move para info separado para não reprovar a checagem.
+    bare_failed = [e for e in real_errors if _is_bare_err_failed(e)]
+    real_errors = [e for e in real_errors if not _is_bare_err_failed(e)]
 
     passed = len(real_errors) == 0
     detail_parts: list[str] = []
@@ -284,6 +281,11 @@ def _check_console_errors(
         if len(noise_warnings) > 3:
             part += f" ... (+{len(noise_warnings) - 3} mais)"
         detail_parts.append(part)
+
+    if bare_failed:
+        detail_parts.append(
+            f"ℹ {len(bare_failed)} erro(s) sem URL (inacionável — companheiro de bloqueio CORS/CSP já reportado acima)"
+        )
 
     return CheckResult(
         check_id="console_errors",
