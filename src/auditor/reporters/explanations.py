@@ -105,7 +105,10 @@ def _lcp(check_id, check_name, detail, value, threshold, unit) -> str:
         f"{val_s} para aparecer na tela — limite é {lim_s}. "
         "Durante este tempo a página parece vazia para o cliente. "
         "Google considera: ≤2.5s = bom, >4s = ruim. "
-        "LCP lento prejudica o ranking de busca orgânica e o Quality Score de anúncios pagos."
+        "LCP lento prejudica o ranking de busca orgânica e o Quality Score de anúncios pagos. "
+        "⚠ Nota: este check roda em ambiente CI com CPU throttled e sem GPU — os valores são "
+        "inflados em relação à experiência real do usuário. Use para detectar regressões entre "
+        "auditorias, não como benchmark absoluto. Para dados reais, consulte o Google Search Console."
     )
 
 
@@ -126,7 +129,10 @@ def _fid(check_id, check_name, detail, value, threshold, unit) -> str:
     return (
         f"A página ficou sem responder por {val_ms} enquanto carregava (limite = {lim_ms}). "
         "Se um cliente clicar em 'Adicionar ao Carrinho' ou qualquer botão nesse intervalo, "
-        "não terá resposta — e provavelmente achará que o botão está quebrado e vai embora."
+        "não terá resposta — e provavelmente achará que o botão está quebrado e vai embora. "
+        "⚠ Nota: este check roda em ambiente CI com CPU throttled — os valores são inflados "
+        "em relação à experiência real do usuário. Use para detectar regressões entre auditorias, "
+        "não como benchmark absoluto. Para dados reais, consulte o Google Search Console."
     )
 
 
