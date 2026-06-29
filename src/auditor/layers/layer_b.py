@@ -241,6 +241,12 @@ def _enrich_console_errors(
     return enriched
 
 
+def _is_bare_err_failed(msg: str) -> bool:
+    """net::ERR_FAILED sem URL — gerado pelo Chrome como companheiro de erros CORS.
+    Sozinho é inacionável: sem URL não há o que investigar."""
+    return bool(re.fullmatch(r"Failed to load resource: net::ERR_FAILED", msg.strip()))
+
+
 def _check_console_errors(
     url: str,
     errors: list[str],
@@ -251,6 +257,15 @@ def _check_console_errors(
 
     real_errors = [e for e in errors if not _is_noise(e)]
     noise_warnings = [e for e in errors if _is_noise(e)]
+
+    # net::ERR_FAILED sem URL é companheiro inevitável de bloqueios CORS.
+    # Quando há CORS noise na página, esses bare ERR_FAILED são reclassificados
+    # como noise — sem URL são inacionáveis e já representados pelo CORS warning.
+    has_cors_noise = any("CORS" in w or "Access-Control" in w for w in noise_warnings)
+    if has_cors_noise:
+        bare_failed = [e for e in real_errors if _is_bare_err_failed(e)]
+        real_errors = [e for e in real_errors if not _is_bare_err_failed(e)]
+        noise_warnings.extend(bare_failed)
 
     passed = len(real_errors) == 0
     detail_parts: list[str] = []
