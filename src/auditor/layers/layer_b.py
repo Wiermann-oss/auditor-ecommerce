@@ -466,17 +466,32 @@ def _lighthouse_erro(url: str, viewport: Viewport, detail: str) -> CheckResult:
     )
 
 
+def _describe_node(node: dict, max_label: int = 60) -> str:
+    """Monta descrição legível de um nó Lighthouse: tipo + URL/src + seletor CSS."""
+    node_type = node.get("nodeType", "")
+    description = (node.get("description") or "").strip()   # geralmente a URL do recurso
+    label = (node.get("nodeLabel") or "").strip()
+    selector = (node.get("selector") or "").strip()
+
+    parts: list[str] = []
+    if node_type:
+        parts.append(node_type)
+    # description tende a ser a URL do src — mais útil que o label genérico
+    if description:
+        parts.append(description[:120])
+    elif label:
+        parts.append(label[:max_label])
+    if selector:
+        parts.append(f"[{selector}]")
+    return " — ".join(parts)
+
+
 def _extract_lcp_element(audits: dict) -> str:
     """Retorna descrição do elemento LCP a partir do audit do Lighthouse."""
     items = audits.get("largest-contentful-paint-element", {}).get("details", {}).get("items", [])
     if not items:
         return ""
-    node = items[0].get("node", {})
-    node_type = node.get("nodeType", "")
-    label = (node.get("nodeLabel") or "")[:60]
-    snippet = (node.get("snippet") or "")[:80]
-    parts = [p for p in [node_type, label or snippet] if p]
-    return " — ".join(parts)
+    return _describe_node(items[0].get("node", {}))
 
 
 def _extract_cls_elements(audits: dict) -> str:
@@ -486,11 +501,10 @@ def _extract_cls_elements(audits: dict) -> str:
         return ""
     parts: list[str] = []
     for item in items[:3]:
-        node = item.get("node", {})
-        label = (node.get("nodeLabel") or node.get("snippet") or "")[:50]
+        desc = _describe_node(item.get("node", {}))
         score = item.get("score", 0)
-        if label:
-            parts.append(f"{label} (shift={score:.3f})")
+        if desc:
+            parts.append(f"{desc} (shift={score:.3f})")
     return " | ".join(parts)
 
 
