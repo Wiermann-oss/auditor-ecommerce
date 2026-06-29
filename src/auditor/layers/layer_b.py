@@ -118,7 +118,11 @@ async def run_page_health_checks(
         check_results_raw.append(_check_load_time(url, load_ms, config.thresholds.load_time_ms, viewport))
 
         if not critical_page.lighthouse_skip:
-            lh_results = await _run_lighthouse_checks(url, config.thresholds, viewport)
+            # Captura elemento LCP via PerformanceObserver antes de fechar o contexto.
+            # Lighthouse em CI frequentemente retorna items vazio para LCP element
+            # (observer não registra quando LCP é muito alto). Esta captura é mais confiável.
+            lcp_hint = await _get_lcp_element_playwright(page)
+            lh_results = await _run_lighthouse_checks(url, config.thresholds, viewport, lcp_hint)
             check_results_raw.extend(lh_results)
 
         # Capturar screenshot apenas se houver falhas — página ainda está aberta
@@ -393,6 +397,45 @@ def _check_load_time(
     )
 
 
+async def _get_lcp_element_playwright(page: object) -> str:
+    """Captura o elemento LCP via Performance API do browser — mais confiável que Lighthouse em CI."""
+    try:
+        result = await page.evaluate(  # type: ignore[attr-defined]
+            """() => {
+                const entries = performance.getEntriesByType('largest-contentful-paint');
+                if (!entries.length) return null;
+                const last = entries[entries.length - 1];
+                const el = last.element;
+                const url = last.url || '';
+                if (!el) return url ? { tag: '', src: url } : null;
+                return {
+                    tag:  el.tagName  || '',
+                    src:  el.src || el.currentSrc || el.getAttribute('src')
+                          || el.getAttribute('poster') || url || '',
+                    cls:  el.className || '',
+                    id:   el.id || ''
+                };
+            }"""
+        )
+        if not result:
+            return ""
+        parts: list[str] = []
+        if result.get("tag"):
+            parts.append(result["tag"])
+        resource = (result.get("src") or "").strip()
+        if resource:
+            parts.append(resource[:120])
+        elif result.get("id"):
+            parts.append(f"#{result['id']}")
+        elif result.get("cls"):
+            first_cls = result["cls"].split()[0] if result["cls"].split() else ""
+            if first_cls:
+                parts.append(f".{first_cls}")
+        return " — ".join(p for p in parts if p)
+    except Exception:
+        return ""
+
+
 async def _get_load_time_ms(page: object) -> Optional[float]:
     try:
         result = await page.evaluate(  # type: ignore[attr-defined]
@@ -410,6 +453,7 @@ async def _run_lighthouse_checks(
     url: str,
     thresholds: Thresholds,
     viewport: Viewport,
+    lcp_hint: str = "",
 ) -> list[CheckResult]:
     cmd = [
         "lighthouse",
@@ -448,7 +492,7 @@ async def _run_lighthouse_checks(
 
     audits = data.get("audits", {})
     return list(filter(None, [
-        _parse_lcp(url, audits, thresholds.lcp_ms, viewport),
+        _parse_lcp(url, audits, thresholds.lcp_ms, viewport, lcp_hint),
         _parse_cls(url, audits, thresholds.cls, viewport),
         _parse_fid(url, audits, thresholds.fid_ms, viewport),
     ]))
@@ -513,6 +557,7 @@ def _parse_lcp(
     audits: dict,
     threshold: float,
     viewport: Viewport,
+    lcp_hint: str = "",
 ) -> Optional[CheckResult]:
     audit = audits.get("largest-contentful-paint", {})
     value = audit.get("numericValue")
@@ -524,7 +569,8 @@ def _parse_lcp(
         detail = None
     else:
         detail = f"LCP={value:.0f}ms excede limiar de {threshold:.0f}ms"
-        element = _extract_lcp_element(audits)
+        # Tenta obter elemento via Lighthouse; usa captura do Playwright como fallback
+        element = _extract_lcp_element(audits) or lcp_hint
         if element:
             detail += f" — elemento: {element}"
     return CheckResult(
