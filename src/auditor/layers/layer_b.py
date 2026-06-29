@@ -22,10 +22,14 @@ from ..types import Categoria, CheckResult, CheckStatus, Viewport
 from ._screenshot import capture_failure_screenshot, enrich_failure
 
 # Padrões de erros de terceiros decorativos — aparecem no relatório mas não reprovam a checagem.
-# Adicione aqui domínios/prefixos cujos erros de JS são ruído esperado sem impacto na jornada.
+# Use padrões específicos (endpoint, não domínio inteiro) para não mascarar falhas reais.
 _THIRD_PARTY_NOISE: tuple[str, ...] = (
+    # Reclame Aqui — widget decorativo com CORS mal configurado no servidor deles
     "reclameaqui.com.br",
     "RA-Reputation",
+    # Sizebay — endpoint de perfil pessoal retorna 404 para visitante anônimo (sem histórico)
+    # Outros endpoints sizebay.technology continuam sendo monitorados normalmente
+    "sizebay.technology/api/me/analysis",
 )
 
 _VIEWPORT_DIMS = {
