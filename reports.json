@@ -1,5 +1,17 @@
 [
   {
+    "run_id": "a86b1b96-aa2f-4732-b279-391b76b2f5d6",
+    "started_at": "2026-07-07T14:02:48.460020+00:00",
+    "finished_at": "2026-07-07T14:17:11.826185+00:00",
+    "status": "concluida",
+    "resultado": "com_falhas",
+    "total_checks": 195,
+    "total_passou": 108,
+    "total_falhou": 47,
+    "total_erro": 40,
+    "report_url": "reports/2026-07-07T14-02-48.html"
+  },
+  {
     "run_id": "63ad3222-7ff1-48d0-982f-3c041f8da0b1",
     "started_at": "2026-07-06T14:53:10.713410+00:00",
     "finished_at": "2026-07-06T15:07:20.709104+00:00",
