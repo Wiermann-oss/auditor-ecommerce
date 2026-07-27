@@ -9,14 +9,14 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 413,
-      "last_seen": "2026-07-24"
+      "fail_count": 427,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 260,
-      "last_seen": "2026-07-24"
+      "fail_count": 262,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "fid",
@@ -27,68 +27,68 @@
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 129,
-      "last_seen": "2026-07-24"
+      "fail_count": 133,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "http_status",
       "check_name": "Status HTTP",
-      "fail_count": 89,
-      "last_seen": "2026-07-24"
+      "fail_count": 103,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 88,
-      "last_seen": "2026-07-24"
+      "fail_count": 90,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 88,
-      "last_seen": "2026-07-24"
+      "fail_count": 90,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 88,
-      "last_seen": "2026-07-24"
+      "fail_count": 90,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "f11_popup_checkout_block_step_0",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Acessar produto com variante disponível",
-      "fail_count": 88,
-      "last_seen": "2026-07-24"
+      "fail_count": 90,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 88,
-      "last_seen": "2026-07-24"
+      "fail_count": 90,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 88,
-      "last_seen": "2026-07-24"
+      "fail_count": 90,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "f2_variant_selection_step_1",
       "check_name": "F2 — Seleção de variante (tamanho) → Abrir PDP",
-      "fail_count": 88,
-      "last_seen": "2026-07-24"
+      "fail_count": 90,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "f2_variant_selection_step_2",
       "check_name": "F2 — Seleção de variante (tamanho) → Seletor de tamanho visível",
-      "fail_count": 88,
-      "last_seen": "2026-07-24"
+      "fail_count": 90,
+      "last_seen": "2026-07-27"
     },
     {
       "check_id": "f2_variant_selection_step_3",
       "check_name": "F2 — Seleção de variante (tamanho) → Selecionar primeiro tamanho disponível",
-      "fail_count": 88,
-      "last_seen": "2026-07-24"
+      "fail_count": 90,
+      "last_seen": "2026-07-27"
     }
   ],
   "daily": [
@@ -325,6 +325,15 @@
       "total_falhou": 63,
       "total_erro": 55,
       "pass_rate": 39
+    },
+    {
+      "date": "2026-07-27",
+      "run_count": 1,
+      "total_checks": 195,
+      "total_passou": 71,
+      "total_falhou": 67,
+      "total_erro": 57,
+      "pass_rate": 36
     }
   ],
   "highlights": {
@@ -332,14 +341,14 @@
       "F1 — Descoberta até PDP → Home carrega"
     ],
     "attention": [
+      "Status HTTP",
+      "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay",
+      "F2 — Seleção de variante (tamanho) → Acessar produto com variantes",
       "LCP — Largest Contentful Paint",
-      "Requisições de rede com falha",
-      "Erros de JavaScript no console",
-      "F1 — Descoberta até PDP → Primeiro produto clicável",
-      "F1 — Descoberta até PDP → Coleção carrega com produtos",
-      "F9 — Filtro na coleção → Controle de filtro/sort visível",
-      "F11 — Popup não dispara no checkout → Popup NÃO deve aparecer no checkout",
-      "Popup 'Popup de captura (Lead) — Klaviyo' — scroll não bloqueado após fechar"
+      "F9 — Filtro na coleção → Acessar coleção",
+      "F8 — Busca → Ícone de busca visível",
+      "F8 — Busca → Digitar termo de busca",
+      "F8 — Busca → Abrir busca"
     ]
   }
 }
