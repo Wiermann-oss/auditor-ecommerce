@@ -9,14 +9,14 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 427,
-      "last_seen": "2026-07-27"
+      "fail_count": 441,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 262,
-      "last_seen": "2026-07-27"
+      "fail_count": 264,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "fid",
@@ -27,68 +27,68 @@
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 133,
-      "last_seen": "2026-07-27"
+      "fail_count": 136,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "http_status",
       "check_name": "Status HTTP",
-      "fail_count": 103,
-      "last_seen": "2026-07-27"
+      "fail_count": 117,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 90,
-      "last_seen": "2026-07-27"
+      "fail_count": 92,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 90,
-      "last_seen": "2026-07-27"
+      "fail_count": 92,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 90,
-      "last_seen": "2026-07-27"
+      "fail_count": 92,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "f11_popup_checkout_block_step_0",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Acessar produto com variante disponível",
-      "fail_count": 90,
-      "last_seen": "2026-07-27"
+      "fail_count": 92,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 90,
-      "last_seen": "2026-07-27"
+      "fail_count": 92,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 90,
-      "last_seen": "2026-07-27"
+      "fail_count": 92,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "f2_variant_selection_step_1",
       "check_name": "F2 — Seleção de variante (tamanho) → Abrir PDP",
-      "fail_count": 90,
-      "last_seen": "2026-07-27"
+      "fail_count": 92,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "f2_variant_selection_step_2",
       "check_name": "F2 — Seleção de variante (tamanho) → Seletor de tamanho visível",
-      "fail_count": 90,
-      "last_seen": "2026-07-27"
+      "fail_count": 92,
+      "last_seen": "2026-07-28"
     },
     {
       "check_id": "f2_variant_selection_step_3",
       "check_name": "F2 — Seleção de variante (tamanho) → Selecionar primeiro tamanho disponível",
-      "fail_count": 90,
-      "last_seen": "2026-07-27"
+      "fail_count": 92,
+      "last_seen": "2026-07-28"
     }
   ],
   "daily": [
@@ -334,6 +334,15 @@
       "total_falhou": 67,
       "total_erro": 57,
       "pass_rate": 36
+    },
+    {
+      "date": "2026-07-28",
+      "run_count": 1,
+      "total_checks": 195,
+      "total_passou": 72,
+      "total_falhou": 66,
+      "total_erro": 57,
+      "pass_rate": 37
     }
   ],
   "highlights": {
@@ -341,10 +350,10 @@
       "F1 — Descoberta até PDP → Home carrega"
     ],
     "attention": [
+      "LCP — Largest Contentful Paint",
       "Status HTTP",
       "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay",
       "F2 — Seleção de variante (tamanho) → Acessar produto com variantes",
-      "LCP — Largest Contentful Paint",
       "F9 — Filtro na coleção → Acessar coleção",
       "F8 — Busca → Ícone de busca visível",
       "F8 — Busca → Digitar termo de busca",
