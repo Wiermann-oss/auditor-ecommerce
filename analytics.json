@@ -9,7 +9,7 @@
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 464,
+      "fail_count": 465,
       "last_seen": "2026-07-31"
     },
     {
@@ -33,61 +33,61 @@
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 164,
+      "fail_count": 165,
       "last_seen": "2026-07-31"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 106,
+      "fail_count": 108,
       "last_seen": "2026-07-31"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 106,
+      "fail_count": 108,
       "last_seen": "2026-07-31"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 106,
+      "fail_count": 108,
       "last_seen": "2026-07-31"
     },
     {
       "check_id": "f11_popup_checkout_block_step_0",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Acessar produto com variante disponível",
-      "fail_count": 106,
+      "fail_count": 108,
       "last_seen": "2026-07-31"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 106,
+      "fail_count": 108,
       "last_seen": "2026-07-31"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 106,
+      "fail_count": 108,
       "last_seen": "2026-07-31"
     },
     {
       "check_id": "f2_variant_selection_step_1",
       "check_name": "F2 — Seleção de variante (tamanho) → Abrir PDP",
-      "fail_count": 106,
+      "fail_count": 108,
       "last_seen": "2026-07-31"
     },
     {
       "check_id": "f2_variant_selection_step_2",
       "check_name": "F2 — Seleção de variante (tamanho) → Seletor de tamanho visível",
-      "fail_count": 106,
+      "fail_count": 108,
       "last_seen": "2026-07-31"
     },
     {
       "check_id": "f2_variant_selection_step_3",
       "check_name": "F2 — Seleção de variante (tamanho) → Selecionar primeiro tamanho disponível",
-      "fail_count": 106,
+      "fail_count": 108,
       "last_seen": "2026-07-31"
     }
   ],
@@ -364,12 +364,12 @@
     },
     {
       "date": "2026-07-31",
-      "run_count": 5,
-      "total_checks": 1007,
-      "total_passou": 471,
-      "total_falhou": 287,
-      "total_erro": 249,
-      "pass_rate": 47
+      "run_count": 6,
+      "total_checks": 1210,
+      "total_passou": 599,
+      "total_falhou": 321,
+      "total_erro": 290,
+      "pass_rate": 50
     }
   ],
   "highlights": {
@@ -379,14 +379,14 @@
       "F1 — Descoberta até PDP → Home carrega"
     ],
     "attention": [
-      "LCP — Largest Contentful Paint",
       "CLS — Cumulative Layout Shift",
       "F2 — Seleção de variante (tamanho) → Acessar produto com variantes",
       "Status HTTP",
       "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay",
       "F9 — Filtro na coleção → Acessar coleção",
       "F8 — Busca → Ícone de busca visível",
-      "F8 — Busca → Resultados de busca aparecem"
+      "F7 — Navegação mobile (hamburger) → Botão hamburger visível",
+      "F8 — Busca → Digitar termo de busca"
     ]
   }
 }
