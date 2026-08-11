@@ -139,6 +139,13 @@ flows:
           type: element_visible
           selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
 
+      # Popup Klaviyo medido em produção: leva 6-8s pra aparecer (bem mais que os 4.5s do
+      # popup_delay). Sem essa espera, o clique seguinte cai bem na hora em que ele renderiza
+      # e é recusado pelo Playwright como "subtree intercepts pointer events".
+      - name: "Aguardar possível popup Klaviyo"
+        action: wait
+        wait_ms: 8000
+
       - name: "Primeiro produto clicável"
         action: click
         selector: "main a.full-unstyled-link[href*='/products/']"  # confirmado via inspeção real do tema
@@ -208,6 +215,11 @@ flows:
         expect:
           type: element_visible
           selector: "button[name='add']:not([disabled])"
+
+      # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
+      - name: "Aguardar possível popup Klaviyo"
+        action: wait
+        wait_ms: 8000
 
       - name: "Clicar em adicionar ao carrinho"
         action: click
@@ -401,6 +413,11 @@ flows:
         expect:
           type: element_visible
           selector: "body"
+
+      # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
+      - name: "Aguardar possível popup Klaviyo"
+        action: wait
+        wait_ms: 8000
 
       - name: "Ícone de busca visível"
         action: assert_visible

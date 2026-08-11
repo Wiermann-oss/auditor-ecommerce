@@ -19,6 +19,14 @@ async def dismiss_known_popups(page, close_selectors: list[str]) -> None:
     ou de uma screenshot de evidência. Best-effort — um popup ausente ou já fechado não deve
     impedir a ação seguinte.
 
+    Espera ativamente o popup aparecer (até 1s) em vez de checar visibilidade uma vez só —
+    cobre o caso de pegar o popup no meio da própria animação de entrada. NÃO cobre o caso
+    de o popup ainda não ter disparado (medido em produção: até 6-8s após o load, bem mais
+    que os 4.5s do "popup_delay" do config) — resolver isso aqui, com um timeout maior,
+    multiplicaria o tempo de execução em CADA clique do fluxo depois que o popup já foi
+    fechado (o locator não teria como saber que não vale mais a pena esperar). Isso precisa
+    de uma espera dedicada, uma vez só, logo na entrada do fluxo — ver ADR/decisão pendente.
+
     Usa page.mouse.click nas coordenadas do botão em vez de locator.click: o próprio wrapper
     interno do formulário Klaviyo se sobrepõe geometricamente ao botão de fechar, e a
     checagem de actionability do Playwright (inclusive com force=True) recusa o clique como
@@ -32,8 +40,10 @@ async def dismiss_known_popups(page, close_selectors: list[str]) -> None:
     for selector in close_selectors:
         locator = page.locator(selector).first
         try:
-            if not await locator.is_visible():
-                continue
+            await locator.wait_for(state="visible", timeout=1000)
+        except Exception:
+            continue
+        try:
             box = await locator.bounding_box(timeout=2000)
             if box is None:
                 continue
