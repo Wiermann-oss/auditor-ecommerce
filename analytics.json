@@ -3,20 +3,20 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 522,
-      "last_seen": "2026-08-06"
+      "fail_count": 523,
+      "last_seen": "2026-08-11"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 477,
-      "last_seen": "2026-08-06"
+      "fail_count": 478,
+      "last_seen": "2026-08-11"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 289,
-      "last_seen": "2026-08-10"
+      "fail_count": 290,
+      "last_seen": "2026-08-11"
     },
     {
       "check_id": "fid",
@@ -27,67 +27,67 @@
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 193,
+      "fail_count": 194,
       "last_seen": "2026-08-11"
     },
     {
       "check_id": "http_status",
       "check_name": "Status HTTP",
-      "fail_count": 173,
-      "last_seen": "2026-07-31"
+      "fail_count": 174,
+      "last_seen": "2026-08-11"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 124,
+      "fail_count": 126,
       "last_seen": "2026-08-11"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 124,
+      "fail_count": 126,
       "last_seen": "2026-08-11"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 124,
-      "last_seen": "2026-08-11"
-    },
-    {
-      "check_id": "f11_popup_checkout_block_step_0",
-      "check_name": "F11 — Popup não dispara no checkout → [Setup] Acessar produto com variante disponível",
-      "fail_count": 124,
+      "fail_count": 126,
       "last_seen": "2026-08-11"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 124,
+      "fail_count": 126,
       "last_seen": "2026-08-11"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 124,
+      "fail_count": 126,
       "last_seen": "2026-08-11"
     },
     {
-      "check_id": "f2_variant_selection_step_1",
-      "check_name": "F2 — Seleção de variante (tamanho) → Abrir PDP",
-      "fail_count": 124,
+      "check_id": "f6_checkout_start_step_1",
+      "check_name": "F6 — Início de checkout → [Setup] Adicionar ao carrinho",
+      "fail_count": 126,
       "last_seen": "2026-08-11"
     },
     {
-      "check_id": "f2_variant_selection_step_2",
-      "check_name": "F2 — Seleção de variante (tamanho) → Seletor de tamanho visível",
-      "fail_count": 124,
+      "check_id": "f6_checkout_start_step_2",
+      "check_name": "F6 — Início de checkout → Ir para o carrinho",
+      "fail_count": 126,
       "last_seen": "2026-08-11"
     },
     {
-      "check_id": "f2_variant_selection_step_3",
-      "check_name": "F2 — Seleção de variante (tamanho) → Selecionar primeiro tamanho disponível",
-      "fail_count": 124,
+      "check_id": "f6_checkout_start_step_3",
+      "check_name": "F6 — Início de checkout → Botão de checkout visível",
+      "fail_count": 126,
+      "last_seen": "2026-08-11"
+    },
+    {
+      "check_id": "f6_checkout_start_step_4",
+      "check_name": "F6 — Início de checkout → Clicar em checkout",
+      "fail_count": 126,
       "last_seen": "2026-08-11"
     }
   ],
@@ -427,12 +427,12 @@
     },
     {
       "date": "2026-08-11",
-      "run_count": 1,
-      "total_checks": 195,
-      "total_passou": 124,
-      "total_falhou": 35,
-      "total_erro": 36,
-      "pass_rate": 64
+      "run_count": 2,
+      "total_checks": 420,
+      "total_passou": 287,
+      "total_falhou": 64,
+      "total_erro": 69,
+      "pass_rate": 68
     }
   ],
   "highlights": {
