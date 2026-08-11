@@ -111,10 +111,12 @@ async def _execute_step(
     start = time.monotonic()
 
     try:
-        await _perform_action(page, step, config)
-
-        if step.expect is not None:
-            await _verify_expect(page, step.expect, config)
+        try:
+            await _perform_action(page, step, config)
+            if step.expect is not None:
+                await _verify_expect(page, step.expect, config)
+        except _StepFailure as first_failure:
+            await _retry_click_after_popup(page, step, config, first_failure)
 
         return CheckResult(
             check_id=check_id,
@@ -159,6 +161,23 @@ async def _execute_step(
             screenshot_b64=screenshot_b64,
             explanation=explain_failure(check_id, check_name, detail),
         )
+
+
+async def _retry_click_after_popup(
+    page: Page, step: FlowStep, config: AuditConfig, original: Exception
+) -> None:
+    """Reexecuta uma ação de clique que falhou, fechando popups conhecidos antes de novo.
+    Popups (ex: Klaviyo) às vezes engolem o clique via preventDefault sem gerar erro de
+    interceptação — o Playwright reporta sucesso, mas a navegação não acontece, e só o
+    'expect' seguinte acusa o problema. Uma segunda tentativa após fechar o popup de novo
+    resolve a maioria dos casos sem precisar adivinhar quanto tempo esperar.
+    Ações que não são clique não se beneficiam disso — repropaga o erro original."""
+    if step.action != ActionType.CLICK:
+        raise original
+    await dismiss_known_popups(page, [p.close_selector for p in config.active_popups()])
+    await _perform_action(page, step, config)
+    if step.expect is not None:
+        await _verify_expect(page, step.expect, config)
 
 
 async def _perform_action(page: Page, step: FlowStep, config: AuditConfig) -> None:
