@@ -14,13 +14,29 @@ from typing import Optional
 log = logging.getLogger(__name__)
 
 
+async def dismiss_known_popups(page, close_selectors: list[str]) -> None:
+    """Fecha popups conhecidos (ex: popup de captura) antes de uma screenshot de evidência.
+    Best-effort — um popup ausente ou já fechado não deve impedir a captura.
+    Não usar antes de screenshots do próprio popup_checker: lá o popup visível É a evidência."""
+    for selector in close_selectors:
+        try:
+            await page.locator(selector).first.click(timeout=800)
+            await page.wait_for_timeout(300)
+        except Exception:
+            continue
+
+
 async def capture_failure_screenshot(
     page,                       # playwright.async_api.Page
     screenshots_dir: Path,
     stem: str,
+    dismiss_selectors: Optional[list[str]] = None,
 ) -> tuple[Optional[str], Optional[str]]:
     """
     Tira screenshot da página atual e salva em screenshots_dir/{stem}.png.
+
+    Se 'dismiss_selectors' for informado, tenta fechar popups conhecidos antes de
+    capturar — evita que a evidência mostre só um popup por cima da página real.
 
     Retorna:
         (screenshot_path, screenshot_b64)
@@ -28,6 +44,8 @@ async def capture_failure_screenshot(
         screenshot_b64:  PNG codificado em base64 para embedding no HTML
     """
     try:
+        if dismiss_selectors:
+            await dismiss_known_popups(page, dismiss_selectors)
         screenshots_dir.mkdir(parents=True, exist_ok=True)
         safe_stem = re.sub(r"[^a-z0-9_\-]", "_", stem.lower())[:80]
         filename = f"{safe_stem}.png"

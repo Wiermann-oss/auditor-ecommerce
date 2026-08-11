@@ -130,6 +130,8 @@ class Timeouts(BaseModel):
     navigation: Annotated[int, Field(gt=0)] = 30000
     element: Annotated[int, Field(gt=0)] = 5000
     popup_delay: Annotated[int, Field(gt=0)] = 4500
+    retry_delay_ms: Annotated[int, Field(gt=0)] = 3000
+    between_checks_delay_ms: Annotated[int, Field(gt=0)] = 2000
 
 
 class Thresholds(BaseModel):

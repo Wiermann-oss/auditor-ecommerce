@@ -6,6 +6,7 @@ Sem lógica de checagem — só sequenciamento e tratamento de erros fatais.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from pathlib import Path
 
@@ -81,6 +82,7 @@ async def _run_page_health(
     pages = config.active_pages()
     if not pages:
         return
+    delay_s = config.timeouts.between_checks_delay_ms / 1000
     log.info("Verificando saúde técnica das páginas (%d)...", len(pages))
     for page_cfg in pages:
         for viewport_cfg in page_cfg.viewports:
@@ -89,6 +91,7 @@ async def _run_page_health(
             results = await run_page_health_checks(browser, page_cfg, config, viewport, screenshots_dir)
             run.check_results.extend(results)
             _log_results_summary(results)
+            await asyncio.sleep(delay_s)
 
 
 async def _run_popup_checks(
@@ -97,6 +100,7 @@ async def _run_popup_checks(
     popups = config.active_popups()
     if not popups:
         return
+    delay_s = config.timeouts.between_checks_delay_ms / 1000
     log.info("Verificando popups (%d)...", len(popups))
     for popup in popups:
         for viewport_cfg in popup.viewports:
@@ -105,6 +109,7 @@ async def _run_popup_checks(
             results = await check_popup(browser, popup, config, viewport, screenshots_dir)
             run.check_results.extend(results)
             _log_results_summary(results)
+            await asyncio.sleep(delay_s)
 
 
 async def _run_flows(
@@ -117,6 +122,7 @@ async def _run_flows(
     flows = config.active_flows(include_manual_only)
     if not flows:
         return
+    delay_s = config.timeouts.between_checks_delay_ms / 1000
     log.info("Verificando fluxos funcionais (%d)...", len(flows))
     for flow in flows:
         for viewport_cfg in flow.viewports:
@@ -125,6 +131,7 @@ async def _run_flows(
             results = await run_flow(browser, flow, config, viewport, screenshots_dir)
             run.check_results.extend(results)
             _log_results_summary(results)
+            await asyncio.sleep(delay_s)
 
 
 def _log_results_summary(results: list) -> None:

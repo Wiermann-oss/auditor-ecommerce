@@ -42,6 +42,14 @@ def _http_status(check_id, check_name, detail, value, threshold, unit) -> str:
             f"Acesso negado (HTTP {code}) — conteúdo que deveria ser público está "
             "bloqueado. Visitantes não logados veem um erro de permissão em vez da página."
         )
+    if code == 429:
+        return (
+            "Requisições em excesso (HTTP 429) — o servidor limitou a taxa de acesso, mesmo "
+            "após o auditor tentar novamente com espera. Costuma indicar proteção anti-bot/CDN "
+            "reagindo ao tráfego automatizado da auditoria, não necessariamente um problema "
+            "visível para um visitante real navegando normalmente. Confirmar com quem administra "
+            "a proteção da loja se o IP/User-Agent do auditor precisa de liberação (allowlist)."
+        )
     if code >= 500:
         return (
             f"Erro de servidor (HTTP {code}) — a loja está falhando para os visitantes "

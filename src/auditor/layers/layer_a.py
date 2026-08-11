@@ -15,7 +15,7 @@ from playwright.async_api import Browser, Page, TimeoutError as PlaywrightTimeou
 from ..config.models import ActionType, AuditConfig, ExpectType, Flow, FlowStep, RunMode
 from ..reporters.explanations import explain_failure
 from ..types import Categoria, CheckResult, CheckStatus, Viewport
-from ._screenshot import capture_failure_screenshot
+from ._screenshot import capture_failure_screenshot, dismiss_known_popups
 
 _VIEWPORT_DIMS = {
     Viewport.DESKTOP: {"width": 1280, "height": 800},
@@ -127,7 +127,7 @@ async def _execute_step(
         )
 
     except _StepFailure as exc:
-        screenshot_path, screenshot_b64 = await _screenshot_on_fail(page, screenshots_dir, check_id, viewport)
+        screenshot_path, screenshot_b64 = await _screenshot_on_fail(page, config, screenshots_dir, check_id, viewport)
         detail = str(exc)
         return CheckResult(
             check_id=check_id,
@@ -144,7 +144,7 @@ async def _execute_step(
         )
 
     except Exception as exc:
-        screenshot_path, screenshot_b64 = await _screenshot_on_fail(page, screenshots_dir, check_id, viewport)
+        screenshot_path, screenshot_b64 = await _screenshot_on_fail(page, config, screenshots_dir, check_id, viewport)
         detail = f"{type(exc).__name__}: {exc}"
         return CheckResult(
             check_id=check_id,
@@ -174,6 +174,9 @@ async def _perform_action(page: Page, step: FlowStep, config: AuditConfig) -> No
         case ActionType.CLICK:
             if not step.selector:
                 raise ValueError(f"'click' requer 'selector' (step: {step.name})")
+            # Popups conhecidos (ex: captura Klaviyo) interceptam cliques reais quando
+            # visíveis por cima do elemento alvo — fecha antes de tentar, best-effort.
+            await dismiss_known_popups(page, [p.close_selector for p in config.active_popups()])
             try:
                 await page.locator(step.selector).first.click(
                     timeout=config.timeouts.element
@@ -187,6 +190,7 @@ async def _perform_action(page: Page, step: FlowStep, config: AuditConfig) -> No
         case ActionType.FILL:
             if not step.selector or step.value is None:
                 raise ValueError(f"'fill' requer 'selector' e 'value' (step: {step.name})")
+            await dismiss_known_popups(page, [p.close_selector for p in config.active_popups()])
             try:
                 await page.locator(step.selector).first.fill(
                     step.value, timeout=config.timeouts.element
@@ -278,6 +282,7 @@ def _resolve_url(value: Optional[str], config: AuditConfig) -> str:
 
 async def _screenshot_on_fail(
     page: Page,
+    config: AuditConfig,
     screenshots_dir: Optional[Path],
     check_id: str,
     viewport: Viewport,
@@ -285,7 +290,10 @@ async def _screenshot_on_fail(
     if not screenshots_dir:
         return None, None
     stem = f"{check_id}_{viewport.value}"
-    return await capture_failure_screenshot(page, screenshots_dir, stem)
+    return await capture_failure_screenshot(
+        page, screenshots_dir, stem,
+        dismiss_selectors=[p.close_selector for p in config.active_popups()],
+    )
 
 
 class _StepFailure(Exception):

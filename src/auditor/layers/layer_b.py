@@ -48,6 +48,15 @@ _USER_AGENTS = {
     ),
 }
 
+# Tentativas extras além da 1ª quando a navegação recebe HTTP 429 — total de 3 tentativas.
+_MAX_429_RETRIES = 2
+
+# Headers úteis para diagnosticar QUEM está bloqueando (CDN, WAF, proteção anti-bot).
+_DIAGNOSTIC_HEADERS: tuple[str, ...] = (
+    "retry-after", "server", "via", "cf-ray", "cf-mitigated", "cf-cache-status",
+    "x-served-by", "x-cache", "x-request-id", "x-shopify-stage",
+)
+
 
 async def run_page_health_checks(
     browser: Browser,
@@ -95,10 +104,9 @@ async def run_page_health_checks(
 
     try:
         nav_start = time.monotonic()
-        response = await page.goto(
-            url,
-            timeout=config.timeouts.navigation,
-            wait_until="load",
+        response = await _goto_with_retry(
+            page, url, config.timeouts.navigation, config.timeouts.retry_delay_ms,
+            console_errors, failed_requests,
         )
         # Aguarda a rede quietar para dar tempo a beacons e analytics dispararem.
         # networkidle = sem requisições ativas por 500ms consecutivos (máx 5s).
@@ -129,7 +137,8 @@ async def run_page_health_checks(
         has_failures = any(cr.status != CheckStatus.PASSOU for cr in check_results_raw)
         if has_failures and screenshots_dir:
             screenshot_path, screenshot_b64 = await capture_failure_screenshot(
-                page, screenshots_dir, page_stem
+                page, screenshots_dir, page_stem,
+                dismiss_selectors=[p.close_selector for p in config.active_popups()],
             )
 
         for cr in check_results_raw:
@@ -143,7 +152,8 @@ async def run_page_health_checks(
         duration_ms = int((time.monotonic() - start_mono) * 1000)
         if screenshots_dir:
             screenshot_path, screenshot_b64 = await capture_failure_screenshot(
-                page, screenshots_dir, f"error_{page_stem}"
+                page, screenshots_dir, f"error_{page_stem}",
+                dismiss_selectors=[p.close_selector for p in config.active_popups()],
             )
         err_result = CheckResult(
             check_id="page_load_error",
@@ -172,6 +182,34 @@ def _safe_name(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "_", name.lower().strip())[:30]
 
 
+async def _goto_with_retry(
+    page: object,
+    url: str,
+    timeout: int,
+    retry_delay_ms: int,
+    console_errors: list[str],
+    failed_requests: list[str],
+) -> Optional[Response]:
+    """Navega até a URL, tentando de novo se a resposta for HTTP 429 (Too Many Requests).
+    Zera os coletores de console/rede a cada retentativa — o resultado final deve
+    refletir só a última navegação, não o acúmulo de tentativas anteriores."""
+    response: Optional[Response] = None
+    for attempt in range(_MAX_429_RETRIES + 1):
+        response = await page.goto(url, timeout=timeout, wait_until="load")  # type: ignore[attr-defined]
+        if response is None or response.status != 429 or attempt == _MAX_429_RETRIES:
+            return response
+        console_errors.clear()
+        failed_requests.clear()
+        await asyncio.sleep((retry_delay_ms / 1000) * (attempt + 1))
+    return response
+
+
+def _format_diagnostic_headers(headers: dict[str, str]) -> str:
+    """Extrai headers úteis para identificar quem está bloqueando (CDN, WAF, anti-bot)."""
+    found = [f"{key}={headers[key]}" for key in _DIAGNOSTIC_HEADERS if key in headers]
+    return ", ".join(found)
+
+
 # — Checagens individuais —
 
 def _check_http_status(
@@ -193,6 +231,12 @@ def _check_http_status(
         )
 
     passed = response.status == 200
+    detail = None
+    if not passed:
+        detail = f"Status {response.status} — esperado 200"
+        headers_info = _format_diagnostic_headers(response.headers)
+        if headers_info:
+            detail += f" — headers: {headers_info}"
     return CheckResult(
         check_id="http_status",
         check_name="Status HTTP",
@@ -200,7 +244,7 @@ def _check_http_status(
         viewport=viewport,
         status=CheckStatus.PASSOU if passed else CheckStatus.FALHOU,
         page_url=url,
-        detail=None if passed else f"Status {response.status} — esperado 200",
+        detail=detail,
         value=float(response.status),
         unit="status_code",
         duration_ms=duration_ms,

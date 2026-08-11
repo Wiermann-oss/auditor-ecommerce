@@ -20,6 +20,8 @@ timeouts:
   navigation: 30000       # aguardar página carregar completamente
   element: 5000           # aguardar elemento aparecer ou ser clicável
   popup_delay: 4500       # aguardar popup Klaviyo (gatilho: 3s + margem de 1.5s)
+  retry_delay_ms: 3000    # espera antes de tentar de novo após HTTP 429 (dobra a cada tentativa)
+  between_checks_delay_ms: 2000  # espera entre cada checagem de página/popup/fluxo — reduz taxa de requisições ao domínio
 
 # Limiares de performance — checagem falha quando EXCEDE o limiar
 # Contexto histórico da loja: CLS registrado entre 1.3–2.5; load até 50s
@@ -54,7 +56,7 @@ critical_pages:
     active: true
 
   - name: "Página de produto (referência)"
-    url: "/products/camiseta-basica"    # VERIFICAR: substituir por URL de produto sempre ativo
+    url: "/products/camiseta-masculina"    # confirmado ativo — produto real da loja
     viewports: [desktop, mobile]
     active: true
 
@@ -135,11 +137,11 @@ flows:
         value: "/collections/all"
         expect:
           type: element_visible
-          selector: ".product-item, .card--product, .grid__item a[href*='/products/']"  # VERIFICAR
+          selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
 
       - name: "Primeiro produto clicável"
         action: click
-        selector: ".product-item:first-child a, .card--product:first-child a, .grid__item:first-child a[href*='/products/']"  # VERIFICAR
+        selector: "main a.full-unstyled-link[href*='/products/']"  # confirmado via inspeção real do tema
         expect:
           type: url_contains
           value: "/products/"
@@ -150,7 +152,7 @@ flows:
 
       - name: "PDP exibe imagem do produto"
         action: assert_visible
-        selector: ".product__media img, .product-single__photo img, [class*='product-image'] img"  # VERIFICAR
+        selector: ".image-carousel__image, [class*='product-image'] img"  # confirmado via inspeção real do tema
 
   # F2 — Seleção de variante (tamanho)
   # Crítico em menswear: sem selecionar tamanho, add-to-cart fica desabilitado
@@ -166,11 +168,11 @@ flows:
         value: "/collections/all"
         expect:
           type: element_visible
-          selector: ".product-item, .card--product, .grid__item"  # VERIFICAR
+          selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
 
       - name: "Abrir PDP"
         action: click
-        selector: ".product-item:first-child a, .card--product:first-child a"  # VERIFICAR
+        selector: "main a.full-unstyled-link[href*='/products/']"  # confirmado via inspeção real do tema
         expect:
           type: url_contains
           value: "/products/"
@@ -200,9 +202,9 @@ flows:
     run_mode: always
     steps:
       - name: "Acessar produto com variante pré-selecionada"
-        # VERIFICAR: substituir pelo slug e ?variant=ID de um produto/variante sempre ativo
+        # confirmado ativo — produto e variante reais da loja (camiseta-masculina, Preta/PP/Gola O)
         action: goto
-        value: "/products/camiseta-basica?variant=VARIANT_ID"
+        value: "/products/camiseta-masculina?variant=40398906196143"
         expect:
           type: element_visible
           selector: "button[name='add']:not([disabled])"
@@ -228,11 +230,11 @@ flows:
         value: "/collections/desconto-progressivo-1"
         expect:
           type: element_visible
-          selector: ".product-item, .card--product"  # VERIFICAR
+          selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
 
       - name: "Abrir primeiro produto"
         action: click
-        selector: ".product-item:first-child a, .card--product:first-child a"  # VERIFICAR
+        selector: "main a.full-unstyled-link[href*='/products/']"  # confirmado via inspeção real do tema
         expect:
           type: url_contains
           value: "/products/"
@@ -310,9 +312,9 @@ flows:
     steps:
       # Setup: adicionar item ao carrinho (fluxo é self-contained — fresh context)
       - name: "[Setup] Acessar produto com variante disponível"
-        # VERIFICAR: mesmo URL usado no F3 — produto sempre ativo com variante específica
+        # confirmado ativo — mesmo produto/variante real usado no F3
         action: goto
-        value: "/products/camiseta-basica?variant=VARIANT_ID"
+        value: "/products/camiseta-masculina?variant=40398906196143"
         expect:
           type: element_visible
           selector: "button[name='add']:not([disabled])"
@@ -441,7 +443,7 @@ flows:
         value: "/collections/all"
         expect:
           type: element_visible
-          selector: ".product-item, .card--product, .grid__item"
+          selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
 
       - name: "Controle de filtro/sort visível"
         action: assert_visible
@@ -452,7 +454,7 @@ flows:
         selector: ".facets__item:first-child input, .filter-group input:first-child, [class*='facet'] label:first-child"  # VERIFICAR
         expect:
           type: element_visible
-          selector: ".product-item, .card--product"
+          selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
 
   # F10 — Conta / Login (verificação de render e validação de campo vazio)
   # PENDENTE: quando conta de teste for designada, adicionar steps de login real
@@ -495,7 +497,7 @@ flows:
       # Setup: adicionar item ao carrinho
       - name: "[Setup] Acessar produto com variante disponível"
         action: goto
-        value: "/products/camiseta-basica?variant=VARIANT_ID"  # VERIFICAR
+        value: "/products/camiseta-masculina?variant=40398906196143"  # confirmado ativo
         expect:
           type: element_visible
           selector: "button[name='add']:not([disabled])"
