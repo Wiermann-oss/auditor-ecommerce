@@ -15,13 +15,30 @@ log = logging.getLogger(__name__)
 
 
 async def dismiss_known_popups(page, close_selectors: list[str]) -> None:
-    """Fecha popups conhecidos (ex: popup de captura) antes de uma screenshot de evidência.
-    Best-effort — um popup ausente ou já fechado não deve impedir a captura.
+    """Fecha popups conhecidos (ex: popup de captura) antes de uma ação real (clique, fill)
+    ou de uma screenshot de evidência. Best-effort — um popup ausente ou já fechado não deve
+    impedir a ação seguinte.
+
+    Usa page.mouse.click nas coordenadas do botão em vez de locator.click: o próprio wrapper
+    interno do formulário Klaviyo se sobrepõe geometricamente ao botão de fechar, e a
+    checagem de actionability do Playwright (inclusive com force=True) recusa o clique como
+    "subtree intercepts pointer events" — falso positivo confirmado manualmente (um clique
+    físico nas mesmas coordenadas fecha o popup normalmente). Um único clique já é
+    suficiente; a animação de saída do Klaviyo só demora mais de 1s para completar, por
+    isso a espera por state=hidden é generosa. NÃO clicar de novo se o primeiro clique já
+    disparou — uma segunda tentativa em cima do popup em transição faz o bounding_box()
+    ficar preso esperando o elemento estabilizar (visto em produção: 30s de timeout).
     Não usar antes de screenshots do próprio popup_checker: lá o popup visível É a evidência."""
     for selector in close_selectors:
+        locator = page.locator(selector).first
         try:
-            await page.locator(selector).first.click(timeout=800)
-            await page.wait_for_timeout(300)
+            if not await locator.is_visible():
+                continue
+            box = await locator.bounding_box(timeout=2000)
+            if box is None:
+                continue
+            await page.mouse.click(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+            await locator.wait_for(state="hidden", timeout=4000)
         except Exception:
             continue
 
