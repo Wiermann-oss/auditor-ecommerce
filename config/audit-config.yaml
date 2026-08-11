@@ -228,8 +228,24 @@ flows:
           type: element_visible
           selector: ".cart-count-bubble span, [data-cart-count]:not([data-cart-count='0']), header a[href='/cart'] span"  # VERIFICAR
 
-  # F4 — Desconto progressivo
-  # Testa o coração do trabalho CRO: adicionar itens e verificar que o desconto aparece no carrinho
+  # F4 — Desconto progressivo (por volume, app Discounty)
+  # Testa o coração do trabalho CRO: adicionar 3 unidades do mesmo produto e verificar que
+  # o desconto por volume aparece no carrinho.
+  #
+  # HISTÓRICO — por que não usa mais /collections/desconto-progressivo-1:
+  # Investigação (2026-08-11) mostrou que clicar num produto naquela coleção abre um MODAL
+  # "Adicionar ao Kit" (seleção de cor/tamanho inline) em vez de navegar para a PDP — UX
+  # intencional de kit-builder, incompatível com o padrão de clique simples dos outros
+  # fluxos. Confirmado via captura de tela real do modal.
+  #
+  # Ancorado em /products/camisa-minimal-overshirt — o único produto que participa da
+  # auditoria de saúde técnica (config/pages.yaml) — a pedido do operador: o F4 deve
+  # funcionar a partir de página de produto, não de coleção.
+  #
+  # Confirmado empiricamente (headless, 3 execuções de add-to-cart): com 1 unidade o
+  # carrinho mostra só o preço cheio; com 3 unidades aparece o preço com risco + badge
+  # verde "Saving R$ X" — vindo do app Discounty (var $Discounty no DOM), seletor real
+  # ".discounty-cart-widget__saving-row".
   - id: "f4_progressive_discount"
     name: "F4 — Desconto progressivo"
     viewports: [desktop, mobile]
@@ -237,33 +253,84 @@ flows:
     active: true
     run_mode: always
     steps:
-      - name: "Acessar coleção de desconto progressivo"
+      - name: "Acessar produto (1ª unidade)"
         action: goto
-        value: "/collections/desconto-progressivo-1"
+        value: "/products/camisa-minimal-overshirt"
         expect:
+          # Só visível, não "not disabled": nenhuma variante está pré-selecionada
+          # (sem ?variant= na URL) — o botão só habilita depois do clique no tamanho.
           type: element_visible
-          selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
+          selector: "button[name='add']"
 
-      - name: "Abrir primeiro produto"
-        action: click
-        selector: "main a.full-unstyled-link[href*='/products/']"  # confirmado via inspeção real do tema
-        expect:
-          type: url_contains
-          value: "/products/"
+      # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
+      - name: "Aguardar possível popup Klaviyo"
+        action: wait
+        wait_ms: 8000
 
-      - name: "Selecionar variante disponível"
+      - name: "Selecionar tamanho disponível (1ª unidade)"
         action: click
         selector: "fieldset input[type='radio']:not(:disabled) + label, .variant-input:not(.disabled) label"  # VERIFICAR
         expect:
           type: element_visible
           selector: "button[name='add']:not([disabled])"
 
-      - name: "Adicionar ao carrinho"
+      # Sem 'expect' aqui de propósito: o contador do carrinho no header nunca foi
+      # confirmado para este tema (seletor "VERIFICAR" antigo, não bateu na validação).
+      # A prova real de que a adição funcionou vem depois — "Ir para o carrinho" e o
+      # desconto por volume visível, que só aparecem se as 3 unidades entraram de fato.
+      - name: "Adicionar 1ª unidade ao carrinho"
         action: click
         selector: "button[name='add']"
+
+      # Adicionar ao carrinho é assíncrono (fetch) — aguarda completar antes de navegar,
+      # senão a navegação seguinte pode cancelar a requisição.
+      - name: "Aguardar adição processar"
+        action: wait
+        wait_ms: 1500
+
+      - name: "Acessar produto (2ª unidade)"
+        action: goto
+        value: "/products/camisa-minimal-overshirt"
         expect:
           type: element_visible
-          selector: ".cart-count-bubble span"  # VERIFICAR
+          selector: "button[name='add']"
+
+      - name: "Selecionar tamanho disponível (2ª unidade)"
+        action: click
+        selector: "fieldset input[type='radio']:not(:disabled) + label, .variant-input:not(.disabled) label"  # VERIFICAR
+        expect:
+          type: element_visible
+          selector: "button[name='add']:not([disabled])"
+
+      - name: "Adicionar 2ª unidade ao carrinho"
+        action: click
+        selector: "button[name='add']"
+
+      - name: "Aguardar adição processar (2ª)"
+        action: wait
+        wait_ms: 1500
+
+      - name: "Acessar produto (3ª unidade)"
+        action: goto
+        value: "/products/camisa-minimal-overshirt"
+        expect:
+          type: element_visible
+          selector: "button[name='add']"
+
+      - name: "Selecionar tamanho disponível (3ª unidade)"
+        action: click
+        selector: "fieldset input[type='radio']:not(:disabled) + label, .variant-input:not(.disabled) label"  # VERIFICAR
+        expect:
+          type: element_visible
+          selector: "button[name='add']:not([disabled])"
+
+      - name: "Adicionar 3ª unidade ao carrinho"
+        action: click
+        selector: "button[name='add']"
+
+      - name: "Aguardar adição processar (3ª)"
+        action: wait
+        wait_ms: 1500
 
       - name: "Ir para o carrinho"
         action: goto
@@ -272,10 +339,10 @@ flows:
           type: element_visible
           selector: ".cart-item, .cart__item, [class*='cart-line']"  # VERIFICAR
 
-      - name: "Desconto progressivo visível no carrinho"
-        # VERIFICAR: seletor do bloco de desconto progressivo no carrinho (app ou tema custom)
+      - name: "Desconto por volume visível no carrinho (app Discounty)"
+        # confirmado via inspeção real do DOM — widget do app Discounty
         action: assert_visible
-        selector: ".discount-message, .progressive-discount, [class*='progressive'], [class*='discount-tier']"  # VERIFICAR
+        selector: ".discounty-cart-widget__saving-row, .discounty-cart-widget__saving-label"
 
   # F5 — Aplicação de cupom PRIMEIRA12
   # ATENÇÃO: este fluxo aplica o cupom real PRIMEIRA12 — cria lead no Klaviyo e dispara
