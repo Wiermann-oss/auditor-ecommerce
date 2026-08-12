@@ -3,32 +3,32 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 523,
-      "last_seen": "2026-08-11"
+      "fail_count": 527,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 478,
-      "last_seen": "2026-08-11"
+      "fail_count": 482,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 290,
-      "last_seen": "2026-08-11"
+      "fail_count": 291,
+      "last_seen": "2026-08-12"
+    },
+    {
+      "check_id": "cls",
+      "check_name": "CLS — Cumulative Layout Shift",
+      "fail_count": 196,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "fid",
       "check_name": "FID — First Input Delay (max potencial)",
       "fail_count": 196,
       "last_seen": "2026-08-03"
-    },
-    {
-      "check_id": "cls",
-      "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 194,
-      "last_seen": "2026-08-11"
     },
     {
       "check_id": "http_status",
@@ -39,56 +39,56 @@
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 126,
-      "last_seen": "2026-08-11"
+      "fail_count": 128,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 126,
-      "last_seen": "2026-08-11"
+      "fail_count": 128,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 126,
-      "last_seen": "2026-08-11"
+      "fail_count": 128,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 126,
-      "last_seen": "2026-08-11"
+      "fail_count": 128,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 126,
-      "last_seen": "2026-08-11"
+      "fail_count": 128,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "f6_checkout_start_step_1",
       "check_name": "F6 — Início de checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 126,
-      "last_seen": "2026-08-11"
+      "fail_count": 128,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "f6_checkout_start_step_2",
       "check_name": "F6 — Início de checkout → Ir para o carrinho",
-      "fail_count": 126,
-      "last_seen": "2026-08-11"
+      "fail_count": 128,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "f6_checkout_start_step_3",
       "check_name": "F6 — Início de checkout → Botão de checkout visível",
-      "fail_count": 126,
-      "last_seen": "2026-08-11"
+      "fail_count": 128,
+      "last_seen": "2026-08-12"
     },
     {
       "check_id": "f6_checkout_start_step_4",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 126,
-      "last_seen": "2026-08-11"
+      "fail_count": 128,
+      "last_seen": "2026-08-12"
     }
   ],
   "daily": [
@@ -433,13 +433,27 @@
       "total_falhou": 64,
       "total_erro": 69,
       "pass_rate": 68
+    },
+    {
+      "date": "2026-08-12",
+      "run_count": 1,
+      "total_checks": 219,
+      "total_passou": 161,
+      "total_falhou": 32,
+      "total_erro": 26,
+      "pass_rate": 74
     }
   ],
   "highlights": {
     "always_ok": [
       "F8 — Busca → Home carregada",
+      "F8 — Busca → Aguardar possível popup Klaviyo",
       "F7 — Navegação mobile (hamburger) → Home carregada no mobile",
-      "F1 — Descoberta até PDP → Home carrega"
+      "F4 — Desconto progressivo → Selecionar tamanho disponível (1ª unidade)",
+      "F4 — Desconto progressivo → Aguardar possível popup Klaviyo",
+      "F4 — Desconto progressivo → Aguardar adição processar",
+      "F4 — Desconto progressivo → Adicionar 1ª unidade ao carrinho",
+      "F4 — Desconto progressivo → Acessar produto (1ª unidade)"
     ],
     "attention": [
       "CLS — Cumulative Layout Shift",
