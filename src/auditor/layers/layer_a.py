@@ -22,6 +22,15 @@ _VIEWPORT_DIMS = {
     Viewport.MOBILE: {"width": 390, "height": 844},
 }
 
+
+def _visible(selector: str) -> str:
+    """Filtra o seletor para considerar só elementos visíveis. Temas Shopify costumam
+    renderizar um elemento por variante (ex: um bloco de preço por tamanho, só um
+    visível por vez) — sem esse filtro, '.first' pode pegar uma cópia oculta e a
+    checagem falha mesmo com o elemento certo visível na tela (visto em produção:
+    F1 'PDP exibe preço', 2026-08-13)."""
+    return f"{selector} >> visible=true"
+
 _USER_AGENTS = {
     Viewport.DESKTOP: (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -223,7 +232,7 @@ async def _perform_action(page: Page, step: FlowStep, config: AuditConfig) -> No
             if not step.selector:
                 raise ValueError(f"'assert_visible' requer 'selector' (step: {step.name})")
             try:
-                await page.locator(step.selector).first.wait_for(
+                await page.locator(_visible(step.selector)).first.wait_for(
                     state="visible", timeout=config.timeouts.element
                 )
             except PlaywrightTimeoutError:
@@ -266,7 +275,7 @@ async def _verify_expect(page: Page, expect: object, config: AuditConfig) -> Non
             if not expect.selector:
                 raise ValueError("expect 'element_visible' requer 'selector'")
             try:
-                await page.locator(expect.selector).first.wait_for(
+                await page.locator(_visible(expect.selector)).first.wait_for(
                     state="visible", timeout=config.timeouts.element
                 )
             except PlaywrightTimeoutError:
@@ -278,7 +287,7 @@ async def _verify_expect(page: Page, expect: object, config: AuditConfig) -> Non
             if not expect.selector:
                 raise ValueError("expect 'element_clickable' requer 'selector'")
             try:
-                locator = page.locator(expect.selector).first
+                locator = page.locator(_visible(expect.selector)).first
                 await locator.wait_for(state="visible", timeout=config.timeouts.element)
                 is_enabled = await locator.is_enabled()
                 if not is_enabled:
