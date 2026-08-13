@@ -15,13 +15,13 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 295,
+      "fail_count": 296,
       "last_seen": "2026-08-13"
     },
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 199,
+      "fail_count": 200,
       "last_seen": "2026-08-13"
     },
     {
@@ -39,55 +39,55 @@
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 134,
+      "fail_count": 136,
       "last_seen": "2026-08-13"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 134,
+      "fail_count": 136,
       "last_seen": "2026-08-13"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 134,
+      "fail_count": 136,
       "last_seen": "2026-08-13"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 134,
+      "fail_count": 136,
       "last_seen": "2026-08-13"
     },
     {
       "check_id": "f6_checkout_start_step_2",
       "check_name": "F6 — Início de checkout → Ir para o carrinho",
-      "fail_count": 134,
+      "fail_count": 136,
       "last_seen": "2026-08-13"
     },
     {
       "check_id": "f6_checkout_start_step_3",
       "check_name": "F6 — Início de checkout → Botão de checkout visível",
-      "fail_count": 134,
+      "fail_count": 136,
       "last_seen": "2026-08-13"
     },
     {
       "check_id": "f6_checkout_start_step_4",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 134,
+      "fail_count": 136,
       "last_seen": "2026-08-13"
     },
     {
       "check_id": "f6_checkout_start_step_5",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 134,
+      "fail_count": 136,
       "last_seen": "2026-08-13"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 132,
+      "fail_count": 134,
       "last_seen": "2026-08-13"
     }
   ],
@@ -445,12 +445,12 @@
     },
     {
       "date": "2026-08-13",
-      "run_count": 3,
-      "total_checks": 650,
-      "total_passou": 516,
-      "total_falhou": 74,
-      "total_erro": 60,
-      "pass_rate": 79
+      "run_count": 4,
+      "total_checks": 868,
+      "total_passou": 694,
+      "total_falhou": 95,
+      "total_erro": 79,
+      "pass_rate": 80
     }
   ],
   "highlights": {
