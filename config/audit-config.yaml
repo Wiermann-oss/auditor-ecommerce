@@ -487,8 +487,11 @@ flows:
         selector: ".predictive-search__item, [class*='search-result'], [class*='predictive-result']"  # VERIFICAR
 
       - name: "Clicar no primeiro resultado"
+        # confirmado via inspeção real do DOM: a classe "predictive-search__item" está
+        # no próprio <a>, não num wrapper — "...item:first-child a" nunca batia (0 matches),
+        # porque procurava um <a> DENTRO de um elemento que já É o <a>.
         action: click
-        selector: ".predictive-search__item:first-child a, [class*='search-result']:first-child a"  # VERIFICAR
+        selector: ".predictive-search__item:first-child, [class*='search-result']:first-child a"
         expect:
           type: url_contains
           value: "/products/"
