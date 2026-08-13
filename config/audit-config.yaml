@@ -144,7 +144,7 @@ flows:
       # e é recusado pelo Playwright como "subtree intercepts pointer events".
       - name: "Aguardar possível popup Klaviyo"
         action: wait
-        wait_ms: 8000
+        wait_ms: 10000
 
       - name: "Primeiro produto clicável"
         action: click
@@ -219,7 +219,7 @@ flows:
       # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
       - name: "Aguardar possível popup Klaviyo"
         action: wait
-        wait_ms: 8000
+        wait_ms: 10000
 
       - name: "Clicar em adicionar ao carrinho"
         action: click
@@ -268,7 +268,7 @@ flows:
       # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
       - name: "Aguardar possível popup Klaviyo"
         action: wait
-        wait_ms: 8000
+        wait_ms: 10000
 
       - name: "Selecionar tamanho disponível"
         action: click
@@ -422,7 +422,7 @@ flows:
       # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
       - name: "Aguardar possível popup Klaviyo"
         action: wait
-        wait_ms: 8000
+        wait_ms: 10000
 
       - name: "Botão hamburger visível"
         action: assert_visible
@@ -440,8 +440,16 @@ flows:
         selector: "nav a[href*='/collections'], [class*='mobile-nav'] a[href*='/collections'], [class*='drawer'] a[href*='/collections']"  # VERIFICAR
 
       - name: "Navegar para coleção pelo menu"
+        # A loja roda um teste A/B (VWO) que muda a estrutura do menu mobile entre
+        # sessões — às vezes lista plana de categorias, às vezes um estado com
+        # "Voltar à loja" + produtos de subcategoria. ":first-of-type" combinado com
+        # filtro de href é uma armadilha do CSS: só bate se o <a> literalmente
+        # primeiro também satisfizer o href — se não satisfizer, o seletor não bate
+        # em NADA, mesmo havendo um link válido mais adiante. Sem ":first-of-type",
+        # ".first" do Playwright pega o primeiro match real em ordem de DOM,
+        # funcionando nas duas variantes do teste A/B.
         action: click
-        selector: "nav a[href*='/collections']:first-of-type, [class*='drawer'] a[href*='/collections']:first-of-type"  # VERIFICAR
+        selector: "nav a[href*='/collections'], [class*='drawer'] a[href*='/collections']"
         expect:
           type: url_contains
           value: "/collections"
@@ -464,7 +472,7 @@ flows:
       # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
       - name: "Aguardar possível popup Klaviyo"
         action: wait
-        wait_ms: 8000
+        wait_ms: 10000
 
       - name: "Ícone de busca visível"
         action: assert_visible
@@ -481,6 +489,13 @@ flows:
         action: fill
         selector: "input[type='search'], input[name='q'], [placeholder*='Buscar']"
         value: "camiseta"
+
+      # Busca preditiva é assíncrona (debounce + fetch) — na auditoria completa, com
+      # mais carga no sistema que num teste isolado, pode passar dos 5000ms padrão do
+      # timeout do elemento. Espera dedicada evita falso negativo.
+      - name: "Aguardar busca processar"
+        action: wait
+        wait_ms: 1500
 
       - name: "Resultados de busca aparecem"
         action: assert_visible

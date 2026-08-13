@@ -206,7 +206,7 @@ async def _perform_action(page: Page, step: FlowStep, config: AuditConfig) -> No
             # visíveis por cima do elemento alvo — fecha antes de tentar, best-effort.
             await dismiss_known_popups(page, [p.close_selector for p in config.active_popups()])
             try:
-                await page.locator(step.selector).first.click(
+                await page.locator(_visible(step.selector)).first.click(
                     timeout=config.timeouts.element
                 )
             except PlaywrightTimeoutError:
@@ -220,7 +220,7 @@ async def _perform_action(page: Page, step: FlowStep, config: AuditConfig) -> No
                 raise ValueError(f"'fill' requer 'selector' e 'value' (step: {step.name})")
             await dismiss_known_popups(page, [p.close_selector for p in config.active_popups()])
             try:
-                await page.locator(step.selector).first.fill(
+                await page.locator(_visible(step.selector)).first.fill(
                     step.value, timeout=config.timeouts.element
                 )
             except PlaywrightTimeoutError:
