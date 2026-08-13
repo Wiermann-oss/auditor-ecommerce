@@ -419,6 +419,11 @@ flows:
           type: element_visible
           selector: "body"
 
+      # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
+      - name: "Aguardar possível popup Klaviyo"
+        action: wait
+        wait_ms: 8000
+
       - name: "Botão hamburger visível"
         action: assert_visible
         selector: "summary[aria-label*='Menu'], button[aria-label*='Menu'], .hamburger, [class*='menu-toggle'], [class*='nav-toggle']"  # VERIFICAR
