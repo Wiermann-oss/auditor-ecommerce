@@ -229,8 +229,8 @@ flows:
           selector: ".cart-count-bubble span, [data-cart-count]:not([data-cart-count='0']), header a[href='/cart'] span"  # VERIFICAR
 
   # F4 — Desconto progressivo (por volume, app Discounty)
-  # Testa o coração do trabalho CRO: adicionar 3 unidades do mesmo produto e verificar que
-  # o desconto por volume aparece no carrinho.
+  # Testa o coração do trabalho CRO: adicionar 3 unidades do mesmo produto (via campo de
+  # quantidade, numa única visita) e verificar que o desconto por volume aparece no carrinho.
   #
   # HISTÓRICO — por que não usa mais /collections/desconto-progressivo-1:
   # Investigação (2026-08-11) mostrou que clicar num produto naquela coleção abre um MODAL
@@ -242,10 +242,13 @@ flows:
   # auditoria de saúde técnica (config/pages.yaml) — a pedido do operador: o F4 deve
   # funcionar a partir de página de produto, não de coleção.
   #
-  # Confirmado empiricamente (headless, 3 execuções de add-to-cart): com 1 unidade o
-  # carrinho mostra só o preço cheio; com 3 unidades aparece o preço com risco + badge
-  # verde "Saving R$ X" — vindo do app Discounty (var $Discounty no DOM), seletor real
-  # ".discounty-cart-widget__saving-row".
+  # HISTÓRICO 2 — por que não repete "visitar produto + adicionar" 3 vezes:
+  # Primeira versão (2026-08-11) revisitava a PDP e clicava "adicionar" 3 vezes seguidas.
+  # Na auditoria de produção de 2026-08-13 isso disparou o desafio anti-bot do Cloudflare
+  # ("Verify you are human") — confirmado via screenshot da falha. Reescrito para uma
+  # única visita: seleciona tamanho, seta quantidade=3 no campo da própria PDP, clica
+  # "adicionar" uma vez só. Validado (headless, 2026-08-13): sem desafio do Cloudflare,
+  # carrinho reflete quantidade 3, badge de desconto aparece.
   - id: "f4_progressive_discount"
     name: "F4 — Desconto progressivo"
     viewports: [desktop, mobile]
@@ -253,7 +256,7 @@ flows:
     active: true
     run_mode: always
     steps:
-      - name: "Acessar produto (1ª unidade)"
+      - name: "Acessar produto"
         action: goto
         value: "/products/camisa-minimal-overshirt"
         expect:
@@ -267,18 +270,31 @@ flows:
         action: wait
         wait_ms: 8000
 
-      - name: "Selecionar tamanho disponível (1ª unidade)"
+      - name: "Selecionar tamanho disponível"
         action: click
         selector: "fieldset input[type='radio']:not(:disabled) + label, .variant-input:not(.disabled) label"  # VERIFICAR
         expect:
           type: element_visible
           selector: "button[name='add']:not([disabled])"
 
+      - name: "Definir quantidade 3"
+        # confirmado via inspeção real do DOM
+        action: fill
+        selector: "input[name='quantity'], [data-quantity-input], .quantity__input"
+        value: "3"
+
+      # O tema sincroniza o valor do campo via JS (debounce/validação) antes de habilitar
+      # o submit com a quantidade certa — clicar rápido demais depois do fill pode
+      # adicionar com a quantidade antiga ou falhar silenciosamente (visto em produção:
+      # nenhum erro no passo, mas o carrinho aparece vazio depois).
+      - name: "Aguardar sincronização da quantidade"
+        action: wait
+        wait_ms: 800
+
       # Sem 'expect' aqui de propósito: o contador do carrinho no header nunca foi
-      # confirmado para este tema (seletor "VERIFICAR" antigo, não bateu na validação).
-      # A prova real de que a adição funcionou vem depois — "Ir para o carrinho" e o
-      # desconto por volume visível, que só aparecem se as 3 unidades entraram de fato.
-      - name: "Adicionar 1ª unidade ao carrinho"
+      # confirmado para este tema. A prova real de que a adição funcionou vem depois —
+      # "Ir para o carrinho" e o desconto por volume visível.
+      - name: "Adicionar 3 unidades ao carrinho"
         action: click
         selector: "button[name='add']"
 
@@ -288,56 +304,15 @@ flows:
         action: wait
         wait_ms: 1500
 
-      - name: "Acessar produto (2ª unidade)"
-        action: goto
-        value: "/products/camisa-minimal-overshirt"
-        expect:
-          type: element_visible
-          selector: "button[name='add']"
-
-      - name: "Selecionar tamanho disponível (2ª unidade)"
-        action: click
-        selector: "fieldset input[type='radio']:not(:disabled) + label, .variant-input:not(.disabled) label"  # VERIFICAR
-        expect:
-          type: element_visible
-          selector: "button[name='add']:not([disabled])"
-
-      - name: "Adicionar 2ª unidade ao carrinho"
-        action: click
-        selector: "button[name='add']"
-
-      - name: "Aguardar adição processar (2ª)"
-        action: wait
-        wait_ms: 1500
-
-      - name: "Acessar produto (3ª unidade)"
-        action: goto
-        value: "/products/camisa-minimal-overshirt"
-        expect:
-          type: element_visible
-          selector: "button[name='add']"
-
-      - name: "Selecionar tamanho disponível (3ª unidade)"
-        action: click
-        selector: "fieldset input[type='radio']:not(:disabled) + label, .variant-input:not(.disabled) label"  # VERIFICAR
-        expect:
-          type: element_visible
-          selector: "button[name='add']:not([disabled])"
-
-      - name: "Adicionar 3ª unidade ao carrinho"
-        action: click
-        selector: "button[name='add']"
-
-      - name: "Aguardar adição processar (3ª)"
-        action: wait
-        wait_ms: 1500
-
       - name: "Ir para o carrinho"
         action: goto
         value: "/cart"
         expect:
+          # Só confirma que a página /cart carregou — a prova de que os itens entraram
+          # é o passo seguinte (desconto visível). "table"/".cart-item" não são
+          # confiáveis: variam conforme o carrinho está vazio ou cheio nesse tema.
           type: element_visible
-          selector: ".cart-item, .cart__item, [class*='cart-line']"  # VERIFICAR
+          selector: "main"
 
       - name: "Desconto por volume visível no carrinho (app Discounty)"
         # confirmado via inspeção real do DOM — widget do app Discounty
