@@ -528,11 +528,11 @@ flows:
           type: url_contains
           value: "/products/"
 
-  # F9 — Filtro/ordenação na coleção
+  # F9 — Filtro/ordenação na coleção (desktop: barra lateral, filtros já visíveis)
   # Severidade menor (pouco usado), mas incluído. abort_on_failure: false para não bloquear o run
   - id: "f9_filter"
     name: "F9 — Filtro na coleção"
-    viewports: [desktop, mobile]
+    viewports: [desktop]
     abort_on_failure: false
     active: true
     run_mode: always
@@ -544,6 +544,11 @@ flows:
           type: element_visible
           selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
 
+      # Ver nota em F1 sobre o delay real do popup Klaviyo
+      - name: "Aguardar possível popup Klaviyo"
+        action: dismiss_popup
+        wait_ms: 15000
+
       - name: "Controle de filtro/sort visível"
         action: assert_visible
         selector: ".facets, [aria-label*='Filter'], [aria-label*='Sort'], [class*='filter'], [class*='sort-by']"  # VERIFICAR
@@ -554,6 +559,59 @@ flows:
         expect:
           type: element_visible
           selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
+
+  # F9 mobile — UX de duas etapas (drill-down), diferente do desktop
+  # Confirmado via inspeção real do tema (2026-08-14): "Filtrar e organizar" abre um
+  # painel com categorias (Cor, Gola, Promo, Preço, Unitário/Kit, Tamanho — todas
+  # elementos <summary> nativos, ".mobile-facets__summary"). Só depois de abrir uma
+  # categoria os checkboxes de opção aparecem. O <input> do checkbox fica visualmente
+  # oculto por design (checkbox customizado via CSS) — o clicável de verdade é o
+  # <label class="facets__label facet-checkbox">.
+  - id: "f9_filter_mobile"
+    name: "F9 — Filtro na coleção (mobile)"
+    viewports: [mobile]
+    abort_on_failure: false
+    active: true
+    run_mode: always
+    steps:
+      - name: "Acessar coleção"
+        action: goto
+        value: "/collections/all"
+        expect:
+          type: element_visible
+          selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
+
+      # Ver nota em F1 sobre o delay real do popup Klaviyo
+      - name: "Aguardar possível popup Klaviyo"
+        action: dismiss_popup
+        wait_ms: 15000
+
+      - name: "Abrir painel de filtro"
+        action: click
+        selector: ".mobile-facets__open-wrapper"  # confirmado via inspeção real do tema
+        expect:
+          type: element_visible
+          selector: ".mobile-facets__summary"
+
+      # O <summary> confirma visível pelo expect acima, mas ainda em animação de entrada
+      # do painel — clicar rápido demais cai em "not stable" (mesmo padrão do popup Klaviyo).
+      - name: "Aguardar painel estabilizar"
+        action: wait
+        wait_ms: 800
+
+      - name: "Abrir primeira categoria (Cor)"
+        action: click
+        selector: ".mobile-facets__summary"  # confirmado via inspeção real do tema
+        expect:
+          type: element_visible
+          selector: "label.facets__label.facet-checkbox"
+
+      - name: "Aplicar primeira opção de filtro"
+        action: click
+        selector: "label.facets__label.facet-checkbox"  # confirmado via inspeção real do tema
+        expect:
+          type: url_contains
+          value: "filter"
 
   # F10 — Conta / Login (verificação de render e validação de campo vazio)
   # PENDENTE: quando conta de teste for designada, adicionar steps de login real

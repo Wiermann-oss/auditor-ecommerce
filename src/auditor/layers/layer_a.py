@@ -172,21 +172,33 @@ async def _execute_step(
         )
 
 
+_MAX_CLICK_RETRIES = 2  # tentativas extras além da original (3 no total)
+
+
 async def _retry_click_after_popup(
     page: Page, step: FlowStep, config: AuditConfig, original: Exception
 ) -> None:
-    """Reexecuta uma ação de clique que falhou, fechando popups conhecidos antes de novo.
-    Popups (ex: Klaviyo) às vezes engolem o clique via preventDefault sem gerar erro de
-    interceptação — o Playwright reporta sucesso, mas a navegação não acontece, e só o
-    'expect' seguinte acusa o problema. Uma segunda tentativa após fechar o popup de novo
-    resolve a maioria dos casos sem precisar adivinhar quanto tempo esperar.
+    """Reexecuta uma ação de clique que falhou, fechando popups conhecidos antes de cada
+    nova tentativa. Popups (ex: Klaviyo) às vezes engolem o clique via preventDefault sem
+    gerar erro de interceptação — o Playwright reporta sucesso, mas a navegação não
+    acontece, e só o 'expect' seguinte acusa o problema; outras vezes a própria animação
+    de fechamento do popup (~1s+) ainda intercepta pointer events na primeira retentativa.
+    Uma tentativa extra às vezes não bastava (visto em produção: F9, 2026-08-14, interceptado
+    2x seguidas) — até _MAX_CLICK_RETRIES tentativas antes de desistir de vez.
     Ações que não são clique não se beneficiam disso — repropaga o erro original."""
     if step.action != ActionType.CLICK:
         raise original
-    await dismiss_known_popups(page, [p.close_selector for p in config.active_popups()])
-    await _perform_action(page, step, config)
-    if step.expect is not None:
-        await _verify_expect(page, step.expect, config)
+    last_error: Exception = original
+    for _attempt in range(_MAX_CLICK_RETRIES):
+        await dismiss_known_popups(page, [p.close_selector for p in config.active_popups()])
+        try:
+            await _perform_action(page, step, config)
+            if step.expect is not None:
+                await _verify_expect(page, step.expect, config)
+            return
+        except _StepFailure as exc:
+            last_error = exc
+    raise last_error
 
 
 async def _perform_action(page: Page, step: FlowStep, config: AuditConfig) -> None:
