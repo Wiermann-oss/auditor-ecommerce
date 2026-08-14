@@ -377,6 +377,13 @@ flows:
           type: element_visible
           selector: "button[name='add']:not([disabled])"
 
+      # F6 nunca tinha essa espera (diferente de F1/F3/F4/F7/F8) — descoberto em produção
+      # (2026-08-14): o clique em "Adicionar ao carrinho" caía na mesma janela do popup
+      # Klaviyo ainda não ter aparecido. Ver nota em F1 sobre o delay real do popup.
+      - name: "Aguardar possível popup Klaviyo"
+        action: dismiss_popup
+        wait_ms: 15000
+
       - name: "[Setup] Adicionar ao carrinho"
         action: click
         selector: "button[name='add']"
@@ -389,8 +396,10 @@ flows:
         action: goto
         value: "/cart"
         expect:
+          # "table"/".cart-item" não são confiáveis nesse tema (ver nota em F4) — usa "main"
+          # e deixa a prova real pro passo seguinte (botão de checkout visível).
           type: element_visible
-          selector: ".cart-item, .cart__item, [class*='cart-line']"  # VERIFICAR
+          selector: "main"
 
       - name: "Botão de checkout visível"
         action: assert_visible
