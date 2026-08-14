@@ -3,25 +3,25 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 534,
+      "fail_count": 535,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 491,
+      "fail_count": 492,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 302,
+      "fail_count": 303,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 205,
+      "fail_count": 206,
       "last_seen": "2026-08-14"
     },
     {
@@ -39,25 +39,31 @@
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 140,
+      "fail_count": 142,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 140,
+      "fail_count": 142,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 140,
+      "fail_count": 142,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 140,
+      "fail_count": 142,
+      "last_seen": "2026-08-14"
+    },
+    {
+      "check_id": "f11_popup_checkout_block_step_1",
+      "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
+      "fail_count": 138,
       "last_seen": "2026-08-14"
     },
     {
@@ -82,12 +88,6 @@
       "check_id": "f6_checkout_start_step_5",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
       "fail_count": 138,
-      "last_seen": "2026-08-14"
-    },
-    {
-      "check_id": "f11_popup_checkout_block_step_1",
-      "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 136,
       "last_seen": "2026-08-14"
     }
   ],
@@ -454,11 +454,11 @@
     },
     {
       "date": "2026-08-14",
-      "run_count": 2,
-      "total_checks": 430,
-      "total_passou": 363,
-      "total_falhou": 48,
-      "total_erro": 19,
+      "run_count": 3,
+      "total_checks": 654,
+      "total_passou": 550,
+      "total_falhou": 70,
+      "total_erro": 34,
       "pass_rate": 84
     }
   ],
@@ -469,19 +469,19 @@
       "F8 — Busca → Aguardar busca processar",
       "F7 — Navegação mobile (hamburger) → Home carregada no mobile",
       "F7 — Navegação mobile (hamburger) → Aguardar possível popup Klaviyo",
+      "F6 — Início de checkout → Aguardar possível popup Klaviyo",
       "F4 — Desconto progressivo → Selecionar tamanho disponível (1ª unidade)",
-      "F4 — Desconto progressivo → Selecionar tamanho disponível",
-      "F4 — Desconto progressivo → Definir quantidade 3"
+      "F4 — Desconto progressivo → Selecionar tamanho disponível"
     ],
     "attention": [
       "CLS — Cumulative Layout Shift",
       "F2 — Seleção de variante (tamanho) → Acessar produto com variantes",
       "Status HTTP",
-      "F9 — Filtro na coleção → Acessar coleção",
       "F8 — Busca → Ícone de busca visível",
       "F7 — Navegação mobile (hamburger) → Botão hamburger visível",
-      "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay",
-      "F1 — Descoberta até PDP → Coleção carrega com produtos"
+      "F9 — Filtro na coleção → Acessar coleção",
+      "F4 — Desconto progressivo → Desconto por volume visível no carrinho (app Discounty)",
+      "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay"
     ]
   }
 }
