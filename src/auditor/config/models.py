@@ -29,6 +29,7 @@ class ActionType(str, Enum):
     ASSERT_VISIBLE = "assert_visible"
     ASSERT_NOT_VISIBLE = "assert_not_visible"
     WAIT = "wait"
+    DISMISS_POPUP = "dismiss_popup"
 
 
 class ExpectType(str, Enum):

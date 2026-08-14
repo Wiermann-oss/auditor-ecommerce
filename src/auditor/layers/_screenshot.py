@@ -14,18 +14,23 @@ from typing import Optional
 log = logging.getLogger(__name__)
 
 
-async def dismiss_known_popups(page, close_selectors: list[str]) -> None:
+async def dismiss_known_popups(
+    page, close_selectors: list[str], visible_timeout_ms: int = 1000
+) -> None:
     """Fecha popups conhecidos (ex: popup de captura) antes de uma ação real (clique, fill)
     ou de uma screenshot de evidência. Best-effort — um popup ausente ou já fechado não deve
     impedir a ação seguinte.
 
-    Espera ativamente o popup aparecer (até 1s) em vez de checar visibilidade uma vez só —
-    cobre o caso de pegar o popup no meio da própria animação de entrada. NÃO cobre o caso
-    de o popup ainda não ter disparado (medido em produção: até 6-8s após o load, bem mais
-    que os 4.5s do "popup_delay" do config) — resolver isso aqui, com um timeout maior,
-    multiplicaria o tempo de execução em CADA clique do fluxo depois que o popup já foi
-    fechado (o locator não teria como saber que não vale mais a pena esperar). Isso precisa
-    de uma espera dedicada, uma vez só, logo na entrada do fluxo — ver ADR/decisão pendente.
+    Espera ativamente o popup aparecer (até 'visible_timeout_ms') em vez de checar
+    visibilidade uma vez só. O default de 1s cobre só o caso de pegar o popup no meio da
+    própria animação de entrada nas chamadas por-clique — NÃO é suficiente pro popup ainda
+    não ter disparado (medido localmente: 6-8s após o load; em produção, no runner do GitHub
+    Actions com CPU compartilhada, pode passar disso — ver nota de CI throttling no
+    ARCHITECTURE.md). Um timeout maior aqui rodaria em CADA clique do fluxo, inflando o
+    tempo total mesmo depois do popup já fechado — por isso o padrão é curto. Para a espera
+    dedicada de entrada do fluxo (ActionType.DISMISS_POPUP), passe um timeout bem maior:
+    a espera é ATIVA (retorna assim que o popup aparecer e for fechado, não fica parada os
+    'visible_timeout_ms' inteiros se ele vier rápido).
 
     Usa page.mouse.click nas coordenadas do botão em vez de locator.click: o próprio wrapper
     interno do formulário Klaviyo se sobrepõe geometricamente ao botão de fechar, e a
@@ -40,7 +45,7 @@ async def dismiss_known_popups(page, close_selectors: list[str]) -> None:
     for selector in close_selectors:
         locator = page.locator(selector).first
         try:
-            await locator.wait_for(state="visible", timeout=1000)
+            await locator.wait_for(state="visible", timeout=visible_timeout_ms)
         except Exception:
             continue
         try:

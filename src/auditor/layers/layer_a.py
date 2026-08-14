@@ -194,10 +194,21 @@ async def _perform_action(page: Page, step: FlowStep, config: AuditConfig) -> No
     match step.action:
         case ActionType.GOTO:
             url = _resolve_url(step.value, config)
+            # "load" espera TODOS os recursos terminarem — scripts de terceiros (Klaviyo,
+            # VWO, GA4, chat, widgets) ocasionalmente atrasam ou travam esse evento sem
+            # sinalizar erro real de rede (visto em produção: timeout de 30s numa tentativa,
+            # carregamento normal na seguinte — 2026-08-14). Uma retentativa cobre a maioria
+            # dos casos sem mascarar uma página genuinamente fora do ar (a 2ª tentativa
+            # também falha nesse caso, e o erro é reportado normalmente).
             try:
                 await page.goto(url, timeout=config.timeouts.navigation, wait_until="load")
-            except PlaywrightTimeoutError as exc:
-                raise _StepFailure(f"Timeout ao navegar para {url}: {exc}") from exc
+            except PlaywrightTimeoutError:
+                try:
+                    await page.goto(url, timeout=config.timeouts.navigation, wait_until="load")
+                except PlaywrightTimeoutError as exc:
+                    raise _StepFailure(
+                        f"Timeout ao navegar para {url} (2 tentativas): {exc}"
+                    ) from exc
 
         case ActionType.CLICK:
             if not step.selector:
@@ -255,6 +266,19 @@ async def _perform_action(page: Page, step: FlowStep, config: AuditConfig) -> No
         case ActionType.WAIT:
             ms = step.wait_ms or 1000
             await page.wait_for_timeout(ms)
+
+        case ActionType.DISMISS_POPUP:
+            # Espera ATIVA pelo popup, não um sleep cego: retorna assim que ele aparecer
+            # e for fechado, sem desperdiçar tempo se vier rápido. Timeout generoso porque
+            # o runner do GitHub Actions (CPU compartilhada) pode ser mais lento que uma
+            # máquina local para disparar o popup — um sleep fixo curto (8-10s, calibrado
+            # localmente) falhou em produção mesmo com folga aparente.
+            ms = step.wait_ms or 15000
+            await dismiss_known_popups(
+                page,
+                [p.close_selector for p in config.active_popups()],
+                visible_timeout_ms=ms,
+            )
 
 
 async def _verify_expect(page: Page, expect: object, config: AuditConfig) -> None:

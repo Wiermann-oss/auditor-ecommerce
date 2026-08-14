@@ -139,12 +139,16 @@ flows:
           type: element_visible
           selector: ".grid__item, .card-wrapper"  # confirmado via inspeção real do tema
 
-      # Popup Klaviyo medido em produção: leva 6-8s pra aparecer (bem mais que os 4.5s do
-      # popup_delay). Sem essa espera, o clique seguinte cai bem na hora em que ele renderiza
-      # e é recusado pelo Playwright como "subtree intercepts pointer events".
+      # Popup Klaviyo medido localmente: leva 6-8s pra aparecer (bem mais que os 4.5s do
+      # popup_delay). Em produção (runner do GitHub Actions, CPU compartilhada) pode demorar
+      # ainda mais — um sleep cego de 8-10s calibrado localmente falhou lá mesmo assim
+      # (2026-08-14). "dismiss_popup" é espera ATIVA: fecha assim que o popup aparecer, sem
+      # desperdiçar os 15s inteiros se ele vier rápido — diferente de "wait", que sempre
+      # dorme o tempo cheio. Sem isso, o clique seguinte cai bem na hora em que o popup
+      # renderiza e é recusado pelo Playwright como "subtree intercepts pointer events".
       - name: "Aguardar possível popup Klaviyo"
-        action: wait
-        wait_ms: 10000
+        action: dismiss_popup
+        wait_ms: 15000
 
       - name: "Primeiro produto clicável"
         action: click
@@ -218,8 +222,8 @@ flows:
 
       # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
       - name: "Aguardar possível popup Klaviyo"
-        action: wait
-        wait_ms: 10000
+        action: dismiss_popup
+        wait_ms: 15000
 
       - name: "Clicar em adicionar ao carrinho"
         action: click
@@ -267,8 +271,8 @@ flows:
 
       # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
       - name: "Aguardar possível popup Klaviyo"
-        action: wait
-        wait_ms: 10000
+        action: dismiss_popup
+        wait_ms: 15000
 
       - name: "Selecionar tamanho disponível"
         action: click
@@ -421,8 +425,8 @@ flows:
 
       # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
       - name: "Aguardar possível popup Klaviyo"
-        action: wait
-        wait_ms: 10000
+        action: dismiss_popup
+        wait_ms: 15000
 
       - name: "Botão hamburger visível"
         action: assert_visible
@@ -471,8 +475,8 @@ flows:
 
       # Ver nota em F1 sobre o delay real do popup Klaviyo (6-8s, não os 4.5s do config)
       - name: "Aguardar possível popup Klaviyo"
-        action: wait
-        wait_ms: 10000
+        action: dismiss_popup
+        wait_ms: 15000
 
       - name: "Ícone de busca visível"
         action: assert_visible
@@ -493,9 +497,13 @@ flows:
       # Busca preditiva é assíncrona (debounce + fetch) — na auditoria completa, com
       # mais carga no sistema que num teste isolado, pode passar dos 5000ms padrão do
       # timeout do elemento. Espera dedicada evita falso negativo.
+      # 1500ms não foi suficiente em produção (2026-08-14) — mesma causa do popup: CI
+      # (GitHub Actions, CPU compartilhada) mais lento que teste local pra JS assíncrono
+      # (debounce + fetch da busca preditiva). Aumentado para dar mais margem antes do
+      # timeout de 5000ms do "Resultados de busca aparecem" seguinte.
       - name: "Aguardar busca processar"
         action: wait
-        wait_ms: 1500
+        wait_ms: 4000
 
       - name: "Resultados de busca aparecem"
         action: assert_visible
