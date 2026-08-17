@@ -15,13 +15,13 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 304,
+      "fail_count": 306,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 214,
+      "fail_count": 220,
       "last_seen": "2026-08-17"
     },
     {
@@ -39,19 +39,19 @@
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 146,
+      "fail_count": 148,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 146,
+      "fail_count": 148,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 146,
+      "fail_count": 148,
       "last_seen": "2026-08-17"
     },
     {
@@ -463,12 +463,12 @@
     },
     {
       "date": "2026-08-17",
-      "run_count": 2,
-      "total_checks": 440,
-      "total_passou": 356,
-      "total_falhou": 63,
-      "total_erro": 21,
-      "pass_rate": 81
+      "run_count": 3,
+      "total_checks": 672,
+      "total_passou": 549,
+      "total_falhou": 86,
+      "total_erro": 37,
+      "pass_rate": 82
     }
   ],
   "highlights": {
