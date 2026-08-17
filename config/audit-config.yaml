@@ -388,8 +388,17 @@ flows:
         action: click
         selector: "button[name='add']"
         expect:
+          # Igualado ao F3 (confirmado funcionando 2026-08-17) — faltava a 3ª alternativa
           type: element_visible
-          selector: ".cart-count-bubble span, [data-cart-count]:not([data-cart-count='0'])"  # VERIFICAR
+          selector: ".cart-count-bubble span, [data-cart-count]:not([data-cart-count='0']), header a[href='/cart'] span"
+
+      # CAUSA REAL do carrinho chegar vazio no "Ir para o carrinho" (2026-08-17, mobile):
+      # o expect acima passa rápido demais (seletor fraco, não garante que a requisição de
+      # adicionar terminou) e a navegação seguinte cancela o POST /cart/add ainda em voo —
+      # mesmo padrão já resolvido no F4 ("adicionar ao carrinho é assíncrono").
+      - name: "Aguardar adição processar"
+        action: wait
+        wait_ms: 1500
 
       # Fluxo principal
       - name: "Ir para o carrinho"
@@ -400,6 +409,13 @@ flows:
           # e deixa a prova real pro passo seguinte (botão de checkout visível).
           type: element_visible
           selector: "main"
+
+      # "main" aparece antes do conteúdo real do carrinho hidratar via JS — o botão de
+      # checkout só fica visível/habilitado depois disso (visto em produção: 2026-08-17,
+      # mobile, mesmo padrão de outras hidratações assíncronas já mapeadas hoje).
+      - name: "Aguardar carrinho hidratar"
+        action: wait
+        wait_ms: 1500
 
       - name: "Botão de checkout visível"
         action: assert_visible
@@ -663,8 +679,14 @@ flows:
         action: click
         selector: "button[name='add']"
         expect:
+          # Igualado ao F3 (confirmado funcionando 2026-08-17) — faltava a 3ª alternativa
           type: element_visible
-          selector: ".cart-count-bubble span, [data-cart-count]:not([data-cart-count='0'])"  # VERIFICAR
+          selector: ".cart-count-bubble span, [data-cart-count]:not([data-cart-count='0']), header a[href='/cart'] span"
+
+      # Ver nota em F6 sobre a causa real do carrinho chegar vazio (mesmo padrão).
+      - name: "Aguardar adição processar"
+        action: wait
+        wait_ms: 1500
 
       - name: "Ir para o checkout"
         action: click
