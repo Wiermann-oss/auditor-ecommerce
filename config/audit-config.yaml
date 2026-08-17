@@ -618,15 +618,32 @@ flows:
         wait_ms: 800
 
       - name: "Abrir primeira categoria (Cor)"
+        # Sem 'expect' aqui de propósito, mesmo motivo do painel externo: a lista de
+        # opções (Preto, Branco, Cinza...) entra com uma animação, e cobrar visibilidade
+        # imediata no mesmo step cai na mesma janela de "not stable" (visto em produção,
+        # 2026-08-17: a screenshot da própria falha já mostra a lista de cores aberta —
+        # o clique funcionou, só a checagem em cima dele que foi rápida demais).
         action: click
         selector: ".mobile-facets__summary"  # confirmado via inspeção real do tema
-        expect:
-          type: element_visible
-          selector: "label.facets__label.facet-checkbox"
+
+      - name: "Aguardar categoria abrir"
+        action: wait
+        wait_ms: 800
+
+      - name: "Opção de filtro visível"
+        # Causa raiz real (investigada via DOM ao vivo em 2026-08-17): o tema renderiza
+        # os facets DUAS vezes no mobile — uma cópia com classe "facet-checkbox" (a versão
+        # desktop, presente no DOM mas com width/height=0 no viewport mobile) e outra com
+        # classe "mobile-facets__label" (a que realmente aparece na tela, confirmada via
+        # document.elementFromPoint nas coordenadas do texto "Preto (46)" visível no print).
+        # O seletor antigo ("facet-checkbox") batia nos 147 elementos errados — por isso
+        # a auditoria falhava 100% das vezes, não por timing.
+        action: assert_visible
+        selector: "label.facets__label.mobile-facets__label"
 
       - name: "Aplicar primeira opção de filtro"
         action: click
-        selector: "label.facets__label.facet-checkbox"  # confirmado via inspeção real do tema
+        selector: "label.facets__label.mobile-facets__label"  # confirmado via inspeção real do tema + clique real (URL passou a conter filter.v.option.cor=...)
         expect:
           type: url_contains
           value: "filter"
