@@ -15,14 +15,14 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 284,
-      "last_seen": "2026-08-18"
+      "fail_count": 286,
+      "last_seen": "2026-08-21"
     },
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 214,
-      "last_seen": "2026-08-20"
+      "fail_count": 218,
+      "last_seen": "2026-08-21"
     },
     {
       "check_id": "fid",
@@ -39,20 +39,20 @@
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 142,
-      "last_seen": "2026-08-20"
+      "fail_count": 144,
+      "last_seen": "2026-08-21"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 142,
-      "last_seen": "2026-08-20"
+      "fail_count": 144,
+      "last_seen": "2026-08-21"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 142,
-      "last_seen": "2026-08-20"
+      "fail_count": 144,
+      "last_seen": "2026-08-21"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
@@ -496,6 +496,15 @@
       "total_falhou": 17,
       "total_erro": 6,
       "pass_rate": 90
+    },
+    {
+      "date": "2026-08-21",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 200,
+      "total_falhou": 18,
+      "total_erro": 6,
+      "pass_rate": 89
     }
   ],
   "highlights": {
