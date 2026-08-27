@@ -21,32 +21,32 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 137,
-      "last_seen": "2026-08-25"
+      "fail_count": 144,
+      "last_seen": "2026-08-27"
+    },
+    {
+      "check_id": "f10_account_login_step_0",
+      "check_name": "F10 — Login (render) → Página de login renderiza",
+      "fail_count": 126,
+      "last_seen": "2026-08-27"
+    },
+    {
+      "check_id": "f10_account_login_step_1",
+      "check_name": "F10 — Login (render) → Botão de submit visível",
+      "fail_count": 126,
+      "last_seen": "2026-08-27"
+    },
+    {
+      "check_id": "f10_account_login_step_2",
+      "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
+      "fail_count": 126,
+      "last_seen": "2026-08-27"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
       "fail_count": 126,
       "last_seen": "2026-08-20"
-    },
-    {
-      "check_id": "f10_account_login_step_0",
-      "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 124,
-      "last_seen": "2026-08-26"
-    },
-    {
-      "check_id": "f10_account_login_step_1",
-      "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 124,
-      "last_seen": "2026-08-26"
-    },
-    {
-      "check_id": "f10_account_login_step_2",
-      "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 124,
-      "last_seen": "2026-08-26"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
@@ -532,6 +532,15 @@
       "total_falhou": 20,
       "total_erro": 19,
       "pass_rate": 83
+    },
+    {
+      "date": "2026-08-27",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 209,
+      "total_falhou": 15,
+      "total_erro": 0,
+      "pass_rate": 93
     }
   ],
   "highlights": {
@@ -546,14 +555,14 @@
       "F8 — Busca → Home carregada"
     ],
     "attention": [
-      "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay",
-      "F8 — Busca → Digitar termo de busca",
-      "F8 — Busca → Abrir busca",
       "CLS — Cumulative Layout Shift",
       "Erros de JavaScript no console",
       "F9 — Filtro na coleção (mobile) → Abrir primeira categoria (Cor)",
       "Popup 'Popup de captura (Lead) — Klaviyo' — scroll não bloqueado após fechar",
-      "Popup 'Popup de captura (Lead) — Klaviyo' — não dispara em loop"
+      "Popup 'Popup de captura (Lead) — Klaviyo' — não dispara em loop",
+      "Popup 'Popup de captura (Lead) — Klaviyo' — fechar funciona",
+      "Popup 'Popup de captura (Lead) — Klaviyo' — clique não bloqueado após fechar",
+      "Popup 'Popup de captura (Lead) — Klaviyo' — botão de fechar visível"
     ]
   }
 }
