@@ -21,26 +21,26 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 144,
-      "last_seen": "2026-08-27"
+      "fail_count": 147,
+      "last_seen": "2026-08-28"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 126,
-      "last_seen": "2026-08-27"
+      "fail_count": 128,
+      "last_seen": "2026-08-28"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 126,
-      "last_seen": "2026-08-27"
+      "fail_count": 128,
+      "last_seen": "2026-08-28"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 126,
-      "last_seen": "2026-08-27"
+      "fail_count": 128,
+      "last_seen": "2026-08-28"
     },
     {
       "check_id": "failed_requests",
@@ -541,6 +541,15 @@
       "total_falhou": 15,
       "total_erro": 0,
       "pass_rate": 93
+    },
+    {
+      "date": "2026-08-28",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 203,
+      "total_falhou": 15,
+      "total_erro": 6,
+      "pass_rate": 91
     }
   ],
   "highlights": {
@@ -555,14 +564,14 @@
       "F8 — Busca → Home carregada"
     ],
     "attention": [
-      "CLS — Cumulative Layout Shift",
       "Erros de JavaScript no console",
-      "F9 — Filtro na coleção (mobile) → Abrir primeira categoria (Cor)",
+      "CLS — Cumulative Layout Shift",
       "Popup 'Popup de captura (Lead) — Klaviyo' — scroll não bloqueado após fechar",
       "Popup 'Popup de captura (Lead) — Klaviyo' — não dispara em loop",
       "Popup 'Popup de captura (Lead) — Klaviyo' — fechar funciona",
       "Popup 'Popup de captura (Lead) — Klaviyo' — clique não bloqueado após fechar",
-      "Popup 'Popup de captura (Lead) — Klaviyo' — botão de fechar visível"
+      "Popup 'Popup de captura (Lead) — Klaviyo' — botão de fechar visível",
+      "F9 — Filtro na coleção (mobile) → Abrir primeira categoria (Cor)"
     ]
   }
 }
