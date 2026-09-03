@@ -3,8 +3,8 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 239,
-      "last_seen": "2026-09-01"
+      "fail_count": 240,
+      "last_seen": "2026-09-03"
     },
     {
       "check_id": "http_status",
@@ -27,26 +27,26 @@
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 114,
-      "last_seen": "2026-09-02"
+      "fail_count": 116,
+      "last_seen": "2026-09-03"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 114,
-      "last_seen": "2026-09-02"
+      "fail_count": 116,
+      "last_seen": "2026-09-03"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 114,
-      "last_seen": "2026-09-02"
+      "fail_count": 116,
+      "last_seen": "2026-09-03"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 100,
-      "last_seen": "2026-08-31"
+      "fail_count": 101,
+      "last_seen": "2026-09-03"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
@@ -577,6 +577,15 @@
       "total_falhou": 17,
       "total_erro": 6,
       "pass_rate": 90
+    },
+    {
+      "date": "2026-09-03",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 198,
+      "total_falhou": 16,
+      "total_erro": 10,
+      "pass_rate": 88
     }
   ],
   "highlights": {
@@ -591,14 +600,14 @@
       "F9 — Filtro na coleção (mobile) → Abrir painel de filtro"
     ],
     "attention": [
+      "F2 — Seleção de variante (tamanho) → Seletor de tamanho visível",
+      "F2 — Seleção de variante (tamanho) → Selecionar primeiro tamanho disponível",
+      "F2 — Seleção de variante (tamanho) → Add-to-cart habilitado após seleção de tamanho",
       "F1 — Descoberta até PDP → Primeiro produto clicável",
-      "F6 — Início de checkout → [Setup] Acessar produto com variante disponível",
-      "F3 — Add to cart → Clicar em adicionar ao carrinho",
-      "F3 — Add to cart → Acessar produto com variante pré-selecionada",
-      "F2 — Seleção de variante (tamanho) → Abrir PDP",
-      "F11 — Popup não dispara no checkout → [Setup] Acessar produto com variante disponível",
-      "F11 — Popup não dispara no checkout → Popup NÃO deve aparecer no checkout",
-      "F9 — Filtro na coleção → Controle de filtro/sort visível"
+      "F9 — Filtro na coleção → Controle de filtro/sort visível",
+      "F4 — Desconto progressivo → Ir para o carrinho",
+      "F7 — Navegação mobile (hamburger) → Link de coleção visível no menu",
+      "F7 — Navegação mobile (hamburger) → Abrir menu hamburger"
     ]
   }
 }
