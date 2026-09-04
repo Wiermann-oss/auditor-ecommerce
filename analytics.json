@@ -21,32 +21,32 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 118,
-      "last_seen": "2026-09-02"
+      "fail_count": 121,
+      "last_seen": "2026-09-04"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 116,
-      "last_seen": "2026-09-03"
+      "fail_count": 118,
+      "last_seen": "2026-09-04"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 116,
-      "last_seen": "2026-09-03"
+      "fail_count": 118,
+      "last_seen": "2026-09-04"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 116,
-      "last_seen": "2026-09-03"
+      "fail_count": 118,
+      "last_seen": "2026-09-04"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 101,
-      "last_seen": "2026-09-03"
+      "fail_count": 102,
+      "last_seen": "2026-09-04"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
@@ -586,6 +586,15 @@
       "total_falhou": 16,
       "total_erro": 10,
       "pass_rate": 88
+    },
+    {
+      "date": "2026-09-04",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 196,
+      "total_falhou": 18,
+      "total_erro": 10,
+      "pass_rate": 88
     }
   ],
   "highlights": {
@@ -600,14 +609,14 @@
       "F9 — Filtro na coleção (mobile) → Abrir painel de filtro"
     ],
     "attention": [
-      "F2 — Seleção de variante (tamanho) → Seletor de tamanho visível",
-      "F2 — Seleção de variante (tamanho) → Selecionar primeiro tamanho disponível",
-      "F2 — Seleção de variante (tamanho) → Add-to-cart habilitado após seleção de tamanho",
-      "F1 — Descoberta até PDP → Primeiro produto clicável",
       "F9 — Filtro na coleção → Controle de filtro/sort visível",
+      "F1 — Descoberta até PDP → Primeiro produto clicável",
       "F4 — Desconto progressivo → Ir para o carrinho",
       "F7 — Navegação mobile (hamburger) → Link de coleção visível no menu",
-      "F7 — Navegação mobile (hamburger) → Abrir menu hamburger"
+      "F7 — Navegação mobile (hamburger) → Abrir menu hamburger",
+      "F1 — Descoberta até PDP → PDP exibe preço",
+      "F1 — Descoberta até PDP → PDP exibe imagem do produto",
+      "F7 — Navegação mobile (hamburger) → Navegar para coleção pelo menu"
     ]
   }
 }
