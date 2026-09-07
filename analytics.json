@@ -3,7 +3,7 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 240,
+      "fail_count": 232,
       "last_seen": "2026-09-03"
     },
     {
@@ -15,79 +15,79 @@
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 153,
-      "last_seen": "2026-08-26"
-    },
-    {
-      "check_id": "lcp",
-      "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 121,
-      "last_seen": "2026-09-04"
+      "fail_count": 148,
+      "last_seen": "2026-09-07"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 118,
-      "last_seen": "2026-09-04"
+      "fail_count": 114,
+      "last_seen": "2026-09-07"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 118,
-      "last_seen": "2026-09-04"
+      "fail_count": 114,
+      "last_seen": "2026-09-07"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 118,
+      "fail_count": 114,
+      "last_seen": "2026-09-07"
+    },
+    {
+      "check_id": "lcp",
+      "check_name": "LCP — Largest Contentful Paint",
+      "fail_count": 113,
       "last_seen": "2026-09-04"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 102,
-      "last_seen": "2026-09-04"
+      "fail_count": 97,
+      "last_seen": "2026-09-07"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 88,
+      "fail_count": 82,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 84,
+      "fail_count": 78,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "f6_checkout_start_step_2",
       "check_name": "F6 — Início de checkout → Ir para o carrinho",
-      "fail_count": 80,
+      "fail_count": 74,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_3",
       "check_name": "F6 — Início de checkout → Botão de checkout visível",
-      "fail_count": 80,
+      "fail_count": 74,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_4",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 80,
+      "fail_count": 74,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_5",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 80,
+      "fail_count": 74,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_1",
       "check_name": "F6 — Início de checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 75,
+      "fail_count": 69,
       "last_seen": "2026-08-14"
     }
   ],
@@ -595,6 +595,15 @@
       "total_falhou": 18,
       "total_erro": 10,
       "pass_rate": 88
+    },
+    {
+      "date": "2026-09-07",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 195,
+      "total_falhou": 19,
+      "total_erro": 10,
+      "pass_rate": 87
     }
   ],
   "highlights": {
@@ -609,14 +618,14 @@
       "F9 — Filtro na coleção (mobile) → Abrir painel de filtro"
     ],
     "attention": [
-      "F9 — Filtro na coleção → Controle de filtro/sort visível",
-      "F1 — Descoberta até PDP → Primeiro produto clicável",
-      "F4 — Desconto progressivo → Ir para o carrinho",
       "F7 — Navegação mobile (hamburger) → Link de coleção visível no menu",
       "F7 — Navegação mobile (hamburger) → Abrir menu hamburger",
+      "F1 — Descoberta até PDP → Primeiro produto clicável",
+      "F7 — Navegação mobile (hamburger) → Navegar para coleção pelo menu",
+      "F6 — Início de checkout → [Setup] Adicionar ao carrinho",
       "F1 — Descoberta até PDP → PDP exibe preço",
       "F1 — Descoberta até PDP → PDP exibe imagem do produto",
-      "F7 — Navegação mobile (hamburger) → Navegar para coleção pelo menu"
+      "F9 — Filtro na coleção → Aplicar primeiro filtro disponível"
     ]
   }
 }
