@@ -3,7 +3,7 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 227,
+      "fail_count": 225,
       "last_seen": "2026-09-03"
     },
     {
@@ -15,79 +15,79 @@
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 147,
+      "fail_count": 145,
       "last_seen": "2026-09-07"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
       "fail_count": 114,
-      "last_seen": "2026-09-08"
+      "last_seen": "2026-09-09"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
       "fail_count": 114,
-      "last_seen": "2026-09-08"
+      "last_seen": "2026-09-09"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
       "fail_count": 114,
-      "last_seen": "2026-09-08"
+      "last_seen": "2026-09-09"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 110,
-      "last_seen": "2026-09-08"
+      "fail_count": 109,
+      "last_seen": "2026-09-09"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 92,
-      "last_seen": "2026-09-07"
+      "fail_count": 90,
+      "last_seen": "2026-09-09"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 80,
+      "fail_count": 78,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 76,
+      "fail_count": 74,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "f6_checkout_start_step_2",
       "check_name": "F6 — Início de checkout → Ir para o carrinho",
-      "fail_count": 72,
+      "fail_count": 70,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_3",
       "check_name": "F6 — Início de checkout → Botão de checkout visível",
-      "fail_count": 72,
+      "fail_count": 70,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_4",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 72,
+      "fail_count": 70,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_5",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 72,
+      "fail_count": 70,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_1",
       "check_name": "F6 — Início de checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 67,
+      "fail_count": 65,
       "last_seen": "2026-08-14"
     }
   ],
@@ -613,6 +613,15 @@
       "total_falhou": 16,
       "total_erro": 6,
       "pass_rate": 90
+    },
+    {
+      "date": "2026-09-09",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 198,
+      "total_falhou": 16,
+      "total_erro": 10,
+      "pass_rate": 88
     }
   ],
   "highlights": {
