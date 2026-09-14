@@ -3,7 +3,7 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 225,
+      "fail_count": 211,
       "last_seen": "2026-09-03"
     },
     {
@@ -15,79 +15,79 @@
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 145,
+      "fail_count": 137,
       "last_seen": "2026-09-07"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 118,
-      "last_seen": "2026-09-11"
+      "fail_count": 114,
+      "last_seen": "2026-09-14"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 118,
-      "last_seen": "2026-09-11"
+      "fail_count": 114,
+      "last_seen": "2026-09-14"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 118,
-      "last_seen": "2026-09-11"
+      "fail_count": 114,
+      "last_seen": "2026-09-14"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 116,
-      "last_seen": "2026-09-11"
+      "fail_count": 108,
+      "last_seen": "2026-09-14"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 93,
+      "fail_count": 78,
       "last_seen": "2026-09-11"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 78,
+      "fail_count": 72,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 74,
+      "fail_count": 68,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "f6_checkout_start_step_2",
       "check_name": "F6 — Início de checkout → Ir para o carrinho",
-      "fail_count": 70,
+      "fail_count": 64,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_3",
       "check_name": "F6 — Início de checkout → Botão de checkout visível",
-      "fail_count": 70,
+      "fail_count": 64,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_4",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 70,
+      "fail_count": 64,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_5",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 70,
+      "fail_count": 64,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_1",
       "check_name": "F6 — Início de checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 65,
+      "fail_count": 59,
       "last_seen": "2026-08-14"
     }
   ],
@@ -640,28 +640,37 @@
       "total_falhou": 18,
       "total_erro": 10,
       "pass_rate": 88
+    },
+    {
+      "date": "2026-09-14",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 200,
+      "total_falhou": 18,
+      "total_erro": 6,
+      "pass_rate": 89
     }
   ],
   "highlights": {
     "always_ok": [
+      "F9 — Filtro na coleção → Controle de filtro/sort visível",
+      "F9 — Filtro na coleção → Aplicar primeiro filtro disponível",
       "F9 — Filtro na coleção → Aguardar possível popup Klaviyo",
       "F9 — Filtro na coleção → Acessar coleção",
       "F9 — Filtro na coleção (mobile) → Opção de filtro visível",
       "F9 — Filtro na coleção (mobile) → Aguardar possível popup Klaviyo",
       "F9 — Filtro na coleção (mobile) → Aguardar painel estabilizar",
-      "F9 — Filtro na coleção (mobile) → Aguardar categoria abrir",
-      "F9 — Filtro na coleção (mobile) → Acessar coleção",
-      "F9 — Filtro na coleção (mobile) → Abrir painel de filtro"
+      "F9 — Filtro na coleção (mobile) → Aguardar categoria abrir"
     ],
     "attention": [
-      "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "F4 — Desconto progressivo → Selecionar tamanho disponível (3ª unidade)",
-      "F4 — Desconto progressivo → Selecionar tamanho disponível (2ª unidade)",
-      "F4 — Desconto progressivo → Aguardar adição processar (3ª)",
-      "F4 — Desconto progressivo → Aguardar adição processar (2ª)",
-      "F4 — Desconto progressivo → Adicionar 3ª unidade ao carrinho",
-      "F4 — Desconto progressivo → Adicionar 2ª unidade ao carrinho",
-      "F4 — Desconto progressivo → Acessar produto (3ª unidade)"
+      "F6 — Início de checkout → Ir para o carrinho",
+      "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
+      "F6 — Início de checkout → Clicar em checkout",
+      "F6 — Início de checkout → Botão de checkout visível",
+      "F6 — Início de checkout → Aguardar carrinho hidratar",
+      "F9 — Filtro na coleção (mobile) → Aplicar primeira opção de filtro",
+      "F8 — Busca → Resultados de busca aparecem",
+      "F8 — Busca → Clicar no primeiro resultado"
     ]
   }
 }
