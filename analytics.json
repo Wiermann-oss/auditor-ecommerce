@@ -21,26 +21,26 @@
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 114,
-      "last_seen": "2026-09-16"
+      "fail_count": 116,
+      "last_seen": "2026-09-17"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 114,
-      "last_seen": "2026-09-16"
+      "fail_count": 116,
+      "last_seen": "2026-09-17"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 114,
-      "last_seen": "2026-09-16"
+      "fail_count": 116,
+      "last_seen": "2026-09-17"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 100,
-      "last_seen": "2026-09-15"
+      "fail_count": 102,
+      "last_seen": "2026-09-17"
     },
     {
       "check_id": "f11_popup_checkout_block_step_2",
@@ -667,6 +667,15 @@
       "total_falhou": 10,
       "total_erro": 0,
       "pass_rate": 96
+    },
+    {
+      "date": "2026-09-17",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 212,
+      "total_falhou": 12,
+      "total_erro": 0,
+      "pass_rate": 95
     }
   ],
   "highlights": {
@@ -681,11 +690,11 @@
       "F9 — Filtro na coleção (mobile) → Aguardar categoria abrir"
     ],
     "attention": [
-      "F6 — Início de checkout → Aguardar carrinho hidratar",
       "F6 — Início de checkout → Ir para o carrinho",
       "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
       "F6 — Início de checkout → Clicar em checkout",
       "F6 — Início de checkout → Botão de checkout visível",
+      "F6 — Início de checkout → Aguardar carrinho hidratar",
       "F9 — Filtro na coleção (mobile) → Aplicar primeira opção de filtro",
       "F8 — Busca → Resultados de busca aparecem",
       "F8 — Busca → Clicar no primeiro resultado"
