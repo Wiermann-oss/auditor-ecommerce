@@ -3,50 +3,44 @@
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 202,
+      "fail_count": 160,
       "last_seen": "2026-09-03"
-    },
-    {
-      "check_id": "http_status",
-      "check_name": "Status HTTP",
-      "fail_count": 154,
-      "last_seen": "2026-09-01"
     },
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 133,
+      "fail_count": 121,
       "last_seen": "2026-09-07"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 118,
-      "last_seen": "2026-09-18"
+      "fail_count": 114,
+      "last_seen": "2026-09-21"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 118,
-      "last_seen": "2026-09-18"
+      "fail_count": 114,
+      "last_seen": "2026-09-21"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 118,
-      "last_seen": "2026-09-18"
+      "fail_count": 114,
+      "last_seen": "2026-09-21"
+    },
+    {
+      "check_id": "http_status",
+      "check_name": "Status HTTP",
+      "fail_count": 112,
+      "last_seen": "2026-09-01"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 104,
-      "last_seen": "2026-09-18"
-    },
-    {
-      "check_id": "f11_popup_checkout_block_step_2",
-      "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 68,
-      "last_seen": "2026-08-17"
+      "fail_count": 103,
+      "last_seen": "2026-09-21"
     },
     {
       "check_id": "failed_requests",
@@ -55,52 +49,49 @@
       "last_seen": "2026-09-11"
     },
     {
+      "check_id": "f11_popup_checkout_block_step_2",
+      "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
+      "fail_count": 62,
+      "last_seen": "2026-08-17"
+    },
+    {
       "check_id": "f11_popup_checkout_block_step_1",
       "check_name": "F11 — Popup não dispara no checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 64,
+      "fail_count": 58,
       "last_seen": "2026-08-17"
     },
     {
       "check_id": "f6_checkout_start_step_2",
       "check_name": "F6 — Início de checkout → Ir para o carrinho",
-      "fail_count": 60,
+      "fail_count": 54,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_3",
       "check_name": "F6 — Início de checkout → Botão de checkout visível",
-      "fail_count": 60,
+      "fail_count": 54,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_4",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 60,
+      "fail_count": 54,
       "last_seen": "2026-08-14"
     },
     {
       "check_id": "f6_checkout_start_step_5",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 60,
+      "fail_count": 54,
       "last_seen": "2026-08-14"
     },
     {
-      "check_id": "f6_checkout_start_step_1",
-      "check_name": "F6 — Início de checkout → [Setup] Adicionar ao carrinho",
-      "fail_count": 55,
-      "last_seen": "2026-08-14"
+      "check_id": "f11_popup_checkout_block_step_3",
+      "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
+      "fail_count": 52,
+      "last_seen": "2026-09-21"
     }
   ],
   "daily": [
-    {
-      "date": "2026-06-22",
-      "run_count": 3,
-      "total_checks": 1301,
-      "total_passou": 647,
-      "total_falhou": 521,
-      "total_erro": 133,
-      "pass_rate": 50
-    },
     {
       "date": "2026-06-23",
       "run_count": 4,
@@ -676,6 +667,15 @@
       "total_falhou": 12,
       "total_erro": 0,
       "pass_rate": 95
+    },
+    {
+      "date": "2026-09-21",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 209,
+      "total_falhou": 15,
+      "total_erro": 0,
+      "pass_rate": 93
     }
   ],
   "highlights": {
