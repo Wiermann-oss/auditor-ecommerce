@@ -7,34 +7,34 @@
       "last_seen": "2026-09-03"
     },
     {
-      "check_id": "cls",
-      "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 114,
-      "last_seen": "2026-09-07"
-    },
-    {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 114,
-      "last_seen": "2026-09-23"
+      "fail_count": 116,
+      "last_seen": "2026-09-24"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 114,
-      "last_seen": "2026-09-23"
+      "fail_count": 116,
+      "last_seen": "2026-09-24"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 114,
-      "last_seen": "2026-09-23"
+      "fail_count": 116,
+      "last_seen": "2026-09-24"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 110,
-      "last_seen": "2026-09-23"
+      "fail_count": 116,
+      "last_seen": "2026-09-24"
+    },
+    {
+      "check_id": "cls",
+      "check_name": "CLS — Cumulative Layout Shift",
+      "fail_count": 114,
+      "last_seen": "2026-09-07"
     },
     {
       "check_id": "http_status",
@@ -57,8 +57,8 @@
     {
       "check_id": "f11_popup_checkout_block_step_3",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 56,
-      "last_seen": "2026-09-23"
+      "fail_count": 58,
+      "last_seen": "2026-09-24"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
@@ -92,15 +92,6 @@
     }
   ],
   "daily": [
-    {
-      "date": "2026-06-25",
-      "run_count": 1,
-      "total_checks": 181,
-      "total_passou": 78,
-      "total_falhou": 63,
-      "total_erro": 40,
-      "pass_rate": 43
-    },
     {
       "date": "2026-06-26",
       "run_count": 4,
@@ -676,6 +667,15 @@
       "total_falhou": 15,
       "total_erro": 0,
       "pass_rate": 93
+    },
+    {
+      "date": "2026-09-24",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 208,
+      "total_falhou": 16,
+      "total_erro": 0,
+      "pass_rate": 93
     }
   ],
   "highlights": {
@@ -690,14 +690,14 @@
       "F9 — Filtro na coleção (mobile) → Aguardar categoria abrir"
     ],
     "attention": [
+      "LCP — Largest Contentful Paint",
       "F4 — Desconto progressivo → Desconto por volume visível no carrinho (app Discounty)",
       "F6 — Início de checkout → Ir para o carrinho",
       "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
       "F6 — Início de checkout → Clicar em checkout",
       "F6 — Início de checkout → Botão de checkout visível",
       "F6 — Início de checkout → Aguardar carrinho hidratar",
-      "F9 — Filtro na coleção (mobile) → Aplicar primeira opção de filtro",
-      "F8 — Busca → Resultados de busca aparecem"
+      "F9 — Filtro na coleção (mobile) → Aplicar primeira opção de filtro"
     ]
   }
 }
