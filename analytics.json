@@ -9,26 +9,26 @@
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 116,
-      "last_seen": "2026-09-24"
+      "fail_count": 118,
+      "last_seen": "2026-09-25"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 116,
-      "last_seen": "2026-09-24"
+      "fail_count": 118,
+      "last_seen": "2026-09-25"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 116,
-      "last_seen": "2026-09-24"
+      "fail_count": 118,
+      "last_seen": "2026-09-25"
     },
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 116,
-      "last_seen": "2026-09-24"
+      "fail_count": 117,
+      "last_seen": "2026-09-25"
     },
     {
       "check_id": "cls",
@@ -49,16 +49,16 @@
       "last_seen": "2026-09-11"
     },
     {
+      "check_id": "f11_popup_checkout_block_step_3",
+      "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
+      "fail_count": 60,
+      "last_seen": "2026-09-25"
+    },
+    {
       "check_id": "f11_popup_checkout_block_step_2",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
       "fail_count": 58,
       "last_seen": "2026-08-17"
-    },
-    {
-      "check_id": "f11_popup_checkout_block_step_3",
-      "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 58,
-      "last_seen": "2026-09-24"
     },
     {
       "check_id": "f11_popup_checkout_block_step_1",
@@ -92,15 +92,6 @@
     }
   ],
   "daily": [
-    {
-      "date": "2026-06-26",
-      "run_count": 4,
-      "total_checks": 762,
-      "total_passou": 335,
-      "total_falhou": 253,
-      "total_erro": 174,
-      "pass_rate": 44
-    },
     {
       "date": "2026-06-29",
       "run_count": 6,
@@ -676,6 +667,15 @@
       "total_falhou": 16,
       "total_erro": 0,
       "pass_rate": 93
+    },
+    {
+      "date": "2026-09-25",
+      "run_count": 1,
+      "total_checks": 219,
+      "total_passou": 207,
+      "total_falhou": 11,
+      "total_erro": 1,
+      "pass_rate": 95
     }
   ],
   "highlights": {
