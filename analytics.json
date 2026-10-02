@@ -3,26 +3,26 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 110,
-      "last_seen": "2026-09-30"
+      "fail_count": 117,
+      "last_seen": "2026-10-02"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 104,
-      "last_seen": "2026-10-01"
+      "fail_count": 106,
+      "last_seen": "2026-10-02"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 104,
-      "last_seen": "2026-10-01"
+      "fail_count": 106,
+      "last_seen": "2026-10-02"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 104,
-      "last_seen": "2026-10-01"
+      "fail_count": 106,
+      "last_seen": "2026-10-02"
     },
     {
       "check_id": "cls",
@@ -33,8 +33,8 @@
     {
       "check_id": "f11_popup_checkout_block_step_3",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 68,
-      "last_seen": "2026-10-01"
+      "fail_count": 70,
+      "last_seen": "2026-10-02"
     },
     {
       "check_id": "failed_requests",
@@ -92,15 +92,6 @@
     }
   ],
   "daily": [
-    {
-      "date": "2026-07-03",
-      "run_count": 1,
-      "total_checks": 195,
-      "total_passou": 110,
-      "total_falhou": 45,
-      "total_erro": 40,
-      "pass_rate": 56
-    },
     {
       "date": "2026-07-06",
       "run_count": 1,
@@ -676,18 +667,27 @@
       "total_falhou": 11,
       "total_erro": 1,
       "pass_rate": 94
+    },
+    {
+      "date": "2026-10-02",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 207,
+      "total_falhou": 17,
+      "total_erro": 0,
+      "pass_rate": 92
     }
   ],
   "highlights": {
     "always_ok": [
+      "Status HTTP",
       "Popup 'Popup de captura (Lead) — Klaviyo' — scroll não bloqueado após fechar",
       "Popup 'Popup de captura (Lead) — Klaviyo' — não dispara em loop",
       "Popup 'Popup de captura (Lead) — Klaviyo' — fechar funciona",
       "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay",
       "Popup 'Popup de captura (Lead) — Klaviyo' — clique não bloqueado após fechar",
       "Popup 'Popup de captura (Lead) — Klaviyo' — botão de fechar visível",
-      "F9 — Filtro na coleção → Controle de filtro/sort visível",
-      "F9 — Filtro na coleção → Aplicar primeiro filtro disponível"
+      "F9 — Filtro na coleção → Controle de filtro/sort visível"
     ],
     "attention": [
       "LCP — Largest Contentful Paint",
