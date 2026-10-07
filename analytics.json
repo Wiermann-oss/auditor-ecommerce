@@ -3,37 +3,37 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 114,
-      "last_seen": "2026-10-06"
+      "fail_count": 118,
+      "last_seen": "2026-10-07"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
       "fail_count": 100,
-      "last_seen": "2026-10-06"
+      "last_seen": "2026-10-07"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
       "fail_count": 100,
-      "last_seen": "2026-10-06"
+      "last_seen": "2026-10-07"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
       "fail_count": 100,
-      "last_seen": "2026-10-06"
+      "last_seen": "2026-10-07"
     },
     {
       "check_id": "f11_popup_checkout_block_step_3",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 72,
-      "last_seen": "2026-10-06"
+      "fail_count": 74,
+      "last_seen": "2026-10-07"
     },
     {
       "check_id": "cls",
       "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 61,
+      "fail_count": 56,
       "last_seen": "2026-09-07"
     },
     {
@@ -57,14 +57,14 @@
     {
       "check_id": "f6_checkout_start_step_7",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 34,
-      "last_seen": "2026-10-06"
+      "fail_count": 36,
+      "last_seen": "2026-10-07"
     },
     {
       "check_id": "f6_checkout_start_step_8",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 34,
-      "last_seen": "2026-10-06"
+      "fail_count": 36,
+      "last_seen": "2026-10-07"
     },
     {
       "check_id": "f6_checkout_start_step_4",
@@ -85,22 +85,13 @@
       "last_seen": "2026-09-14"
     },
     {
-      "check_id": "f11_popup_checkout_block_step_2",
-      "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 28,
-      "last_seen": "2026-08-17"
+      "check_id": "f4_progressive_discount_step_8",
+      "check_name": "F4 — Desconto progressivo → Desconto por volume visível no carrinho (app Discounty)",
+      "fail_count": 30,
+      "last_seen": "2026-10-07"
     }
   ],
   "daily": [
-    {
-      "date": "2026-07-08",
-      "run_count": 1,
-      "total_checks": 195,
-      "total_passou": 111,
-      "total_falhou": 44,
-      "total_erro": 40,
-      "pass_rate": 57
-    },
     {
       "date": "2026-07-09",
       "run_count": 1,
@@ -667,6 +658,15 @@
       "total_falhou": 18,
       "total_erro": 2,
       "pass_rate": 91
+    },
+    {
+      "date": "2026-10-07",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 206,
+      "total_falhou": 16,
+      "total_erro": 2,
+      "pass_rate": 92
     }
   ],
   "highlights": {
