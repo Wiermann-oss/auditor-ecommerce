@@ -3,32 +3,32 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 118,
-      "last_seen": "2026-10-07"
+      "fail_count": 119,
+      "last_seen": "2026-10-08"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 100,
-      "last_seen": "2026-10-07"
+      "fail_count": 102,
+      "last_seen": "2026-10-08"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 100,
-      "last_seen": "2026-10-07"
+      "fail_count": 102,
+      "last_seen": "2026-10-08"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 100,
-      "last_seen": "2026-10-07"
+      "fail_count": 102,
+      "last_seen": "2026-10-08"
     },
     {
       "check_id": "f11_popup_checkout_block_step_3",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 74,
-      "last_seen": "2026-10-07"
+      "fail_count": 76,
+      "last_seen": "2026-10-08"
     },
     {
       "check_id": "cls",
@@ -51,20 +51,26 @@
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 45,
-      "last_seen": "2026-10-06"
+      "fail_count": 50,
+      "last_seen": "2026-10-08"
     },
     {
       "check_id": "f6_checkout_start_step_7",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 36,
-      "last_seen": "2026-10-07"
+      "fail_count": 38,
+      "last_seen": "2026-10-08"
     },
     {
       "check_id": "f6_checkout_start_step_8",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 36,
-      "last_seen": "2026-10-07"
+      "fail_count": 38,
+      "last_seen": "2026-10-08"
+    },
+    {
+      "check_id": "f4_progressive_discount_step_8",
+      "check_name": "F4 — Desconto progressivo → Desconto por volume visível no carrinho (app Discounty)",
+      "fail_count": 32,
+      "last_seen": "2026-10-08"
     },
     {
       "check_id": "f6_checkout_start_step_4",
@@ -83,24 +89,9 @@
       "check_name": "F6 — Início de checkout → Botão de checkout visível",
       "fail_count": 32,
       "last_seen": "2026-09-14"
-    },
-    {
-      "check_id": "f4_progressive_discount_step_8",
-      "check_name": "F4 — Desconto progressivo → Desconto por volume visível no carrinho (app Discounty)",
-      "fail_count": 30,
-      "last_seen": "2026-10-07"
     }
   ],
   "daily": [
-    {
-      "date": "2026-07-09",
-      "run_count": 1,
-      "total_checks": 193,
-      "total_passou": 102,
-      "total_falhou": 50,
-      "total_erro": 41,
-      "pass_rate": 53
-    },
     {
       "date": "2026-07-10",
       "run_count": 1,
@@ -667,6 +658,15 @@
       "total_falhou": 16,
       "total_erro": 2,
       "pass_rate": 92
+    },
+    {
+      "date": "2026-10-08",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 195,
+      "total_falhou": 27,
+      "total_erro": 2,
+      "pass_rate": 87
     }
   ],
   "highlights": {
@@ -681,14 +681,14 @@
       "F9 — Filtro na coleção → Controle de filtro/sort visível"
     ],
     "attention": [
-      "F6 — Início de checkout → Ir para o carrinho",
-      "F6 — Início de checkout → Botão de checkout visível",
-      "F6 — Início de checkout → Aguardar carrinho hidratar",
-      "LCP — Largest Contentful Paint",
       "F9 — Filtro na coleção (mobile) → Aplicar primeira opção de filtro",
       "F8 — Busca → Resultados de busca aparecem",
       "F8 — Busca → Clicar no primeiro resultado",
-      "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)"
+      "LCP — Largest Contentful Paint",
+      "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
+      "F6 — Início de checkout → Clicar em checkout",
+      "F4 — Desconto progressivo → Desconto por volume visível no carrinho (app Discounty)",
+      "F11 — Popup não dispara no checkout → Ir para o checkout"
     ]
   }
 }
