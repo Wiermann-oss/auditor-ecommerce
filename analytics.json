@@ -3,38 +3,32 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 120,
+      "fail_count": 117,
       "last_seen": "2026-10-09"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 104,
-      "last_seen": "2026-10-09"
+      "fail_count": 98,
+      "last_seen": "2026-10-12"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 104,
-      "last_seen": "2026-10-09"
+      "fail_count": 98,
+      "last_seen": "2026-10-12"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 104,
-      "last_seen": "2026-10-09"
+      "fail_count": 98,
+      "last_seen": "2026-10-12"
     },
     {
       "check_id": "f11_popup_checkout_block_step_3",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 78,
-      "last_seen": "2026-10-09"
-    },
-    {
-      "check_id": "cls",
-      "check_name": "CLS — Cumulative Layout Shift",
-      "fail_count": 56,
-      "last_seen": "2026-09-07"
+      "fail_count": 80,
+      "last_seen": "2026-10-12"
     },
     {
       "check_id": "f8_search_step_6",
@@ -49,28 +43,34 @@
       "last_seen": "2026-09-14"
     },
     {
+      "check_id": "cls",
+      "check_name": "CLS — Cumulative Layout Shift",
+      "fail_count": 47,
+      "last_seen": "2026-09-07"
+    },
+    {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 50,
-      "last_seen": "2026-10-08"
+      "fail_count": 46,
+      "last_seen": "2026-10-12"
     },
     {
       "check_id": "f6_checkout_start_step_7",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 40,
-      "last_seen": "2026-10-09"
+      "fail_count": 42,
+      "last_seen": "2026-10-12"
     },
     {
       "check_id": "f6_checkout_start_step_8",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 40,
-      "last_seen": "2026-10-09"
+      "fail_count": 42,
+      "last_seen": "2026-10-12"
     },
     {
       "check_id": "f4_progressive_discount_step_8",
       "check_name": "F4 — Desconto progressivo → Desconto por volume visível no carrinho (app Discounty)",
-      "fail_count": 34,
-      "last_seen": "2026-10-09"
+      "fail_count": 36,
+      "last_seen": "2026-10-12"
     },
     {
       "check_id": "f6_checkout_start_step_4",
@@ -92,15 +92,6 @@
     }
   ],
   "daily": [
-    {
-      "date": "2026-07-13",
-      "run_count": 1,
-      "total_checks": 195,
-      "total_passou": 108,
-      "total_falhou": 47,
-      "total_erro": 40,
-      "pass_rate": 55
-    },
     {
       "date": "2026-07-14",
       "run_count": 1,
@@ -665,6 +656,15 @@
       "total_checks": 224,
       "total_passou": 208,
       "total_falhou": 14,
+      "total_erro": 2,
+      "pass_rate": 93
+    },
+    {
+      "date": "2026-10-12",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 209,
+      "total_falhou": 13,
       "total_erro": 2,
       "pass_rate": 93
     }
