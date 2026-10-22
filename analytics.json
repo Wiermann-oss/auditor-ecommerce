@@ -3,49 +3,49 @@
     {
       "check_id": "lcp",
       "check_name": "LCP — Largest Contentful Paint",
-      "fail_count": 109,
-      "last_seen": "2026-10-20"
+      "fail_count": 110,
+      "last_seen": "2026-10-22"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 84,
-      "last_seen": "2026-10-21"
+      "fail_count": 86,
+      "last_seen": "2026-10-22"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 84,
-      "last_seen": "2026-10-21"
+      "fail_count": 86,
+      "last_seen": "2026-10-22"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 84,
-      "last_seen": "2026-10-21"
+      "fail_count": 86,
+      "last_seen": "2026-10-22"
     },
     {
       "check_id": "f11_popup_checkout_block_step_3",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 84,
-      "last_seen": "2026-10-21"
+      "fail_count": 86,
+      "last_seen": "2026-10-22"
+    },
+    {
+      "check_id": "f6_checkout_start_step_7",
+      "check_name": "F6 — Início de checkout → Clicar em checkout",
+      "fail_count": 50,
+      "last_seen": "2026-10-22"
+    },
+    {
+      "check_id": "f6_checkout_start_step_8",
+      "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
+      "fail_count": 50,
+      "last_seen": "2026-10-22"
     },
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
       "fail_count": 49,
-      "last_seen": "2026-10-21"
-    },
-    {
-      "check_id": "f6_checkout_start_step_7",
-      "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 48,
-      "last_seen": "2026-10-21"
-    },
-    {
-      "check_id": "f6_checkout_start_step_8",
-      "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 48,
       "last_seen": "2026-10-21"
     },
     {
@@ -92,15 +92,6 @@
     }
   ],
   "daily": [
-    {
-      "date": "2026-07-23",
-      "run_count": 1,
-      "total_checks": 195,
-      "total_passou": 71,
-      "total_falhou": 67,
-      "total_erro": 57,
-      "pass_rate": 36
-    },
     {
       "date": "2026-07-24",
       "run_count": 1,
@@ -667,6 +658,15 @@
       "total_falhou": 34,
       "total_erro": 2,
       "pass_rate": 84
+    },
+    {
+      "date": "2026-10-22",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 211,
+      "total_falhou": 11,
+      "total_erro": 2,
+      "pass_rate": 94
     }
   ],
   "highlights": {
@@ -681,7 +681,6 @@
       "F9 — Filtro na coleção → Controle de filtro/sort visível"
     ],
     "attention": [
-      "LCP — Largest Contentful Paint",
       "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
       "F6 — Início de checkout → Clicar em checkout",
       "F4 — Desconto progressivo → Desconto por volume visível no carrinho (app Discounty)",
