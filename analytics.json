@@ -3,38 +3,38 @@
     {
       "check_id": "failed_requests",
       "check_name": "Requisições de rede com falha",
-      "fail_count": 108,
-      "last_seen": "2026-11-19"
+      "fail_count": 111,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "console_errors",
       "check_name": "Erros de JavaScript no console",
-      "fail_count": 88,
-      "last_seen": "2026-11-19"
+      "fail_count": 91,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "f10_account_login_step_0",
       "check_name": "F10 — Login (render) → Página de login renderiza",
-      "fail_count": 86,
-      "last_seen": "2026-11-19"
+      "fail_count": 88,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "f10_account_login_step_1",
       "check_name": "F10 — Login (render) → Botão de submit visível",
-      "fail_count": 86,
-      "last_seen": "2026-11-19"
+      "fail_count": 88,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "f10_account_login_step_2",
       "check_name": "F10 — Login (render) → Validação de campo vazio dispara",
-      "fail_count": 86,
-      "last_seen": "2026-11-19"
+      "fail_count": 88,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "f11_popup_checkout_block_step_3",
       "check_name": "F11 — Popup não dispara no checkout → Ir para o checkout",
-      "fail_count": 86,
-      "last_seen": "2026-11-19"
+      "fail_count": 88,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "lcp",
@@ -45,62 +45,53 @@
     {
       "check_id": "f6_checkout_start_step_7",
       "check_name": "F6 — Início de checkout → Clicar em checkout",
-      "fail_count": 66,
-      "last_seen": "2026-11-19"
+      "fail_count": 68,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "f6_checkout_start_step_8",
       "check_name": "F6 — Início de checkout → Formulário de checkout renderizado (campo de e-mail)",
-      "fail_count": 66,
-      "last_seen": "2026-11-19"
+      "fail_count": 68,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "f1_discovery_pdp_step_5",
       "check_name": "F1 — Descoberta até PDP → PDP exibe imagem do produto",
-      "fail_count": 28,
-      "last_seen": "2026-11-19"
-    },
-    {
-      "check_id": "f4_progressive_discount_step_8",
-      "check_name": "F4 — Desconto progressivo → Desconto por volume visível no carrinho (app Discounty)",
-      "fail_count": 28,
-      "last_seen": "2026-10-12"
+      "fail_count": 30,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "popup_botao_fechar",
       "check_name": "Popup 'Popup de captura (Lead) — Klaviyo' — botão de fechar visível",
-      "fail_count": 28,
-      "last_seen": "2026-11-19"
+      "fail_count": 30,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "popup_click_block",
       "check_name": "Popup 'Popup de captura (Lead) — Klaviyo' — clique não bloqueado após fechar",
-      "fail_count": 28,
-      "last_seen": "2026-11-19"
+      "fail_count": 30,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "popup_dispara",
       "check_name": "Popup 'Popup de captura (Lead) — Klaviyo' — dispara após delay",
-      "fail_count": 28,
-      "last_seen": "2026-11-19"
+      "fail_count": 30,
+      "last_seen": "2026-11-20"
     },
     {
       "check_id": "popup_fechar_funciona",
       "check_name": "Popup 'Popup de captura (Lead) — Klaviyo' — fechar funciona",
-      "fail_count": 28,
-      "last_seen": "2026-11-19"
+      "fail_count": 30,
+      "last_seen": "2026-11-20"
+    },
+    {
+      "check_id": "popup_loop",
+      "check_name": "Popup 'Popup de captura (Lead) — Klaviyo' — não dispara em loop",
+      "fail_count": 30,
+      "last_seen": "2026-11-20"
     }
   ],
   "daily": [
-    {
-      "date": "2026-08-21",
-      "run_count": 1,
-      "total_checks": 224,
-      "total_passou": 200,
-      "total_falhou": 18,
-      "total_erro": 6,
-      "pass_rate": 89
-    },
     {
       "date": "2026-08-24",
       "run_count": 1,
@@ -667,6 +658,15 @@
       "total_falhou": 21,
       "total_erro": 14,
       "pass_rate": 84
+    },
+    {
+      "date": "2026-11-20",
+      "run_count": 1,
+      "total_checks": 224,
+      "total_passou": 187,
+      "total_falhou": 23,
+      "total_erro": 14,
+      "pass_rate": 83
     }
   ],
   "highlights": {
